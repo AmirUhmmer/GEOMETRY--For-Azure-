@@ -22,7 +22,7 @@ app.use(session({
 
 
 // Serve static files from 'wwwroot' directory
-app.use(express.static(path.join(__dirname, 'wwwroot', 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Use session middleware
@@ -33,7 +33,7 @@ app.use(session({
 
 // Serve index.html for the root path
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'wwwroot', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 

@@ -19,7 +19,14 @@ const config = {
         encrypt: true,
         enableArithAbort: true,
         trustServerCertificate: true, // Change to false in production for a secure setup
-    }
+    },
+    pool: {
+        max: 10, // Maximum number of connections in the pool
+        min: 0,  // Minimum number of connections in the pool
+        idleTimeoutMillis: 30000 // Close idle connections after 30 seconds
+    },
+    requestTimeout: 60000,  // Increase request timeout to 60 seconds
+    connectionTimeout: 30000  // Increase connection timeout to 30 seconds
 };
 
 let router = express.Router();

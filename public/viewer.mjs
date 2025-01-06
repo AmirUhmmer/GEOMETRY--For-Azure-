@@ -288,8 +288,11 @@ export function loadModel(viewer, urns) {
                         // Check if the loaded model is named "DB8"
                         let LiveData = localStorage.getItem('LiveData');
                         console.log(LiveData);
-                        if (LiveData === 'DB8' && selectedLevelIndex !== undefined) {
+                        if (LiveData === 'NOT YET LIVE' && selectedLevelIndex !== undefined) {
                             HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
+                            SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
+                        }
+                        else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
                             SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                         }
                     });

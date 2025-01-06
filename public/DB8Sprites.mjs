@@ -10,16 +10,7 @@ export async function SPRITES(viewer, selectedFloor) {
       console.error('Error loading the DataVisualization extension.');
     }
 
-
-    // Render the heatmap for the selected floor
-    if (selectedFloor === 1) {
-    }
-    else if (selectedFloor === 2) {
-
-    }
-    else if (selectedFloor === 0){
-
-    }
+    console.log('TEST: ' + selectedFloor)
 
 
     const DataVizCore = Autodesk.DataVisualization.Core;
@@ -102,13 +93,30 @@ export async function SPRITES(viewer, selectedFloor) {
       
       // Add the viewables to the extension
       extension0.addViewables(viewableData);
+
+
+      // Check if selectedFloor is undefined
+    if (typeof selectedFloor === 'undefined') {
+      // Get all models loaded in the viewer
+      const allModels = viewer.getAllModels();
+
+      // Loop through each model and hide all viewables (sprites)
+      allModels.forEach((model) => {
+          extension0.showHideViewables(false);
+          console.log(`Hiding all viewables for model: ${model.id}`);
+      });
+
+      console.log('All viewables should now be hidden across all models.');
+    }
+
       viewer.addEventListener(DataVizCore.MOUSE_CLICK, (event) => onSpriteClicked(event, viewer));
       console.log('Viewables added to the extension successfully!');
     } catch (error) {
       // Catch any errors that occur during the process
       console.error('Error adding viewables:', error);
     }
-    
+
+
 
 }
 
