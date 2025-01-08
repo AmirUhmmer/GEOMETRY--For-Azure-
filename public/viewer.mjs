@@ -232,21 +232,30 @@ export function initViewer(container) {
 export function loadModel(viewer, urns) {
     const loadOptions = {
         globalOffset: { x: 0, y: 0, z: 0 },  // force all models to origin
-        placementTransform: (new THREE.Matrix4()).setPosition({ x: 0, y: 0, z: 0 })  // Force placement to origin
+        placementTransform: (new THREE.Matrix4()).setPosition({ x: 0, y: 0, z: 0 }),  // Force placement to origin
+        keepCurrentModels: true // Keeps existing models in the viewer
     };
 
+    let modelsToLoad = urns;
+
     // Track the number of models to load and the count of successfully loaded models
-    let modelsToLoad = urns.length ? urns : [
-        { name: '3D - dsa3J29U', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMw' },
-        { name: 'SMY-DB8-SITE', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnNSZk9sS1BJVE1HM3pTZ0JvZUYzV3c/dmVyc2lvbj00' },
-        { name: 'SMY-DB8-xxx-SIT-R24', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg' }
-    ];
+    // let modelsToLoad = urns.length ? urns : [
+    //     { name: '3D - dsa3J29U', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMw' },
+    //     { name: 'SMY-DB8-SITE', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnNSZk9sS1BJVE1HM3pTZ0JvZUYzV3c/dmVyc2lvbj00' },
+    //     { name: 'SMY-DB8-xxx-SIT-R24', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg' }
+    // ];
 
     let modelsLoaded = 0; // Keep track of how many models have loaded
 
+    console.log(modelsToLoad);
+
     function checkAllModelsLoaded() {
+        console.log("CHECK: " + modelsLoaded);
+
         if (modelsLoaded === modelsToLoad.length) {
             console.log("All models have been loaded.");
+            const models = viewer.impl.modelQueue().getModels();
+            console.log(models);
             // Perform actions only when all models are loaded
             if (viewer.model) {
                 viewer.loadExtension('Autodesk.DataVisualization').then(() => {
@@ -290,7 +299,7 @@ export function loadModel(viewer, urns) {
                         console.log(LiveData);
                         if (LiveData === 'NOT YET LIVE' && selectedLevelIndex !== undefined) {
                             HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
-                            SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
+                            // SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                         }
                         else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
                             SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
@@ -389,30 +398,54 @@ export function loadModel(viewer, urns) {
     }
 
     // Success handler for loading individual models
-    function onDocumentLoadSuccess(doc) {
+    async function onDocumentLoadSuccess(doc) {
+        console.log("Model loaded successfully:", doc);
+        
         let viewables = doc.getRoot().getDefaultGeometry();
-        viewer.loadDocumentNode(doc, viewables, loadOptions)
-            .then(() => {
-                modelsLoaded++;
-                checkAllModelsLoaded();  // Check if all models are loaded
-            })
-            .catch((error) => {
-                console.error("Could not load model.", error);
-                alert("Error loading model. See console for details.");
-            });
+
+        try {
+            // Load the document node and aggregate models in the viewer
+            const node = await viewer.loadDocumentNode(doc, viewables, loadOptions);
+            console.log("Model node loaded into viewer:", node);
+
+            modelsLoaded++;  // Increment after successful load
+            checkAllModelsLoaded();  // Check if all models are loaded
+        } catch (error) {
+            console.error("Error loading model into viewer:", error);
+            alert("Error loading model into viewer. See console for details.");
+        }
     }
 
-    // Failure handler for model loading
+    // Failure handler for loading models
     function onDocumentLoadFailure(code, message) {
         console.error("Failed to load model:", message);
         alert("Could not load model. See console for details.");
     }
 
-    // Load each model
-    modelsToLoad.forEach((model) => {
-        console.log(`Loading model: ${model.name || "Unnamed"} with URN: ${model.urn}`);
-        Autodesk.Viewing.Document.load('urn:' + model, onDocumentLoadSuccess, onDocumentLoadFailure);
-    });
+    // Async function to load all models
+    async function loadModels() {
+        for (let model of modelsToLoad) {
+            console.log(`Attempting to load model with URN: urn:${model}`);
+            
+            // Load the model document and wait for the load to complete before moving to the next
+            await new Promise((resolve, reject) => {
+                Autodesk.Viewing.Document.load(
+                    'urn:' + model, 
+                    async (doc) => {
+                        // Load and aggregate each model without replacing the previous one
+                        await onDocumentLoadSuccess(doc).then(resolve).catch(reject);
+                    }, 
+                    onDocumentLoadFailure
+                );
+            });
+        }
+    }
+
+    // Load each model sequentially
+    loadModels();
+
+
+
 }
 
 

@@ -215,6 +215,14 @@ export async function HEATMAP(viewer, selectedFloor) {
                             // Explicitly log the model being rendered
                             console.log(`Rendering on model:`, model);
 
+                            // Register shading colors globally
+                            extension0.registerSurfaceShadingColors("TEMP", [
+                                0x0000ff, // Blue
+                                0x00ff00, // Green
+                                0xff0000  // Red
+                            ]);
+
+
                             // Render surface shading for the specific node within this model context
                             extension0.renderSurfaceShading(node.name, "TEMP", () => sensorValue);
                         } else {
