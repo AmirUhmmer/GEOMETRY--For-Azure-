@@ -401,45 +401,45 @@ export function loadModel(viewer, urns) {
                 // ENABLE IF WANT TO SEARCH OBJECT IN MODEL
 
 
-                const overlay = document.getElementById('overlay');
+                // const overlay = document.getElementById('overlay');
 
-                overlay.style.visibility = 'visible';
+                // overlay.style.visibility = 'visible';
 
 
-                document.getElementById("search").addEventListener("click", function first() {
-                    // viewer.search(
-                    //   document.getElementById("filter").value,
-                    //   function (dbIDs) {
-                    //     viewer.isolate(dbIDs);
-                    //     viewer.fitToView(dbIDs);
-                    // });
+                // document.getElementById("search").addEventListener("click", function first() {
+                //     // viewer.search(
+                //     //   document.getElementById("filter").value,
+                //     //   function (dbIDs) {
+                //     //     viewer.isolate(dbIDs);
+                //     //     viewer.fitToView(dbIDs);
+                //     // });
 
-                    viewer.search(document.getElementById("filter").value, function(dbIDs) {
+                //     viewer.search(document.getElementById("filter").value, function(dbIDs) {
 
-                        // Loop through the models only once
-                        models.forEach(model => {
-                            // Hide all objects first
-                            viewer.isolate([], model);
+                //         // Loop through the models only once
+                //         models.forEach(model => {
+                //             // Hide all objects first
+                //             viewer.isolate([], model);
 
-                            // Isolate the found objects
-                            viewer.isolate(dbIDs, model);
-                        });
+                //             // Isolate the found objects
+                //             viewer.isolate(dbIDs, model);
+                //         });
 
-                        // Fit to view and highlight the found objects
-                        viewer.fitToView(dbIDs);
+                //         // Fit to view and highlight the found objects
+                //         viewer.fitToView(dbIDs);
 
-                        const color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
-                        viewer.setThemingColor(dbIDs, color);  // Optionally highlight the objects
+                //         const color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
+                //         viewer.setThemingColor(dbIDs, color);  // Optionally highlight the objects
 
-                        viewer.setSelectionColor(new THREE.Color(1, 0, 0));  // RGB: red, green, blue
-                        viewer.select(dbIDs);  // Optionally highlight the objects
+                //         viewer.setSelectionColor(new THREE.Color(1, 0, 0));  // RGB: red, green, blue
+                //         viewer.select(dbIDs);  // Optionally highlight the objects
             
-                        // Disable further selections after this point
+                //         // Disable further selections after this point
                         
-                    }, function(error) {
-                        console.error('Search error:', error);  // Handle any potential search errors
-                    });
-                });
+                //     }, function(error) {
+                //         console.error('Search error:', error);  // Handle any potential search errors
+                //     });
+                // });
             }
         }
     }
