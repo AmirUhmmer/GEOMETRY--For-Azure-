@@ -212,6 +212,7 @@ async function initApp() {
             let recordId = params["id"];     // The unique identifier (GUID) of the record
             let property = params["property"];  // The property value, if it exists
             let uniqueID = params["uniqueID"];  // The uniqueID, if it exists
+            let BIM = params["BIM"];  // The uniqueID, if it exists
 
             if (uniqueID) {
                 localStorage.setItem('uniqueID', uniqueID);
@@ -224,6 +225,13 @@ async function initApp() {
                 property = decodeURIComponent(property); // Decode the URL encoded property value
                 console.log("Decoded Property:", property);  // Logs the decoded property value
             }
+
+            if (BIM) {
+                console.log("BIM stored :", BIM);
+            } else {
+                BIM = 'false';
+                console.log("BIM not found in URL");
+            }
             
             // Log the full URL to the console
             let fullURL = window.location.href;
@@ -233,6 +241,7 @@ async function initApp() {
             // Now you can use `entityType` and `recordId` in your web app logic
             console.log("Entity Type:", entityType);
             console.log("Record ID:", recordId);
+            console.log("BIM:", BIM);
 
 
             // Initialize the viewer and sidebar
@@ -250,35 +259,35 @@ async function initApp() {
                 // dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMg
 
 
-                '2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca': ['dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMw',
-                                                        'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnNSZk9sS1BJVE1HM3pTZ0JvZUYzV3c/dmVyc2lvbj00',
-                                                        'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg'
+                '2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca': ['urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg', // archi
+                                                         'urn:adsk.wipemea:dm.lineage:cuy9_KQiSyadqUu2aI_Bsg', // mep
+                                                         'urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww' // site
                                                         ],
 
                 // DB8 for Production
-                '06eddd02-c366-ef11-bfe2-000d3ab1d1c2': ['dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMw',
-                                                        'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnNSZk9sS1BJVE1HM3pTZ0JvZUYzV3c/dmVyc2lvbj00',
-                                                        'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg'
+                '06eddd02-c366-ef11-bfe2-000d3ab1d1c2': ['urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg', // archi
+                                                         'urn:adsk.wipemea:dm.lineage:cuy9_KQiSyadqUu2aI_Bsg', // mep
+                                                         'urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww' // site
                                                         ],
                 
                 // HG62
-                '766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca': ['dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLlV3aG1UYUU1UlEyMS0tbm1DUWQycEE/dmVyc2lvbj0xMDc',
-                                                         'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnZGZ01YNjRUVDBDcWU4THhZa2RvVUE/dmVyc2lvbj0yMA'
+                '766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca': ['urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
+                                                         'urn:adsk.wipemea:dm.lineage:UwhmTaE5RQ21--nmCQd2pA' //archi
                                                         ],
 
                 // HG62 for Production
-                '422be7c5-ef69-ef11-bfe2-000d3a6735d4': ['dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLlV3aG1UYUU1UlEyMS0tbm1DUWQycEE/dmVyc2lvbj0xMDc',
-                                                        'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnZGZ01YNjRUVDBDcWU4THhZa2RvVUE/dmVyc2lvbj0yMA'
+                '422be7c5-ef69-ef11-bfe2-000d3a6735d4': ['urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
+                                                        'urn:adsk.wipemea:dm.lineage:UwhmTaE5RQ21--nmCQd2pA' //archi
                                                         ],
                 
                 // SOL10
-                'f8c64108-adb7-ef11-b8e8-7c1e5275e0ca': ['dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnE4ZzFMRTB2UTJXTzVBSEo5S2Q1NUE/dmVyc2lvbj04',
-                                                         'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmdzMFBSQjNlUlVTNkFOTEswOXZEWUE/dmVyc2lvbj0xOQ'
+                'f8c64108-adb7-ef11-b8e8-7c1e5275e0ca': ['urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
+                                                         'urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
                                                         ],
 
                 // SOL10 for Production
-                '10ff2730-d365-ef11-bfe3-6045bddd062a': ['dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnE4ZzFMRTB2UTJXTzVBSEo5S2Q1NUE/dmVyc2lvbj04',
-                                                         'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmdzMFBSQjNlUlVTNkFOTEswOXZEWUE/dmVyc2lvbj0xOQ'
+                '10ff2730-d365-ef11-bfe3-6045bddd062a': ['urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
+                                                         'urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
                                                         ]
 
             };
@@ -287,79 +296,93 @@ async function initApp() {
             // Mapping of property value to geometry URN values
             const geometryMapByProperty = {
                 // DB8
-                'Drengsrudbekken 8 AS': ['dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMw',
-                                          'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnNSZk9sS1BJVE1HM3pTZ0JvZUYzV3c/dmVyc2lvbj00',
-                                          'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg'
+                'Drengsrudbekken 8 AS': [
+                                         'urn:adsk.wipemea:dm.lineage:cuy9_KQiSyadqUu2aI_Bsg', // mep
+                                         'urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg', // archi
+                                         'urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww' // site
                                         ],
 
                 // HG62
-                'Helgesensgate 62': ['dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLlV3aG1UYUU1UlEyMS0tbm1DUWQycEE/dmVyc2lvbj0xMDc',
-                                    'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnZGZ01YNjRUVDBDcWU4THhZa2RvVUE/dmVyc2lvbj0yMA'
+                'Helgesensgate 62': ['urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
+                                    'urn:adsk.wipemea:dm.lineage:UwhmTaE5RQ21--nmCQd2pA' //archi
                                     ],
 
                 // SOL10
-                'Solbråveien 10 AS': ['dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnE4ZzFMRTB2UTJXTzVBSEo5S2Q1NUE/dmVyc2lvbj04',
-                                      'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmdzMFBSQjNlUlVTNkFOTEswOXZEWUE/dmVyc2lvbj0xOQ'
+                'Solbråveien 10 AS': ['urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
+                                      'urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
+                                    //   'urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A' //mep
                                      ]
             };
 
             // Default geometry if no match is found
             const defaultGeometry = [
                 //  DB8
-                'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg',
-                'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMw',
-                'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnNSZk9sS1BJVE1HM3pTZ0JvZUYzV3c/dmVyc2lvbj00'
-                // 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg'
-
-                // HG62
-                // 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnZGZ01YNjRUVDBDcWU4THhZa2RvVUE/dmVyc2lvbj0xNw',
-                // 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLlV3aG1UYUU1UlEyMS0tbm1DUWQycEE/dmVyc2lvbj05OQ'
-
-                //SOL10
-                // 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnE4ZzFMRTB2UTJXTzVBSEo5S2Q1NUE/dmVyc2lvbj04',
-                // 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmdzMFBSQjNlUlVTNkFOTEswOXZEWUE/dmVyc2lvbj0xOQ'
+                'urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg', // archi
+                'urn:adsk.wipemea:dm.lineage:cuy9_KQiSyadqUu2aI_Bsg', // mep
+                'urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww' // site
             ];
 
             // Attempt to find geometry based on recordId
             let geometry = geometryMapById[recordId];
 
-            // check if DB8 is viewed in GEOMETRY OVERVIEW
-            if(recordId === '06eddd02-c366-ef11-bfe2-000d3ab1d1c2' || recordId === '2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca'){
-                localStorage.setItem('LiveData', 'DB8');
-            }
-            else{
-                localStorage.setItem('LiveData', '');
+            // Project and folder IDs based on recordId or property
+            const projectMap = {
+                // DB8
+                '06eddd02-c366-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', liveData: 'DB8', hardAsset: 'No Hard Asset' },
+                '2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', liveData: 'DB8', hardAsset: 'No Hard Asset' },
+                // HG62
+                '766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset' },
+                '422be7c5-ef69-ef11-bfe2-000d3a6735d4': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset' },
+                // SOL10
+                'f8c64108-adb7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset' },
+                '10ff2730-d365-ef11-bfe3-6045bddd062a': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset' }
+            };
+
+            const propertyMap = {
+                'Drengsrudbekken 8 AS': 'b.bf8f603c-7e37-4367-9900-69e279377191',
+                'Helgesensgate 62': 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6',
+                'Solbråveien 10 AS': 'b.e4cde0c5-7fd9-4974-9832-616f058478f9'
+            };
+
+            let projectId = '';
+            let folderId = '';
+            let hardAsset = 'Hard Asset';
+            let liveData = '';
+
+            if (projectMap[recordId]) {
+                ({ projectId, folderId = '', liveData = '', hardAsset } = projectMap[recordId]);
+                localStorage.setItem('LiveData', liveData);
+            } else if (propertyMap[property]) {
+                projectId = propertyMap[property];
             }
 
-            // If no match was found for recordId, check for a match by property value
             if (!geometry && property) {
                 geometry = geometryMapByProperty[property];
-                console.log(geometry + 'TEST');
-                localStorage.setItem('HardAssetChecker', 'Hard Asset');
                 localStorage.setItem('ASSET', uniqueID);
-                localStorage.setItem('LiveData', '');
-                localStorage.removeItem('LiveData');
             }
 
-            // If still no match, fall back to the default geometry
             if (!geometry) {
                 geometry = defaultGeometry;
-                localStorage.setItem('HardAssetChecker', 'No Hard Asset');
-                localStorage.setItem('ASSET', '');
+                projectId = 'b.bf8f603c-7e37-4367-9900-69e279377191';
+                folderId = 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw';
+                liveData = 'DB8';
+                hardAsset = 'No Hard Asset';
+                localStorage.setItem('LiveData', liveData);
                 localStorage.removeItem('ASSET');
-                localStorage.setItem('LiveData', 'DB8');
-                // localStorage.setItem('LiveData', '');
-                // localStorage.removeItem('LiveData');
             }
+
+            // Final localStorage updates
+            localStorage.setItem('HardAssetChecker', hardAsset);
 
 
 
             // Initialize the tree and handle model loading
+            let hubId = 'b.7a656dca-000a-494b-9333-d9012c464554';  // Hub ID
             initTree('#tree', (id) => {
                 // If no ID is provided, use the sample URN
                 console.log(id);
                 const urn = id !== 0 ? window.btoa(id).replace(/=/g, '') : geometry;
-                loadModel(viewer, urn);
+                loadModel(viewer, urn, hubId, projectId, folderId, BIM);
             });
 
         } else {

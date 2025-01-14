@@ -191,6 +191,8 @@ export async function HEATMAP(viewer, selectedFloor) {
         const heatmapData = new SurfaceShadingData();
         nodes.forEach(node => heatmapData.addChild(node));
         await heatmapData.initialize(model);
+        
+        console.log('Heatmap Data:', heatmapData);
 
         // console.log('Heatmap Data initialized for model:', model);
 
@@ -210,10 +212,10 @@ export async function HEATMAP(viewer, selectedFloor) {
 
                         if (sensorValue !== undefined && sensorValue !== null) {
                             // Debugging: Log the sensor value and node name
-                            console.log(`Rendering surface shading for node ${node.name} with sensor value:`, sensorValue);
+                            // console.log(`Rendering surface shading for node ${node.name} with sensor value:`, sensorValue);
                             
                             // Explicitly log the model being rendered
-                            console.log(`Rendering on model:`, model);
+                            // console.log(`Rendering on model:`, model);
 
                             // Register shading colors globally
                             extension0.registerSurfaceShadingColors("TEMP", [

@@ -241,7 +241,7 @@ export function initViewer(container) {
 // ******************************* WORKING ************************
 
 
-export function loadModel(viewer, urns) {
+export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
     const loadOptions = {
         globalOffset: { x: 0, y: 0, z: 0 },  // force all models to origin
         placementTransform: (new THREE.Matrix4()).setPosition({ x: 0, y: 0, z: 0 }),  // Force placement to origin
@@ -309,8 +309,8 @@ export function loadModel(viewer, urns) {
                         // Check if the loaded model is named "DB8"
                         let LiveData = localStorage.getItem('LiveData');
                         console.log(LiveData);
-                        if (LiveData === 'NOT YET LIVE' && selectedLevelIndex !== undefined) {
-                            HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
+                        if (LiveData === 'DB8' && selectedLevelIndex !== undefined) {
+                            // HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
                             // SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                         }
                         else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
@@ -376,11 +376,20 @@ export function loadModel(viewer, urns) {
 
                             // Fit to view and highlight the found objects
                             viewer.fitToView(dbIDs);
+                            let color = '';
+                            if(BIM === 'false') {
+                                color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
+                                viewer.setSelectionColor(new THREE.Color(1, 0, 0));  // RGB: red, green, blue
+                            }
+                            else if(BIM === 'true') {
+                                color = new THREE.Vector4(0, 1, 0, 1);  // Red color with full intensity (RGBA)
+                                viewer.setSelectionColor(new THREE.Color(0, 1, 0));  // RGB: red, green, blue
+                            }
 
-                            const color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
+                            // const color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
                             viewer.setThemingColor(dbIDs, color);  // Optionally highlight the objects
    
-                            viewer.setSelectionColor(new THREE.Color(1, 0, 0));  // RGB: red, green, blue
+                            
                             viewer.select(dbIDs);  // Optionally highlight the objects
                 
                             // Disable further selections after this point
@@ -469,27 +478,94 @@ export function loadModel(viewer, urns) {
         alert("Could not load model. See console for details.");
     }
 
-    // Async function to load all models
-    async function loadModels() {
-        for (let model of modelsToLoad) {
-            console.log(`Attempting to load model with URN: urn:${model}`);
+    // // Async function to load all models
+    // async function loadModels() {
+    //     for (let model of modelsToLoad) {
+    //         // Base64 encode the URN if it's not encoded already
+    //         const base64Urn = btoa(model);
+
+    //         console.log(`Attempting to load model with URN: urn:${base64Urn}`);
             
+    //         // Load the model document and wait for the load to complete before moving to the next
+    //         await new Promise((resolve, reject) => {
+    //             Autodesk.Viewing.Document.load(
+    //                 'urn:' + base64Urn, 
+    //                 async (doc) => {
+    //                     // Load and aggregate each model without replacing the previous one
+    //                     await onDocumentLoadSuccess(doc).then(resolve).catch(reject);
+    //                 }, 
+    //                 onDocumentLoadFailure
+    //             );
+    //         });
+    //     }
+    // }
+
+    // // Load each model sequentially
+    // loadModels();
+
+
+    // Function to fetch the latest version URN of a file inside a folder
+    async function fetchLatestUrn(hubId, projectId, folderId, baseUrn) {
+        const accessToken = localStorage.getItem('authToken'); // Retrieve the access token
+
+        const versionsUrl = `https://developer.api.autodesk.com/data/v1/projects/${projectId}/items/${baseUrn}/versions`;
+        const response = await fetch(versionsUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            },
+        });
+        const versionsData = await response.json();
+        // console.log('Latest Version URN:', versionsData);
+        if (versionsData.data && versionsData.data.length > 0) {
+            const latestVersion = versionsData.data[0];  // Assuming the first item is the latest
+            const latestVersionUrn = latestVersion.id;  // This will be the URN for the latest version
+            console.log('Latest Version URN:', latestVersionUrn);
+            const base64Urn = btoa(latestVersionUrn);  // This encodes the URN to base64
+            // console.log('Base64 URN:', base64Urn);
+            return base64Urn;
+        } else {
+            console.error('No versions found for the file.');
+        }
+
+    }
+
+    // Function to load all models with their latest versions
+    async function loadModels() {
+        const updatedModelsToLoad = [];
+        
+        // Fetch the latest URNs for all base URNs
+        for (let baseUrn of modelsToLoad) {
+            try {
+                const latestUrn = await fetchLatestUrn(hubId, projectId, folderId, baseUrn); // Fetch latest version URN
+                updatedModelsToLoad.push(latestUrn); // Add latest version URN to the array
+            } catch (error) {
+                console.error(`Failed to fetch latest URN for ${baseUrn}:`, error);
+                alert(`Could not fetch latest URN for ${baseUrn}. See console for details.`);
+            }
+        }
+
+        // Now load the models with the latest URNs
+        for (let modelUrn of updatedModelsToLoad) {
+            console.log(`Attempting to load model with URN: urn:${modelUrn}`);
+
             // Load the model document and wait for the load to complete before moving to the next
             await new Promise((resolve, reject) => {
                 Autodesk.Viewing.Document.load(
-                    'urn:' + model, 
+                    'urn:' + modelUrn,
                     async (doc) => {
-                        // Load and aggregate each model without replacing the previous one
+                        // Success handler: model loaded successfully
                         await onDocumentLoadSuccess(doc).then(resolve).catch(reject);
-                    }, 
-                    onDocumentLoadFailure
+                    },
+                    onDocumentLoadFailure  // Failure handler
                 );
             });
         }
     }
-
+    
     // Load each model sequentially
     loadModels();
+    
 
 
 
