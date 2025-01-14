@@ -107,139 +107,154 @@ export async function HEATMAP(viewer, selectedFloor) {
 
 
     // Load the extension once
-    // const extension0 = await viewer.loadExtension('Autodesk.DataVisualization');
-    // console.log('SurfaceShadingExtension loaded successfully!');
 
-    // // Creating shading points for all nodes
-    // const shadingPoint = new SurfaceShadingPoint("Location", undefined, ["TEMP"]);
-    // await shadingPoint.positionFromDBId(viewer.model); // Fetch position once
-
-    // // Convert dbId to number and map nodes
-    // const nodes = nodesData.map(data => {
-    //     const node = new SurfaceShadingNode(data.name, parseInt(data.dbId, 10)); // Ensure dbId is numeric
-    //     node.hemyguid = data.guid;
-    //     node.addPoint(shadingPoint); // Attach point to node
-    //     return node;
-    // });
-
-    // const heatmapData = new SurfaceShadingData();
-    // nodes.forEach(node => heatmapData.addChild(node)); // Add nodes to heatmap data
-    // await heatmapData.initialize(viewer.model); // Initialize heatmap with model
-
-    // console.log('Heatmap Data initialized.');
-
-    // // Load extension only once
-    // const extension = await viewer.loadExtension('Autodesk.DataVisualization');
-    // console.log('SurfaceShadingExtension loaded successfully!');
-
-    // try {
-    //     // Setup surface shading with heatmap data
-    //     await extension.setupSurfaceShading(viewer.model, heatmapData);
-    
-    //     extension0.registerSurfaceShadingColors("TEMP", [0x0000ff, 0x00ff00, 0xff0000]);
-    
-    //     // Function to query nodes in batches of 2 and render surface shading
-    //     async function queryNodesInPairsAndRender(nodes) {
-    //         // Loop through nodes in batches of 2
-    //         for (let i = 0; i < nodes.length; i += 2) {
-    //             const batch = nodes.slice(i, i + 2); // Get the pair of nodes
-                
-    //             // Fetch sensor values for the pair of nodes
-    //             const sensorValues = await Promise.all(batch.map(node => getSensorValue(node.hemyguid)));
-                
-    //             // Render surface shading for each node in the batch immediately after querying
-    //             batch.forEach((node, index) => {
-    //                 extension.renderSurfaceShading(node.name, "TEMP", () => sensorValues[index]);
-    //             });
-    //         }
-    //     }
-    
-    //     // Query the nodes in pairs and render surface shading
-    //     await queryNodesInPairsAndRender(nodes);
-    
-    // } catch (error) {
-    //     console.error('Failed to load SurfaceShadingExtension or render surface shading', error);
-    // }
-
+    const models = viewer.impl.modelQueue().getModels(); // Get all models again if needed
     const extension0 = await viewer.loadExtension('Autodesk.DataVisualization');
     console.log('SurfaceShadingExtension loaded successfully!');
 
-    // Register shading colors globally
-    extension0.registerSurfaceShadingColors("TEMP", [
-        0x0000ff, // Blue
-        0x00ff00, // Green
-        0xff0000  // Red
-    ]);
-
+    // Creating shading points for all nodes
     const shadingPoint = new SurfaceShadingPoint("Location", undefined, ["TEMP"]);
+    await shadingPoint.positionFromDBId(models[0]); // Fetch position once
 
-    // Iterate through each model in the aggregated view
-    const models = viewer.getAllModels();
-    for (const model of models) {
-        // Fetch position for each model's dbId (this ensures correct mapping)
-        await shadingPoint.positionFromDBId(model);
+    // Convert dbId to number and map nodes
+    const nodes = nodesData.map(data => {
+        const node = new SurfaceShadingNode(data.name, parseInt(data.dbId, 10)); // Ensure dbId is numeric
+        node.hemyguid = data.guid;
+        node.addPoint(shadingPoint); // Attach point to node
+        return node;
+    });
 
-        // Create SurfaceShadingNode for each node in nodesData
-        const nodes = nodesData.map(data => {
-            const node = new SurfaceShadingNode(data.name, parseInt(data.dbId, 10));
-            node.hemyguid = data.guid;
-            node.addPoint(shadingPoint);
-            return node;
-        });
+    const heatmapData = new SurfaceShadingData();
+    nodes.forEach(node => heatmapData.addChild(node)); // Add nodes to heatmap data
+    await heatmapData.initialize(models[0]); // Initialize heatmap with model
 
-        // Initialize heatmap data for the current model
-        const heatmapData = new SurfaceShadingData();
-        nodes.forEach(node => heatmapData.addChild(node));
-        await heatmapData.initialize(model);
-        
-        console.log('Heatmap Data:', heatmapData);
+    console.log('Heatmap Data initialized.');
 
-        // console.log('Heatmap Data initialized for model:', model);
+    // Load extension only once
+    const extension = await viewer.loadExtension('Autodesk.DataVisualization');
+    console.log('SurfaceShadingExtension loaded successfully!');
 
-        try {
-            // Setup surface shading for the model
-            await extension0.setupSurfaceShading(model, heatmapData);
-
-            // Batch processing of nodes
-            async function queryNodesInPairsAndRender(nodes, model) {
-                for (let i = 0; i < nodes.length; i += 2) {
-                    const batch = nodes.slice(i, i + 2);
-                    const sensorValues = await Promise.all(batch.map(node => getSensorValue(node.hemyguid)));
-
-                    // Render each node with corresponding sensor value, for the current model
-                    batch.forEach((node, index) => {
-                        const sensorValue = sensorValues[index];
-
-                        if (sensorValue !== undefined && sensorValue !== null) {
-                            // Debugging: Log the sensor value and node name
-                            // console.log(`Rendering surface shading for node ${node.name} with sensor value:`, sensorValue);
-                            
-                            // Explicitly log the model being rendered
-                            // console.log(`Rendering on model:`, model);
-
-                            // Register shading colors globally
-                            extension0.registerSurfaceShadingColors("TEMP", [
-                                0x0000ff, // Blue
-                                0x00ff00, // Green
-                                0xff0000  // Red
-                            ]);
-
-
-                            // Render surface shading for the specific node within this model context
-                            extension0.renderSurfaceShading(node.name, "TEMP", () => sensorValue);
-                        } else {
-                            console.warn(`Invalid sensor value for node ${node.name}:`, sensorValue);
-                        }
-                    });
-                }
+    try {
+        // Get the first model (models[0]) explicitly for heatmap rendering
+        const models = viewer.impl.modelQueue().getModels();
+        const model = models[0]; // Always use the first model for heatmap rendering
+    
+        // Setup surface shading for models[0] with heatmap data
+        await extension.setupSurfaceShading(model, heatmapData, model);
+    
+        // Register shading colors for temperature data (TEMP)
+        extension0.registerSurfaceShadingColors("TEMP", [0x0000ff, 0x00ff00, 0xff0000]);
+    
+        // Function to query nodes in batches of 2 and render surface shading
+        async function queryNodesInPairsAndRender(nodes) {
+            // Loop through nodes in batches of 2
+            for (let i = 0; i < nodes.length; i += 2) {
+                const batch = nodes.slice(i, i + 2); // Get the pair of nodes
+    
+                // Fetch sensor values for the pair of nodes
+                const sensorValues = await Promise.all(batch.map(node => getSensorValue(node.hemyguid)));
+    
+                // Render surface shading for each node in the batch
+                batch.forEach((node, index) => {
+                    // Render surface shading for the current node on model[0]
+                    extension.renderSurfaceShading(node.name, "TEMP", () => sensorValues[index], { model: model });
+                });
             }
-
-            await queryNodesInPairsAndRender(nodes, model); // Pass the model explicitly
-
-        } catch (error) {
-            console.error('Failed to load SurfaceShadingExtension or render surface shading for model:', model, error);
         }
+    
+        // Query the nodes in pairs and render surface shading using models[0]
+        await queryNodesInPairsAndRender(nodes);
+    
+    } catch (error) {
+        console.error('Failed to load SurfaceShadingExtension or render surface shading', error);
     }
+    
+    
+    
+
+
+
+
+
+    // const extension0 = await viewer.loadExtension('Autodesk.DataVisualization');
+    // console.log('SurfaceShadingExtension loaded successfully!');
+
+    // // Register shading colors globally
+    // extension0.registerSurfaceShadingColors("TEMP", [
+    //     0x0000ff, // Blue
+    //     0x00ff00, // Green
+    //     0xff0000  // Red
+    // ]);
+
+    // const shadingPoint = new SurfaceShadingPoint("Location", undefined, ["TEMP"]);
+
+    // // Iterate through each model in the aggregated view
+    // const models = viewer.getAllModels();
+    // for (const model of models) {
+    //     // Fetch position for each model's dbId (this ensures correct mapping)
+    //     await shadingPoint.positionFromDBId(model);
+
+    //     // Create SurfaceShadingNode for each node in nodesData
+    //     const nodes = nodesData.map(data => {
+    //         const node = new SurfaceShadingNode(data.name, parseInt(data.dbId, 10));
+    //         node.hemyguid = data.guid;
+    //         node.addPoint(shadingPoint);
+    //         return node;
+    //     });
+
+    //     // Initialize heatmap data for the current model
+    //     const heatmapData = new SurfaceShadingData();
+    //     nodes.forEach(node => heatmapData.addChild(node));
+    //     await heatmapData.initialize(model);
+        
+    //     console.log('Heatmap Data:', heatmapData);
+
+    //     // console.log('Heatmap Data initialized for model:', model);
+
+    //     try {
+    //         // Setup surface shading for the model
+    //         await extension0.setupSurfaceShading(model, heatmapData);
+
+    //         // Batch processing of nodes
+    //         async function queryNodesInPairsAndRender(nodes, model) {
+    //             for (let i = 0; i < nodes.length; i += 2) {
+    //                 const batch = nodes.slice(i, i + 2);
+    //                 const sensorValues = await Promise.all(batch.map(node => getSensorValue(node.hemyguid)));
+
+    //                 // Render each node with corresponding sensor value, for the current model
+    //                 batch.forEach((node, index) => {
+    //                     const sensorValue = sensorValues[index];
+
+    //                     if (sensorValue !== undefined && sensorValue !== null) {
+    //                         // Debugging: Log the sensor value and node name
+    //                         // console.log(`Rendering surface shading for node ${node.name} with sensor value:`, sensorValue);
+                            
+    //                         // Explicitly log the model being rendered
+    //                         // console.log(`Rendering on model:`, model);
+
+    //                         // Register shading colors globally
+    //                         extension0.registerSurfaceShadingColors("TEMP", [
+    //                             0x0000ff, // Blue
+    //                             0x00ff00, // Green
+    //                             0xff0000  // Red
+    //                         ]);
+
+
+    //                         // Render surface shading for the specific node within this model context
+    //                         extension0.renderSurfaceShading(node.name, "TEMP", () => sensorValue, { model: model });
+    //                     } else {
+    //                         console.warn(`Invalid sensor value for node ${node.name}:`, sensorValue);
+    //                     }
+    //                 });
+    //             }
+    //         }
+
+    //         await queryNodesInPairsAndRender(nodes, model); // Pass the model explicitly
+
+    //     } catch (error) {
+    //         console.error('Failed to load SurfaceShadingExtension or render surface shading for model:', model, error);
+    //     }
+    // }
 
 
 

@@ -285,6 +285,10 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
                 viewer.loadExtension('Autodesk.AEC.LevelsExtension').then((levelsExt) => {
                     console.log('Autodesk.AEC.LevelsExtension loaded.');
                 });
+
+                viewer.loadExtension('Autodesk.FullScreen').then((levelsExt) => {
+                    console.log('Autodesk.FullScreen loaded.');
+                });
                 
                 console.log("Geometry loaded.");
                 // Call surface shading setup or any other actions here
