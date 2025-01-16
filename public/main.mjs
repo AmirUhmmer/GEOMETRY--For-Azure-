@@ -281,13 +281,14 @@ async function initApp() {
                                                         ],
                 
                 // SOL10
-                'f8c64108-adb7-ef11-b8e8-7c1e5275e0ca': ['urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
-                                                         'urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
+                'f8c64108-adb7-ef11-b8e8-7c1e5275e0ca': ['urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
+                                                         'urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
                                                         ],
 
+
                 // SOL10 for Production
-                '10ff2730-d365-ef11-bfe3-6045bddd062a': ['urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
-                                                         'urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
+                '10ff2730-d365-ef11-bfe3-6045bddd062a': ['urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
+                                                         'urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
                                                         ]
 
             };

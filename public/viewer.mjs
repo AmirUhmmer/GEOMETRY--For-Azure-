@@ -45,51 +45,51 @@ export function initViewer(container) {
 
             const canvas = viewer.impl.canvas;
 
-            // canvas.addEventListener('click', function (event) {
-            //     // console.log("Canvas clicked:", event); // Log the event to ensure the click is firing
+            canvas.addEventListener('click', function (event) {
+                // console.log("Canvas clicked:", event); // Log the event to ensure the click is firing
             
-            //     const aggregateSelection = viewer.getAggregateSelection(); // Get selections from all loaded models
-            //     // console.log("Aggregate selection:", aggregateSelection); // Log the aggregate selection
+                const aggregateSelection = viewer.getAggregateSelection(); // Get selections from all loaded models
+                // console.log("Aggregate selection:", aggregateSelection); // Log the aggregate selection
             
-            //     if (aggregateSelection && aggregateSelection.length > 0) { // Check if aggregateSelection is defined and has items
-            //         aggregateSelection.forEach(selection => {
-            //             // console.log("Processing selection:", selection); // Log the selection details
+                if (aggregateSelection && aggregateSelection.length > 0) { // Check if aggregateSelection is defined and has items
+                    aggregateSelection.forEach(selection => {
+                        // console.log("Processing selection:", selection); // Log the selection details
             
-            //             const model = selection.model;           // Get the selected model
-            //             // console.log("Model:", model);            // Log the model
+                        const model = selection.model;           // Get the selected model
+                        // console.log("Model:", model);            // Log the model
             
-            //             const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
-            //             // console.log("dbIdArray:", dbIdArray);    // Log the dbIdArray
+                        const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
+                        // console.log("dbIdArray:", dbIdArray);    // Log the dbIdArray
             
-            //             if (dbIdArray && dbIdArray.length > 0) { // Ensure dbIdArray is defined and has objects
-            //                 const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
-            //                 console.log("Selected dbId:", dbId); // Log the selected dbId
+                        if (dbIdArray && dbIdArray.length > 0) { // Ensure dbIdArray is defined and has objects
+                            const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
+                            console.log("Selected dbId:", dbId); // Log the selected dbId
             
-            //                 const instanceTree = model.getInstanceTree();
-            //                 // console.log("InstanceTree:", instanceTree); // Log the instance tree to ensure it's available
+                            const instanceTree = model.getInstanceTree();
+                            // console.log("InstanceTree:", instanceTree); // Log the instance tree to ensure it's available
             
-            //                 if (instanceTree) {
-            //                     instanceTree.enumNodeFragments(dbId, (fragId) => {
-            //                         const fragList = model.getFragmentList();    // Use the correct model's fragment list
-            //                         const matrix = new THREE.Matrix4();
-            //                         fragList.getWorldMatrix(fragId, matrix);
+                            if (instanceTree) {
+                                instanceTree.enumNodeFragments(dbId, (fragId) => {
+                                    const fragList = model.getFragmentList();    // Use the correct model's fragment list
+                                    const matrix = new THREE.Matrix4();
+                                    fragList.getWorldMatrix(fragId, matrix);
             
-            //                         const position = new THREE.Vector3();
-            //                         position.setFromMatrixPosition(matrix);
+                                    const position = new THREE.Vector3();
+                                    position.setFromMatrixPosition(matrix);
             
-            //                         console.log(`World Coordinates (Model ${model.id}): x=${position.x}, y=${position.y}, z=${position.z}`);
-            //                     });
-            //                 } else {
-            //                     console.log("InstanceTree not available for model:", model);
-            //                 }
-            //             } else {
-            //                 console.log("No objects selected in dbIdArray.");
-            //             }
-            //         });
-            //     } else {
-            //         console.log('No objects selected or aggregate selection is undefined.');
-            //     }
-            // });
+                                    console.log(`World Coordinates (Model ${model.id}): x=${position.x}, y=${position.y}, z=${position.z}`);
+                                });
+                            } else {
+                                console.log("InstanceTree not available for model:", model);
+                            }
+                        } else {
+                            console.log("No objects selected in dbIdArray.");
+                        }
+                    });
+                } else {
+                    console.log('No objects selected or aggregate selection is undefined.');
+                }
+            });
             
             
             
@@ -289,6 +289,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
                 viewer.loadExtension('Autodesk.FullScreen').then((levelsExt) => {
                     console.log('Autodesk.FullScreen loaded.');
                 });
+
+                viewer.unloadExtension('Autodesk.Explode');
                 
                 console.log("Geometry loaded.");
                 // Call surface shading setup or any other actions here
@@ -304,7 +306,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
                         // const modelName = viewer.model.getDocumentNode().data.name;
                         // console.log(modelName);
                         // if (modelName === 'DB8-SEMY-ARST-ASBUILT' && selectedLevelIndex !== undefined) {
-                        //     HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
+                            // HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
                         //     SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                         // }
 
@@ -314,8 +316,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
                         let LiveData = localStorage.getItem('LiveData');
                         console.log(LiveData);
                         if (LiveData === 'DB8' && selectedLevelIndex !== undefined) {
-                            // HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
-                            // SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
+                            HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
+                            SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                         }
                         else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
                             SPRITES(viewer, selectedLevelIndex); // SPRITES will be called

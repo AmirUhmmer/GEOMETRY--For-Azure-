@@ -109,12 +109,16 @@ export async function HEATMAP(viewer, selectedFloor) {
     // Load the extension once
 
     const models = viewer.impl.modelQueue().getModels(); // Get all models again if needed
-    const extension0 = await viewer.loadExtension('Autodesk.DataVisualization');
+    const extension0 = viewer.getExtension('Autodesk.DataVisualization') || await viewer.loadExtension('Autodesk.DataVisualization');
     console.log('SurfaceShadingExtension loaded successfully!');
+
+    // Specify a valid model and dbId
+    const model = models[0]; // Assuming you want to use the first model
+    const dbId = 26840; // Replace with a valid dbId for a specific nod
 
     // Creating shading points for all nodes
     const shadingPoint = new SurfaceShadingPoint("Location", undefined, ["TEMP"]);
-    await shadingPoint.positionFromDBId(models[0]); // Fetch position once
+    await shadingPoint.positionFromDBId(model, dbId); // Fetch position once
 
     // Convert dbId to number and map nodes
     const nodes = nodesData.map(data => {
@@ -157,6 +161,7 @@ export async function HEATMAP(viewer, selectedFloor) {
                 // Render surface shading for each node in the batch
                 batch.forEach((node, index) => {
                     // Render surface shading for the current node on model[0]
+                    console.log('node: ' + node.name + ' sensorValue: ' + sensorValues[index]);
                     extension.renderSurfaceShading(node.name, "TEMP", () => sensorValues[index], { model: model });
                 });
             }

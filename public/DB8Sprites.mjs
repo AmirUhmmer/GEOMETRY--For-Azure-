@@ -96,7 +96,8 @@ export async function SPRITES(viewer, selectedFloor) {
 
 
       // Check if selectedFloor is undefined
-    if (typeof selectedFloor === 'undefined') {
+    if (selectedFloor === 'undefined') {
+      console.log('No floor selected.');
       // Get all models loaded in the viewer
       const allModels = viewer.getAllModels();
 
