@@ -319,9 +319,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
                             HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
                             SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                         }
-                        else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
-                            SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
-                        }
+                        // else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
+                        //     SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
+                        // }
                     });
     
                     // Optionally, you can set a default floor after loading the extension
@@ -383,23 +383,37 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
                             // Fit to view and highlight the found objects
                             viewer.fitToView(dbIDs);
                             let color = '';
-                            if(BIM === 'false') {
-                                color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
-                                viewer.setSelectionColor(new THREE.Color(1, 0, 0));  // RGB: red, green, blue
-                            }
-                            else if(BIM === 'true') {
-                                color = new THREE.Vector4(0, 1, 0, 1);  // Red color with full intensity (RGBA)
-                                viewer.setSelectionColor(new THREE.Color(0, 1, 0));  // RGB: red, green, blue
+
+                            // Get the service tasks from the URL query string
+                            let params = {};
+                            let queryString = window.location.search.substring(1);
+                            let queryParts = queryString.split("&");
+
+                            for (let i = 0; i < queryParts.length; i++) {
+                                let param = queryParts[i].split("=");
+                                params[decodeURIComponent(param[0])] = decodeURIComponent(param[1]);
                             }
 
-                            // const color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
-                            viewer.setThemingColor(dbIDs, color);  // Optionally highlight the objects
-   
-                            
+                            let serviceTasks = params["subgridData"];  // The service task data, if it exists
+
+                            // Check if there are service tasks and split them into an array
+                            let serviceTaskList = [];
+                            if (serviceTasks) {
+                                serviceTaskList = serviceTasks.split("\n");  // Split by newline to convert into an array
+                                console.log('Service Tasks Array:', serviceTaskList);  // Array of service tasks
+                            }
+
+                            // Display the service tasks in a docking panel
+                            showServiceTasksDockingPanel(viewer, serviceTaskList);
+                            createToolbarButton(viewer);
+
+                            color = new THREE.Vector4(0, 1, 0, 1);  // Green color with full intensity (RGBA)
+                            viewer.setSelectionColor(new THREE.Color(0, 1, 0));  // RGB: red, green, blue
+
+                            // Optionally highlight the objects
+                            viewer.setThemingColor(dbIDs, color);  
                             viewer.select(dbIDs);  // Optionally highlight the objects
-                
-                            // Disable further selections after this point
-                            
+
                         }, function(error) {
                             console.error('Search error:', error);  // Handle any potential search errors
                         });
@@ -408,6 +422,99 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
                     }
 
                 }
+
+                // Function to create and display a docking panel
+                function showServiceTasksDockingPanel(viewer, serviceTaskList) {
+
+                    // Create a custom Docking Panel class
+                    class ServiceTasksPanel extends Autodesk.Viewing.UI.DockingPanel {
+                        constructor(viewer, title, options) {
+                            super(viewer.container, title, options);  // Fixed the title to "Service Task"
+                            this.container.style.top = "10px";
+                            this.container.style.left = "10px";
+                            this.container.style.width = "300px";
+                            this.container.style.height = "400px";
+                            this.container.style.resize = "auto";
+                            this.container.style.backgroundColor = '#333';
+                            this.container.style.title = 'Service Task'
+                            this.createScrollContainer();
+                        }
+
+                        // Create the content of the panel
+                        createScrollContainer() {
+                            const content = document.createElement('div');
+                            content.classList.add('docking-panel-content');
+
+                            const taskListElement = document.createElement('ul');
+                            serviceTaskList.forEach(task => {
+                                const taskItem = document.createElement('li');
+                                taskItem.textContent = task;
+                                taskListElement.appendChild(taskItem);
+                            });
+
+                            content.appendChild(taskListElement);
+                            this.container.appendChild(content);
+                        }
+                    }
+
+                    // Check if a panel already exists and remove it
+                    if (viewer.serviceTasksPanel) {
+                        viewer.serviceTasksPanel.setVisible(false);
+                        viewer.serviceTasksPanel.uninitialize();
+                    }
+
+                    // Create a new panel with the title 'Service Task'
+                    viewer.serviceTasksPanel = new ServiceTasksPanel(viewer, "Service Task", "Service Task", {});
+                    viewer.serviceTasksPanel.setVisible(true);
+                }
+
+
+
+                // Function to create a toolbar button
+                function createToolbarButton(viewer) {
+                    const toolbar = viewer.getToolbar();
+                    if (!toolbar) {
+                        console.error("Toolbar not found");
+                        return;
+                    }
+
+                    // Create a new toolbar button
+                    const button = new Autodesk.Viewing.UI.Button('showServiceTasksButton');
+
+                    // Apply icon styling directly to the button's container
+                    const buttonContainer = button.container;
+                    buttonContainer.style.backgroundImage = 'url(./images/task.svg)';  // Set your icon image source here
+                    buttonContainer.style.backgroundSize = '30px';  // Adjust size of the background image
+                    buttonContainer.style.backgroundRepeat = 'no-repeat';  // Ensure no repeat of the image
+                    buttonContainer.style.backgroundPosition = 'center';  // Center the image inside the button
+
+                    button.setToolTip('Service Tasks');
+
+                    // Define the action when the button is clicked
+                    button.onClick = function() {
+                        if (viewer.serviceTasksPanel) {
+                            viewer.serviceTasksPanel.setVisible(!viewer.serviceTasksPanel.isVisible());
+                        } else {
+                            showServiceTasksDockingPanel(viewer, []);  // Show panel even if no service tasks exist yet
+                        }
+                    };
+
+                    // Add the button to a new toolbar group
+                    let subToolbar = viewer.toolbar.getControl('myAppToolbar');
+                    if (!subToolbar) {
+                        subToolbar = new Autodesk.Viewing.UI.ControlGroup('myAppToolbar');
+                        toolbar.addControl(subToolbar);
+                    }
+                    subToolbar.addControl(button);
+                }
+
+                // Call this function once the viewer is fully initialized
+                viewer.addEventListener(Autodesk.Viewing.TOOLBAR_CREATED_EVENT, function() {
+                    createToolbarButton(viewer);
+                });
+
+
+
                 
 
 

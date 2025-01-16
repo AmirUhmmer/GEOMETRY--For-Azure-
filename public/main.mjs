@@ -355,11 +355,13 @@ async function initApp() {
                 localStorage.setItem('LiveData', liveData);
             } else if (propertyMap[property]) {
                 projectId = propertyMap[property];
+                localStorage.setItem('LiveData', liveData);
             }
 
             if (!geometry && property) {
                 geometry = geometryMapByProperty[property];
                 localStorage.setItem('ASSET', uniqueID);
+                localStorage.setItem('LiveData', liveData);
             }
 
             if (!geometry) {

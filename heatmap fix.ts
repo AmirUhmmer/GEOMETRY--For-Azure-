@@ -674,3 +674,276 @@ export async function HEATMAP(viewer, selectedFloor) {
 
     
 }
+
+
+
+
+
+
+
+
+
+
+
+
+function updateIframeURL(executionContext) {
+    var formContext = executionContext.getFormContext(); // Get the form context
+    
+    // Retrieve the value from the field (e.g., MyCustomField)
+    var accountValue  = formContext.getAttribute("msdyn_account").getValue();
+
+    // Check if accountValue exists and is an array
+    if (accountValue && accountValue.length > 0) {
+        var accountName = accountValue[0].name; // Extract the name of the account
+        console.log(accountName);
+    }
+
+    var assetUniqueID = formContext.getAttribute("semy_assetuniqueid").getValue();
+    var BIM = formContext.getAttribute("semy_bimtobuild").getValue();
+
+    // Get the iframe control by name (iframe control name in form editor)
+    var iframeControl = formContext.getControl("IFRAME_APS_Viewer");
+
+    if (iframeControl && accountName && assetUniqueID) {
+        // Construct the new URL with the field value as a query parameter
+        // console.log(property);
+        // console.log(assetUniqueID);
+        var newUrl = "https://hemydigitaltwin-dra9gjbxbsaydxdz.northeurope-01.azurewebsites.net/?property=" + encodeURIComponent(accountName) + "&uniqueID=" + encodeURIComponent(assetUniqueID) + "&BIM=" + encodeURIComponent(BIM);
+
+        // Set the new URL to the iframe
+        iframeControl.setSrc(newUrl);
+    }
+}
+
+
+function updateIframeURL(executionContext) {
+    var formContext = executionContext.getFormContext(); // Get the form context
+    
+    // Retrieve the value from the field (e.g., MyCustomField)
+    var accountValue = formContext.getAttribute("msdyn_account").getValue();
+
+    // Check if accountValue exists and is an array
+    if (accountValue && accountValue.length > 0) {
+        var accountName = accountValue[0].name; // Extract the name of the account
+        console.log(accountName);
+    }
+
+    var assetUniqueID = formContext.getAttribute("semy_assetuniqueid").getValue();
+    var BIM = formContext.getAttribute("semy_bimtobuild").getValue();
+
+    // Get the iframe control by name (iframe control name in form editor)
+    var iframeControl = formContext.getControl("IFRAME_APS_Viewer");
+
+    if (iframeControl && accountName && assetUniqueID) {
+        // Construct the new URL with the field value as a query parameter
+        var newUrl = "https://hemydigitaltwin-dra9gjbxbsaydxdz.northeurope-01.azurewebsites.net/?property=" + encodeURIComponent(accountName) + "&uniqueID=" + encodeURIComponent(assetUniqueID) + "&BIM=" + encodeURIComponent(BIM);
+
+        // Set the new URL to the iframe
+        iframeControl.setSrc(newUrl);
+    }
+
+    // Retrieve subgrid data
+    var subgridControl = formContext.getControl("ServiceTasks"); // Subgrid control name
+
+    var subgridRows = subgridControl.getGrid().getRows();
+
+    var rowCount = subgridRows.getLength();
+
+    console.log(subgridRows);
+    console.log("Service Task DETECTED " + rowCount);
+
+    var Data = ""; // Initialize variable to store row data
+
+    for (var i = 0; i < rowCount; i++) {
+        var gridRowData = myRows.get(i).getData(); // Get row data
+        console.log("Row Data (Object): ", subgridControl); // Log the row data object
+
+        var entity = gridRowData.getEntity(); // Get entity object
+        console.log("Entity Data: ", entity); // Log entity data
+
+        var entityReference = entity.getEntityReference(); // Get entity reference
+        console.log("Entity Reference: ", entityReference); // Log the entity reference
+
+        // Check if entityReference has a name
+        if (entityReference && entityReference.name) {
+            Data += entityReference.name + "\n";
+        } else {
+            console.log("No entity reference name found for row: " + i);
+        }
+    }
+
+    console.log("Service Task LIST " + Data);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+function updateIframeURL(executionContext) {
+    var formContext = executionContext.getFormContext(); // Get the form context
+    
+    // Retrieve the value from the field (e.g., MyCustomField)
+    var accountValue = formContext.getAttribute("msdyn_account").getValue();
+
+    // Check if accountValue exists and is an array
+    if (accountValue && accountValue.length > 0) {
+        var accountName = accountValue[0].name; // Extract the name of the account
+        console.log("Account Name: " + accountName);
+    }
+
+    var assetUniqueID = formContext.getAttribute("semy_assetuniqueid").getValue();
+    var BIM = formContext.getAttribute("semy_bimtobuild").getValue();
+
+    // Get the iframe control by name (iframe control name in form editor)
+    var iframeControl = formContext.getControl("IFRAME_APS_Viewer");
+
+    if (iframeControl && accountName && assetUniqueID) {
+        // Construct the new URL with the field value as a query parameter
+        var newUrl = "https://hemydigitaltwin-dra9gjbxbsaydxdz.northeurope-01.azurewebsites.net/?property=" + encodeURIComponent(accountName) + "&uniqueID=" + encodeURIComponent(assetUniqueID) + "&BIM=" + encodeURIComponent(BIM);
+
+        // Set the new URL to the iframe
+        iframeControl.setSrc(newUrl);
+    }
+
+    // Retrieve subgrid control and wait for it to load
+    var gridContext = formContext.getControl("ServiceTasks"); // Subgrid control name
+
+    if (gridContext) {
+        console.log("Service Task DETECTED");
+
+        // Add an event listener to ensure the subgrid is loaded before executing code
+        gridContext.addOnLoad(function() {
+            console.log("Subgrid Loaded");
+
+            // Collect subgrid rows
+            var myRows = gridContext.getGrid().getRows();
+            var RowCount = myRows.getLength();
+            console.log("Number of Rows: " + RowCount);
+            var Data = ""; // Initialize variable to store row data
+
+            // Check if there are rows
+            if (RowCount > 0) {
+                // Iterate through subgrid rows
+                for (var i = 0; i < RowCount; i++) {
+                    var gridRowData = myRows.get(i).getData(); // Get row data
+                    console.log("Row Data (Object): ", gridRowData); // Log the row data object
+
+                    var entity = gridRowData.getEntity(); // Get entity object
+                    console.log("Entity Data: ", entity); // Log entity data
+
+                    var entityReference = entity.getEntityReference(); // Get entity reference
+                    console.log("Entity Reference: ", entityReference); // Log the entity reference
+
+                    // Check if entityReference has a name
+                    if (entityReference && entityReference.name) {
+                        Data += entityReference.name + "\n";
+                    } else {
+                        console.log("No entity reference name found for row: " + i);
+                    }
+                }
+
+                // Set the collected subgrid data in a field (update field accordingly)
+                console.log("LIST ", Data);
+            } else {
+                console.log("No rows found in the subgrid.");
+            }
+        });
+    } else {
+        console.log("Subgrid Control not found.");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+function updateIframeURL(executionContext) {
+    var formContext = executionContext.getFormContext(); // Get the form context
+    
+    // Retrieve the value from the field (e.g., MyCustomField)
+    var accountValue = formContext.getAttribute("msdyn_account").getValue();
+
+    // Check if accountValue exists and is an array
+    if (accountValue && accountValue.length > 0) {
+        var accountName = accountValue[0].name; // Extract the name of the account
+        console.log("Account Name: " + accountName);
+    }
+
+    var assetUniqueID = formContext.getAttribute("semy_assetuniqueid").getValue();
+    var BIM = formContext.getAttribute("semy_bimtobuild").getValue();
+
+    // Get the iframe control by name (iframe control name in form editor)
+    var iframeControl = formContext.getControl("IFRAME_APS_Viewer");
+
+    // Retrieve subgrid control and wait for it to load
+    var gridContext = formContext.getControl("ServiceTasks"); // Subgrid control name
+
+    if (gridContext) {
+        console.log("Service Task DETECTED");
+
+        // Add an event listener to ensure the subgrid is loaded before executing code
+        gridContext.addOnLoad(function() {
+            console.log("Subgrid Loaded");
+
+            // Collect subgrid rows
+            var myRows = gridContext.getGrid().getRows();
+            var RowCount = myRows.getLength();
+            console.log("Number of Rows: " + RowCount);
+            var Data = ""; // Initialize variable to store row data
+
+            // Check if there are rows
+            if (RowCount > 0) {
+                // Iterate through subgrid rows
+                for (var i = 0; i < RowCount; i++) {
+                    var gridRowData = myRows.get(i).getData(); // Get row data
+                    console.log("Row Data (Object): ", gridRowData); // Log the row data object
+
+                    var entity = gridRowData.getEntity(); // Get entity object
+                    console.log("Entity Data: ", entity); // Log entity data
+
+                    var entityReference = entity.getEntityReference(); // Get entity reference
+                    console.log("Entity Reference: ", entityReference); // Log the entity reference
+
+                    // Check if entityReference has a name
+                    if (entityReference && entityReference.name) {
+                        Data += entityReference.name + "\n"; // Add data to the variable
+                    } else {
+                        console.log("No entity reference name found for row: " + i);
+                    }
+                }
+
+                // Set the collected subgrid data in a field (if needed)
+                console.log("LIST" + Data);
+                
+                // Check if iframeControl, accountName, assetUniqueID, and BIM are all present
+                if (iframeControl && accountName && assetUniqueID && Data) {
+                    // Construct the new URL with the field value as a query parameter
+                    var newUrl = "https://hemydigitaltwin-dra9gjbxbsaydxdz.northeurope-01.azurewebsites.net/?property=" + encodeURIComponent(accountName) + "&uniqueID=" + encodeURIComponent(assetUniqueID) + "&BIM=" + encodeURIComponent(BIM) + "&subgridData=" + encodeURIComponent(Data);
+
+                    // Set the new URL to the iframe
+                    iframeControl.setSrc(newUrl);
+                } else {
+                    console.log("Missing iframe or required data for URL.");
+                }
+            } else {
+                console.log("No rows found in the subgrid.");
+            }
+        });
+    } else {
+        console.log("Subgrid Control not found.");
+    }
+}
