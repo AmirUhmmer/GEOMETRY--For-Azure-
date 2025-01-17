@@ -269,32 +269,32 @@ export async function HEATMAP(viewer, selectedFloor) {
 
 //             ACTUAL FUNCTION TO GET DATA FROM DATABASE
 
-// async function getSensorValue(location) {
-//     try {
-//         const response = await fetch(`/api/sensor/${location}`);
-//         if (!response.ok) {
-//             throw new Error(`Error fetching sensor data: ${response.statusText}`);
-//         }
+async function getSensorValue(location) {
+    try {
+        const response = await fetch(`/api/sensor/${location}`);
+        if (!response.ok) {
+            throw new Error(`Error fetching sensor data: ${response.statusText}`);
+        }
 
-//         const data = await response.json();
-//         const temp = parseInt(data.value); // Converts data.value to an integer
-//         const minTemp = 16;
-//         const maxTemp = 24;
+        const data = await response.json();
+        const temp = parseInt(data.value); // Converts data.value to an integer
+        const minTemp = 16;
+        const maxTemp = 24;
 
-//         // Normalize the temperature value to range [0, 1]
-//         console.log(`Sensor value for ${location}: ${data.value}`);
-//         const result = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp), 0), 1);
-//         return result;
+        // Normalize the temperature value to range [0, 1]
+        console.log(`Sensor value for ${location}: ${data.value}`);
+        const result = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp), 0), 1);
+        return result;
 
 
-//         //18 below celsius to blue 
-//         //19 up green 20-23
-//         //22 transition to red
+        //18 below celsius to blue 
+        //19 up green 20-23
+        //22 transition to red
 
-//     } catch (err) {
-//         console.error(err);
-//     }
-// }
+    } catch (err) {
+        console.error(err);
+    }
+}
 
 
 
@@ -307,39 +307,39 @@ export async function HEATMAP(viewer, selectedFloor) {
 
 // SAMPLE DATA 
 
-async function getSensorValue(location) {
-    try {
-        // Comment out the actual fetch request for now
-        /*
-        const response = await fetch(`/api/sensor/${location}`);
-        if (!response.ok) {
-            throw new Error(`Error fetching sensor data: ${response.statusText}`);
-        }
-        const data = await response.json();
-        const temp = parseInt(data.value); // Converts data.value to an integer
-        */
+// async function getSensorValue(location) {
+//     try {
+//         // Comment out the actual fetch request for now
+//         /*
+//         const response = await fetch(`/api/sensor/${location}`);
+//         if (!response.ok) {
+//             throw new Error(`Error fetching sensor data: ${response.statusText}`);
+//         }
+//         const data = await response.json();
+//         const temp = parseInt(data.value); // Converts data.value to an integer
+//         */
 
-        // Generate random temperature between 16 and 25
-        const randomTemp = Math.floor(Math.random() * (25 - 16 + 1)) + 16;
-        const sampleData = { value: randomTemp };
-        const temp = parseInt(sampleData.value);
+//         // Generate random temperature between 16 and 25
+//         const randomTemp = Math.floor(Math.random() * (25 - 16 + 1)) + 16;
+//         const sampleData = { value: randomTemp };
+//         const temp = parseInt(sampleData.value);
 
-        const minTemp = 16;
-        const maxTemp = 24;
+//         const minTemp = 16;
+//         const maxTemp = 24;
 
-        // Normalize the temperature value to range [0, 1]
-        // console.log(`Sensor value for ${location}: ${sampleData.value}`);
-        const result = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp), 0), 1);
-        return result;
+//         // Normalize the temperature value to range [0, 1]
+//         // console.log(`Sensor value for ${location}: ${sampleData.value}`);
+//         const result = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp), 0), 1);
+//         return result;
 
-        //18 below celsius to blue 
-        //19 up green 20-23
-        //22 transition to red
+//         //18 below celsius to blue 
+//         //19 up green 20-23
+//         //22 transition to red
 
-    } catch (err) {
-        console.error(err);
-    }
-}
+//     } catch (err) {
+//         console.error(err);
+//     }
+// }
 
 
 

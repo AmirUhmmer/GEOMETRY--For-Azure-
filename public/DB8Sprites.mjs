@@ -126,55 +126,7 @@ export async function SPRITES(viewer, selectedFloor) {
 
 //                           ACTUAL GET GRAPH DATA
 
-// // Define the onSpriteClicked function to handle sprite clicks
-// async function onSpriteClicked(event, viewer) {
-//   // Check if the clicked event contains a valid sprite (dbId)
-//   if (event.dbId && event.dbId !== -1) {
-//       console.log(`Sprite clicked: ${event.dbId}`);
-      
-//       // Retrieve the viewable from the map using dbId
-//       const viewable = viewableMap.get(event.dbId);
-      
-//       if (viewable) {
-//           // Access the custom data from the viewable
-//           const name = viewable.customData?.name;
-//           const pointID = viewable.customData?.pointId;
-//           const location = viewable.customData?.pointId;
-//           if (name) {
-//               console.log(`Sprite name: ${name}`);  // Log the name associated with the clicked sprite
-//               console.log(`Sprite id: ${pointID}`);
-//           } else {
-//               console.log('No name found for this sprite.');
-//           }
-
-//           // Fetch data from the server for dynamic chart update
-//           const response = await fetch(`/api/graphdata/${pointID}`);
-//           if (!response.ok) {
-//             throw new Error(`Error fetching sensor data: ${response.statusText}`);
-//           }
-
-//           const data = await response.json();
-          
-//           // Update the chart with the fetched data
-//           // Bring back data after test
-//           window.histogramPanels.barChart.updateSpriteInfo(name, data);  // Update panel with sprite info
-//           window.histogramPanels.barChart.setVisible(true);  // Show the histogram panel
-//       } else {
-//           console.log('No viewable found for this dbId.');
-//       }
-//   } else {
-//       // Ignore the event if the click did not happen on a sprite
-//       console.log("Click outside of sprite detected, no action taken.");
-//       window.histogramPanels.barChart.setVisible(false);  // Hide the histogram panel
-//   }
-// }
-
-
-
-
-// sample random numberrrrr
-
-
+// Define the onSpriteClicked function to handle sprite clicks
 async function onSpriteClicked(event, viewer) {
   // Check if the clicked event contains a valid sprite (dbId)
   if (event.dbId && event.dbId !== -1) {
@@ -188,7 +140,6 @@ async function onSpriteClicked(event, viewer) {
           const name = viewable.customData?.name;
           const pointID = viewable.customData?.pointId;
           const location = viewable.customData?.pointId;
-
           if (name) {
               console.log(`Sprite name: ${name}`);  // Log the name associated with the clicked sprite
               console.log(`Sprite id: ${pointID}`);
@@ -196,20 +147,17 @@ async function onSpriteClicked(event, viewer) {
               console.log('No name found for this sprite.');
           }
 
-          // Commenting out actual fetch call and using sample data instead
-          /*
+          // Fetch data from the server for dynamic chart update
           const response = await fetch(`/api/graphdata/${pointID}`);
           if (!response.ok) {
-              throw new Error(`Error fetching sensor data: ${response.statusText}`);
+            throw new Error(`Error fetching sensor data: ${response.statusText}`);
           }
+
           const data = await response.json();
-          */
-
-          // Generate random test data
-          const randomData = generateRandomGraphData();  // Call helper function for random data
-
-          // Update the chart with the generated random data
-          window.histogramPanels.barChart.updateSpriteInfo(name, randomData);  // Update panel with sprite info
+          
+          // Update the chart with the fetched data
+          // Bring back data after test
+          window.histogramPanels.barChart.updateSpriteInfo(name, data);  // Update panel with sprite info
           window.histogramPanels.barChart.setVisible(true);  // Show the histogram panel
       } else {
           console.log('No viewable found for this dbId.');
@@ -223,30 +171,82 @@ async function onSpriteClicked(event, viewer) {
 
 
 
-function generateRandomGraphData() {
-  const data = [];
-  const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 7, 0, 0);  // Start at 9:00 AM
 
-  let currentTime = new Date(startOfDay);
+// sample random numberrrrr
 
-  // Generate random data at 30-minute intervals until the current time
-  while (currentTime <= now) {
-      // Format the time (HH:mm) for observationTime
-      const observationTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      // Generate random values between 16 and 25
-      const value = Math.floor(Math.random() * (25 - 16 + 1)) + 16;
+// async function onSpriteClicked(event, viewer) {
+//   // Check if the clicked event contains a valid sprite (dbId)
+//   if (event.dbId && event.dbId !== -1) {
+//       console.log(`Sprite clicked: ${event.dbId}`);
+      
+//       // Retrieve the viewable from the map using dbId
+//       const viewable = viewableMap.get(event.dbId);
+      
+//       if (viewable) {
+//           // Access the custom data from the viewable
+//           const name = viewable.customData?.name;
+//           const pointID = viewable.customData?.pointId;
+//           const location = viewable.customData?.pointId;
 
-      // Push the observationTime and value into the data array
-      data.push({ observationTime, value });
+//           if (name) {
+//               console.log(`Sprite name: ${name}`);  // Log the name associated with the clicked sprite
+//               console.log(`Sprite id: ${pointID}`);
+//           } else {
+//               console.log('No name found for this sprite.');
+//           }
 
-      // Increment time by 30 minutes
-      currentTime.setMinutes(currentTime.getMinutes() + 30);
-  }
+//           // Commenting out actual fetch call and using sample data instead
+//           /*
+//           const response = await fetch(`/api/graphdata/${pointID}`);
+//           if (!response.ok) {
+//               throw new Error(`Error fetching sensor data: ${response.statusText}`);
+//           }
+//           const data = await response.json();
+//           */
 
-  return data;
-}
+//           // Generate random test data
+//           const randomData = generateRandomGraphData();  // Call helper function for random data
+
+//           // Update the chart with the generated random data
+//           window.histogramPanels.barChart.updateSpriteInfo(name, randomData);  // Update panel with sprite info
+//           window.histogramPanels.barChart.setVisible(true);  // Show the histogram panel
+//       } else {
+//           console.log('No viewable found for this dbId.');
+//       }
+//   } else {
+//       // Ignore the event if the click did not happen on a sprite
+//       console.log("Click outside of sprite detected, no action taken.");
+//       window.histogramPanels.barChart.setVisible(false);  // Hide the histogram panel
+//   }
+// }
+
+
+
+// function generateRandomGraphData() {
+//   const data = [];
+//   const now = new Date();
+//   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 7, 0, 0);  // Start at 9:00 AM
+
+//   let currentTime = new Date(startOfDay);
+
+//   // Generate random data at 30-minute intervals until the current time
+//   while (currentTime <= now) {
+//       // Format the time (HH:mm) for observationTime
+//       const observationTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+//       // Generate random values between 16 and 25
+//       const value = Math.floor(Math.random() * (25 - 16 + 1)) + 16;
+
+//       // Push the observationTime and value into the data array
+//       data.push({ observationTime, value });
+
+//       // Increment time by 30 minutes
+//       currentTime.setMinutes(currentTime.getMinutes() + 30);
+//   }
+
+//   return data;
+// }
 
 
 

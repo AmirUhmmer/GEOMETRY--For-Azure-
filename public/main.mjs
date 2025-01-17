@@ -289,6 +289,13 @@ async function initApp() {
                 // SOL10 for Production
                 '10ff2730-d365-ef11-bfe3-6045bddd062a': ['urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
                                                          'urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
+                                                        ],
+                                                    
+
+                 // JV3 for Production                                        
+                '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2': ['urn:adsk.wipemea:dm.lineage:U9tz-MHvQfS2Hg9gRITkdA', //MEP
+                                                         'urn:adsk.wipemea:dm.lineage:Ty5wLZ92TqCHkIn80Mmipg', //COMMON AREAS
+                                                         'urn:adsk.wipemea:dm.lineage:VLzD-rrOS9SQvV6rnJT7LA', //ARCHI
                                                         ]
 
             };
@@ -336,7 +343,10 @@ async function initApp() {
                 '422be7c5-ef69-ef11-bfe2-000d3a6735d4': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset' },
                 // SOL10
                 'f8c64108-adb7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset' },
-                '10ff2730-d365-ef11-bfe3-6045bddd062a': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset' }
+                '10ff2730-d365-ef11-bfe3-6045bddd062a': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset' },
+                // JV3
+                '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d', hardAsset: 'No Hard Asset' },
+                // '10ff2730-d365-ef11-bfe3-6045bddd062a': { projectId: 'b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d', hardAsset: 'No Hard Asset' },
             };
 
             const propertyMap = {
