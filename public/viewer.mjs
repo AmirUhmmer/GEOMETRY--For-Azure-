@@ -3,6 +3,7 @@ import { HEATMAP } from './DB8SurfaceShading.mjs';
 import { SPRITES } from './DB8Sprites.mjs';
 // import './extensions/LoggerExtension.mjs';
 import './extensions/HistogramExtension.mjs';
+import { showServiceTasksDockingPanel, createToolbarButton } from './ServiceTask.mjs';
 
 
 
@@ -241,10 +242,10 @@ export function initViewer(container) {
 // ******************************* WORKING ************************
 
 
-export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
+export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone) {
     const loadOptions = {
         globalOffset: { x: 0, y: 0, z: 0 },  // force all models to origin
-        placementTransform: (new THREE.Matrix4()).setPosition({ x: 0, y: 0, z: 0 }),  // Force placement to origin
+        // placementTransform: (new THREE.Matrix4()).setPosition({ x: 0, y: 0, z: 0 }),  // Force placement to origin
         keepCurrentModels: true // Keeps existing models in the viewer
     };
 
@@ -269,6 +270,22 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
             const models = viewer.impl.modelQueue().getModels();
             console.log(models);
             // Perform actions only when all models are loaded
+
+            const baseModelOffset = viewer.model.getData().globalOffset;  // Use the global offset of the first model
+            console.log('Base model global offset:', baseModelOffset);
+
+            // Apply the same global offset to other models
+            models.forEach(model => {
+                const currentOffset = model.getData().globalOffset;
+                console.log('Current model offset:', currentOffset);
+                
+                // Adjust the offset to align with the base model
+                if (currentOffset.x !== baseModelOffset.x || currentOffset.y !== baseModelOffset.y || currentOffset.z !== baseModelOffset.z) {
+                    console.log('Adjusting offset for alignment.');
+                    model.getData().globalOffset = baseModelOffset;
+                }
+            });
+
             if (viewer.model) {
                 viewer.loadExtension('Autodesk.DataVisualization').then(() => {
                     console.log('Autodesk.DataVisualization loaded.');
@@ -319,9 +336,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
                             HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
                             SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                         }
-                        else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
-                            SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
-                        }
+                        // else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
+                        //     SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
+                        // }
                     });
     
                     // Optionally, you can set a default floor after loading the extension
@@ -358,10 +375,12 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
 
                     // First, get the models from the viewer
                     const models = viewer.impl.modelQueue().getModels();
+                    const specificModel = models[1]; // Select the specific model you want to search in
 
                     // Ensure models are loaded before proceeding
                     if (models && models.length > 0 && assetValue) {
 
+                        const models = viewer.impl.modelQueue().getModels();
                         // Perform the search within the loaded models
                         viewer.search(assetValue, function(dbIDs) {
 
@@ -383,23 +402,38 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
                             // Fit to view and highlight the found objects
                             viewer.fitToView(dbIDs);
                             let color = '';
-                            if(BIM === 'false') {
-                                color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
-                                viewer.setSelectionColor(new THREE.Color(1, 0, 0));  // RGB: red, green, blue
-                            }
-                            else if(BIM === 'true') {
-                                color = new THREE.Vector4(0, 1, 0, 1);  // Red color with full intensity (RGBA)
-                                viewer.setSelectionColor(new THREE.Color(0, 1, 0));  // RGB: red, green, blue
+
+                            // Get the service tasks from the URL query string
+                            let params = {};
+                            let queryString = window.location.search.substring(1);
+                            let queryParts = queryString.split("&");
+
+                            for (let i = 0; i < queryParts.length; i++) {
+                                let param = queryParts[i].split("=");
+                                params[decodeURIComponent(param[0])] = decodeURIComponent(param[1]);
                             }
 
-                            // const color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
-                            viewer.setThemingColor(dbIDs, color);  // Optionally highlight the objects
-   
-                            
+                            let serviceTasks = params["subgridData"];  // The service task data, if it exists
+
+                            // Check if there are service tasks and split them into an array
+                            let serviceTaskList = [];
+                            if (serviceTasks) {
+                                serviceTaskList = serviceTasks.split("\n");  // Split by newline to convert into an array
+                                console.log('Service Tasks Array:', serviceTaskList);  // Array of service tasks
+                            }
+
+                            // Display the service tasks in a docking panel
+                            showServiceTasksDockingPanel(viewer, serviceTaskList);
+                            createToolbarButton(viewer);
+
+                            color = new THREE.Vector4(0, 1, 0, 1);  // Green color with full intensity (RGBA)
+                            viewer.setSelectionColor(new THREE.Color(0, 1, 0));  // RGB: red, green, blue
+
+                            // Optionally highlight the objects
+                            viewer.setThemingColor(dbIDs, color);  
                             viewer.select(dbIDs);  // Optionally highlight the objects
-                
-                            // Disable further selections after this point
-                            
+                            console.log(dbIDs);
+
                         }, function(error) {
                             console.error('Search error:', error);  // Handle any potential search errors
                         });
@@ -408,6 +442,87 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
                     }
 
                 }
+
+                console.log(ServiceZone);
+
+                // Assuming this is part of your search function when Hard Asset is selected
+                if (ServiceZone === 'TRUE') {
+
+                    const ServiceZoneID = localStorage.getItem('uniqueID');
+
+                    // First, get the models from the viewer
+                    const models = viewer.impl.modelQueue().getModels();
+
+                    // Ensure models are loaded before proceeding
+                    if (models && models.length > 0) {
+
+                        // Perform the search within the loaded models
+                        models[1].search(ServiceZoneID, function(dbIDs) {
+
+                            // If no objects are found, handle it gracefully
+                            if (!dbIDs || dbIDs.length === 0) {
+                                console.log('No matching objects found for: ' + ServiceZoneID);
+                                return;
+                            }
+
+                            // Loop through the models only once
+                            models.forEach(model => {
+                                // Hide all objects first
+                                viewer.isolate([], model);
+
+                                // Isolate the found objects
+                                viewer.isolate(dbIDs, model);
+                            });
+
+                            // Fit to view and highlight the found objects
+                            viewer.fitToView(dbIDs, models[1]);
+                            let color = '';
+
+                            // Get the service tasks from the URL query string
+                            let params = {};
+                            let queryString = window.location.search.substring(1);
+                            let queryParts = queryString.split("&");
+
+                            for (let i = 0; i < queryParts.length; i++) {
+                                let param = queryParts[i].split("=");
+                                params[decodeURIComponent(param[0])] = decodeURIComponent(param[1]);
+                            }
+
+                            let serviceTasks = params["subgridData"];  // The service task data, if it exists
+
+                            // Check if there are service tasks and split them into an array
+                            let serviceTaskList = [];
+                            if (serviceTasks) {
+                                serviceTaskList = serviceTasks.split("\n");  // Split by newline to convert into an array
+                                console.log('Service Tasks Array:', serviceTaskList);  // Array of service tasks
+                            }
+
+                            // viewer.select([objectDBID], models[1]);  // Select the object in the viewer 
+                            // viewer.fitToView([objectDBID], models[1]);  // THE MEP MODEL THAT CONTAINS THE DBID IS IN SECOND INDEX
+
+                            // Display the service tasks in a docking panel
+                            showServiceTasksDockingPanel(viewer, serviceTaskList);
+                            createToolbarButton(viewer);
+
+                            color = new THREE.Vector4(0, 1, 0, 1);  // Green color with full intensity (RGBA)
+                            viewer.setSelectionColor(new THREE.Color(0, 1, 0));  // RGB: red, green, blue
+
+                            // Optionally highlight the objects
+                            viewer.setThemingColor(dbIDs, color);  
+                            viewer.select(dbIDs, models[1]);  // Optionally highlight the objects
+                            console.log(dbIDs);
+
+                        }, function(error) {
+                            console.error('Search error:', error);  // Handle any potential search errors
+                        });
+                    } else {
+                        console.warn('No models loaded or invalid asset value.');
+                    }
+
+                }
+
+
+
                 
 
 
@@ -470,6 +585,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
             const node = await viewer.loadDocumentNode(doc, viewables, loadOptions);
             console.log("Model node loaded into viewer:", node);
 
+            // const offset = viewer.model.getData().globalOffset //= { x: 0, y: 0, z: 0 }; Set the global offset for all models
+            // console.log(offset);
+
             modelsLoaded++;  // Increment after successful load
             checkAllModelsLoaded();  // Check if all models are loaded
         } catch (error) {
@@ -525,7 +643,13 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, BIM) {
         // console.log('Latest Version URN:', versionsData);
         if (versionsData.data && versionsData.data.length > 0) {
             const latestVersion = versionsData.data[0];  // Assuming the first item is the latest
-            const latestVersionUrn = latestVersion.id;  // This will be the URN for the latest version
+            let latestVersionUrn = latestVersion.id;  // This will be the URN for the latest version
+            if(latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=20') {
+                // latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=19';
+            }
+            else if(latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.gs0PRB3eRUS6ANLK09vDYA?version=19') {
+                latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.gs0PRB3eRUS6ANLK09vDYA?version=5';
+            }
             console.log('Latest Version URN:', latestVersionUrn);
             const base64Urn = btoa(latestVersionUrn);  // This encodes the URN to base64
             // console.log('Base64 URN:', base64Urn);

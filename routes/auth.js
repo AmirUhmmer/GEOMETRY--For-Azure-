@@ -1,5 +1,6 @@
 const express = require('express');
 const Axios = require('axios');
+const cors = require('cors'); // Import CORS
 const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
 const { APS_CLIENT_ID, APS_CLIENT_SECRET } = require('../config.js');
 
@@ -8,8 +9,9 @@ const querystring = require('querystring');
 
 const sql = require('mssql');
 
+
+
 // Azure SQL configuration
-// test push
 const config = {
     user: 'sqlserverdb8_admin',
     password: 'jCz91%z%FlS7',
@@ -30,6 +32,10 @@ const config = {
 };
 
 let router = express.Router();
+
+// Enable CORS with specific origin (your Dynamics URL)
+router.use(cors());
+
 
 router.get('/api/auth/login', function (req, res) {
     res.redirect(getAuthorizationUrl());
@@ -194,6 +200,30 @@ router.get('/api/graphdata/:location', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send('Error retrieving graph data');
+    }
+});
+
+
+
+// Store submitted data in a simple in-memory store (could be a database in real implementation)
+let storedData = {};
+
+// POST route to handle data submission
+router.post('/api/ServiceZone', (req, res) => {
+    try {
+        const data = req.body;
+        console.log('POST data:', data);
+
+        // Store the data, using the GUID as the key
+        storedData[data.uniqueID] = data;
+
+        // Send a JSON response back to the client
+        res.json({ message: "Data received", receivedData: data });
+
+        console.log('This is from the website:', storedData);
+    } catch (error) {
+        console.error('Error handling POST request:', error);
+        res.status(500).json({ error: "Something went wrong" });
     }
 });
 

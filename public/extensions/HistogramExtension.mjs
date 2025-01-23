@@ -36,7 +36,7 @@ class HistogramExtension extends BaseExtension {
 
     onToolbarCreated() {
         this._barChartPanel = new HistogramPanel(this, 'dashboard-barchart-panel', 'Temperature', { x: 10, y: 10, chartType: 'bar' });
-        this._pieChartPanel = new HistogramPanel(this, 'dashboard-piechart-panel', 'Property Histogram', { x: 10, y: 420, chartType: 'doughnut' });
+        this._pieChartPanel = new HistogramPanel(this, 'dashboard-piechart-panel', 'Service Tasks', { x: 10, y: 420, chartType: 'doughnut' });
         this._barChartButton = this.createToolbarButton('dashboard-barchart-button', 'https://img.icons8.com/small/32/bar-chart.png', 'Live Data');
         this._barChartButton.onClick = () => {
             this._barChartPanel.setVisible(!this._barChartPanel.isVisible());
@@ -45,14 +45,14 @@ class HistogramExtension extends BaseExtension {
             //     this._barChartPanel.setModel(this.viewer.model);
             // }
         };
-        this._pieChartButton = this.createToolbarButton('dashboard-piechart-button', 'https://img.icons8.com/small/32/pie-chart.png', 'Show Property Histogram (Pie Chart)');
-        this._pieChartButton.onClick = () => {
-            this._pieChartPanel.setVisible(!this._pieChartPanel.isVisible());
-            this._pieChartButton.setState(this._pieChartPanel.isVisible() ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);
-            if (this._pieChartPanel.isVisible() && this.viewer.model) {
-                this._pieChartPanel.setModel(this.viewer.model);
-            }
-        };
+        // this._pieChartButton = this.createToolbarButton('dashboard-piechart-button', 'https://img.icons8.com/small/32/pie-chart.png', 'Service Tasks');
+        // this._pieChartButton.onClick = () => {
+        //     this._pieChartPanel.setVisible(!this._pieChartPanel.isVisible());
+        //     this._pieChartButton.setState(this._pieChartPanel.isVisible() ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);
+        //     if (this._pieChartPanel.isVisible() && this.viewer.model) {
+        //         this._pieChartPanel.setModel(this.viewer.model);
+        //     }
+        // };
 
         // Global reference for the panels so other files can access them
         window.histogramPanels = {
