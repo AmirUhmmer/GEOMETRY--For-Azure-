@@ -141,7 +141,7 @@ async function onSpriteClicked(event, viewer) {
           const name = viewable.customData?.name;
           const pointID = viewable.customData?.pointId;
           const location = viewable.customData?.pointId;
-
+          const objectDBID = viewable.customData?.objectDBID;
           if (name) {
               console.log(`Sprite name: ${name}`);  // Log the name associated with the clicked sprite
               console.log(`Sprite id: ${pointID}`);
@@ -186,10 +186,68 @@ async function onSpriteClicked(event, viewer) {
 
 
 
-function generateRandomGraphData() {
-  const data = [];
-  const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 7, 0, 0);  // Start at 9:00 AM
+
+// sample random numberrrrr
+
+
+// async function onSpriteClicked(event, viewer) {
+//   // Check if the clicked event contains a valid sprite (dbId)
+//   if (event.dbId && event.dbId !== -1) {
+//       console.log(`Sprite clicked: ${event.dbId}`);
+      
+//       // Retrieve the viewable from the map using dbId
+//       const viewable = viewableMap.get(event.dbId);
+      
+//       if (viewable) {
+//           // Access the custom data from the viewable
+//           const name = viewable.customData?.name;
+//           const pointID = viewable.customData?.pointId;
+//           const location = viewable.customData?.pointId;
+//           const objectDBID = viewable.customData?.objectDBID;
+
+//           if (name) {
+//               console.log(`Sprite name: ${name}`);  // Log the name associated with the clicked sprite
+//               console.log(`Sprite id: ${pointID}`);
+//               console.log(`Sprite object: ${objectDBID}`);
+
+//               if (objectDBID) {
+//                 console.log(`Sprite object: ${objectDBID}`);
+                
+              
+//                 // Get all models loaded in the viewer
+//                 const models = viewer.impl.modelQueue().getModels();
+//                 // Iterate over each model
+//                   viewer.select([objectDBID], models[1]);  // Select the object in the viewer 
+//                   viewer.fitToView([objectDBID], models[1]);  // THE MEP MODEL THAT CONTAINS THE DBID IS IN SECOND INDEX
+                
+//               }
+              
+//           } else {
+//               console.log('No name found for this sprite.');
+//           }
+
+//           // Generate random test data
+//           const randomData = generateRandomGraphData();  // Call helper function for random data
+
+//           // Update the chart with the generated random data
+//           window.histogramPanels.barChart.updateSpriteInfo(name, randomData);  // Update panel with sprite info
+//           window.histogramPanels.barChart.setVisible(true);  // Show the histogram panel
+//       } else {
+//           console.log('No viewable found for this dbId.');
+//       }
+//   } else {
+//       // Ignore the event if the click did not happen on a sprite
+//       console.log("Click outside of sprite detected, no action taken.");
+//       window.histogramPanels.barChart.setVisible(false);  // Hide the histogram panel
+//   }
+// }
+
+
+
+// function generateRandomGraphData() {
+//   const data = [];
+//   const now = new Date();
+//   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 7, 0, 0);  // Start at 9:00 AM
 
 //   let currentTime = new Date(startOfDay);
 
