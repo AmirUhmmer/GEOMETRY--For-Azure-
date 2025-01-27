@@ -83,7 +83,7 @@ export function createToolbarButton(viewer) {
     buttonContainer.style.backgroundRepeat = 'no-repeat';  // Ensure no repeat of the image
     buttonContainer.style.backgroundPosition = 'center';  // Center the image inside the button
 
-    button.setToolTip('Service Tasks');
+    button.setToolTip('Color Coding');  // Set the tooltip for the button
 
     // Define the action when the button is clicked
     button.onClick = function() {
