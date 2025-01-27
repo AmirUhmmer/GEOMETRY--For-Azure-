@@ -116,10 +116,10 @@ export function ServiceZoneSearch(viewer, ServiceZone){
                             createToolbarButton(viewer);
 
                             let alldbid = [];  // Initialize the alldbid array outside the loop
+                            let guiddbid = [];  // Initialize the guiddbid array outside the loop
 
                             // Iterate through each service task
                             serviceTaskList.forEach(task => {
-                                // Perform search to get the dbIDs corresponding to the GUID
                                 models[1].search(task.GUID, function(dbIDs) {
                                     if (!dbIDs || dbIDs.length === 0) {
                                         console.log('No matching objects found for: ' + task.GUID);
@@ -129,41 +129,41 @@ export function ServiceZoneSearch(viewer, ServiceZone){
                                     // Log dbIDs to the console first
                                     console.log('Found dbIDs for GUID:', task.GUID, dbIDs);
 
-                                    // Push the dbIDs into the alldbid array
-                                    alldbid = alldbid.concat(dbIDs);  // Concatenate the dbIDs into the alldbid array
-
-                                    // Set the theming color for the dbIDs that correspond to this task
-                                    const color = task.VectorColor;  // Assuming you have a color (VectorColor) for each task
+                                    // Push the dbIDs into the guiddbid array
+                                    guiddbid = guiddbid.concat(dbIDs);  // Concatenate the dbIDs into the guiddbid array
 
                                     // Set the theming color for each dbID
+                                    const color = task.VectorColor;  // Assuming you have a color (VectorColor) for each task
                                     dbIDs.forEach(dbid => {
-                                        models[1].setThemingColor(dbid, color);
+                                        models[1].setThemingColor(dbid, color); // Set theming color for each dbID
                                     });
 
+                                    // Push the dbIDs into the alldbid array (for tracking all dbIDs)
+                                    alldbid = alldbid.concat(dbIDs);
                                 }, function(error) {
                                     console.error('Search error:', error);  // Handle any potential search errors
                                 });
                             });
 
-                            // If you want to check the result of all dbIDs, make sure to do it after the asynchronous calls are complete
+                            // Delay logging the results to ensure the search operation finishes
                             setTimeout(() => {
-                                console.log('All dbIDs:', alldbid);  // This will now log the final alldbid after all searches are done
-                            }, 1000);  // Adjust the timeout to give enough time for all searches to complete
+                                console.log('All dbIDs:', alldbid);  // Log the final alldbid after searches are done
+                                console.log('All guiddbid:', guiddbid);  // Log the final guiddbid
 
+                                 // Loop through the models only once
+                                models.forEach(model => {
+                                    // Hide all objects first
+                                    viewer.isolate([], model);
+
+                                    // Isolate the found objects
+                                    viewer.isolate(alldbid, model);
+                                });
+
+                                // Fit to view and highlight the found objects
+                                viewer.fitToView(alldbid, models[1]);
+                            }, 1000);  // 1 second delay (adjust if needed)
 
                             alldbid = alldbid.concat(dbIDs);
-                            // Loop through the models only once
-                            models.forEach(model => {
-                                // Hide all objects first
-                                viewer.isolate([], model);
-
-                                // Isolate the found objects
-                                viewer.isolate(alldbid, model);
-                            });
-
-                            // Fit to view and highlight the found objects
-                            viewer.fitToView(alldbid, models[1]);
-                            
 
                             color = new THREE.Vector4(0, 1, 0, 1);  // Green color with full intensity (RGBA)
                             viewer.setSelectionColor(new THREE.Color(0, 1, 0));  // RGB: red, green, blue
