@@ -109,7 +109,8 @@ export function ServiceZoneSearch(viewer, ServiceZone){
                             }
                             
                             // Example usage to display in a docking panel
-                            showServiceTasksDockingPanel(viewer, serviceTaskList);
+                            let NoGreen = "FALSE";
+                            showServiceTasksDockingPanel(viewer, serviceTaskList, NoGreen);
                             createToolbarButton(viewer);
 
                             let alldbid = [];  // Initialize the alldbid array outside the loop
@@ -252,7 +253,8 @@ export function ServiceZoneSearch(viewer, ServiceZone){
                             }
                             
                             // Example usage to display in a docking panel
-                            showServiceTasksDockingPanel(viewer, serviceTaskList);
+                            let NoGreen = "TRUE";
+                            showServiceTasksDockingPanel(viewer, serviceTaskList, NoGreen);
                             createToolbarButton(viewer);
 
                             let alldbid = [];  // Initialize the alldbid array outside the loop

@@ -1,5 +1,5 @@
 // Function to create and display a docking panel
-export function showServiceTasksDockingPanel(viewer, serviceTaskList) {
+export function showServiceTasksDockingPanel(viewer, serviceTaskList, NoGreen) {
 
     // Create a custom Docking Panel class
     class ServiceTasksPanel extends Autodesk.Viewing.UI.DockingPanel {
@@ -27,6 +27,8 @@ export function showServiceTasksDockingPanel(viewer, serviceTaskList) {
             // Create a Set to ensure each tenant is only mentioned once
             const uniqueTenants = new Set();
 
+            const taskItem1 = document.createElement('li');
+
             // Loop through the serviceTaskList and create list items for each tenant with color
             serviceTaskList.forEach(task => {
                 if (!uniqueTenants.has(task.Tenant)) {
@@ -34,15 +36,32 @@ export function showServiceTasksDockingPanel(viewer, serviceTaskList) {
 
                     const taskItem = document.createElement('li');
                     
+                    
                     // Use a black circle (●) before each tenant name and display the tenant's color
-                    taskItem.innerHTML = `<span style="color: white;">●</span> ${task.Tenant} - ${task.CssColor}`;
-
+                    if(NoGreen == "FALSE"){
+                        console.log("NoGreen is false");
+                        taskItem.innerHTML = `<span style="color: white;">●</span> ${task.Tenant} - ${task.CssColor}`;3
+                    }
+                    else{
+                        console.log("NoGreen is true");
+                        taskItem.innerHTML = `<span style="color: white;">●</span> ${task.Tenant} - ${task.CssColor} `;
+                        
+                        
+                    }
+                    
                     // Optionally, you can style the text with the corresponding color
                     taskItem.style.color = task.CssColor.toLowerCase();  // Set text color to match the tenant's color
 
                     taskListElement.appendChild(taskItem);
+                    
+                    
                 }
             });
+
+            if (NoGreen == "TRUE"){
+                taskItem1.innerHTML = `<span style="color: white;">●</span><span style="color: green;">Unassigned - green</span>`;
+                taskListElement.appendChild(taskItem1);
+            }
 
             content.appendChild(taskListElement);
             this.container.appendChild(content);
