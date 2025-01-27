@@ -11,7 +11,7 @@ export function showServiceTasksDockingPanel(viewer, serviceTaskList) {
             this.container.style.height = "400px";
             this.container.style.resize = "auto";
             this.container.style.backgroundColor = '#333';
-            this.container.style.title = 'Service Task'
+            this.container.style.title = 'Color Coding';
             this.createScrollContainer();
         }
 
@@ -20,11 +20,28 @@ export function showServiceTasksDockingPanel(viewer, serviceTaskList) {
             const content = document.createElement('div');
             content.classList.add('docking-panel-content');
 
+            // Create a list to display tenant color coding
             const taskListElement = document.createElement('ul');
+            taskListElement.style.listStyle = 'none';  // Remove default bullets for list items
+
+            // Create a Set to ensure each tenant is only mentioned once
+            const uniqueTenants = new Set();
+
+            // Loop through the serviceTaskList and create list items for each tenant with color
             serviceTaskList.forEach(task => {
-                const taskItem = document.createElement('li');
-                taskItem.textContent = task;
-                taskListElement.appendChild(taskItem);
+                if (!uniqueTenants.has(task.Tenant)) {
+                    uniqueTenants.add(task.Tenant);
+
+                    const taskItem = document.createElement('li');
+                    
+                    // Use a black circle (●) before each tenant name and display the tenant's color
+                    taskItem.innerHTML = `<span style="color: white;">●</span> ${task.Tenant} - ${task.CssColor}`;
+
+                    // Optionally, you can style the text with the corresponding color
+                    taskItem.style.color = task.CssColor.toLowerCase();  // Set text color to match the tenant's color
+
+                    taskListElement.appendChild(taskItem);
+                }
             });
 
             content.appendChild(taskListElement);
@@ -39,9 +56,11 @@ export function showServiceTasksDockingPanel(viewer, serviceTaskList) {
     }
 
     // Create a new panel with the title 'Service Task'
-    viewer.serviceTasksPanel = new ServiceTasksPanel(viewer, "Service Task", "Service Task", {});
+    viewer.serviceTasksPanel = new ServiceTasksPanel(viewer, "Color Coding", "Color Coding", {});
     viewer.serviceTasksPanel.setVisible(true);
 }
+
+
 
 
 
@@ -59,6 +78,7 @@ export function createToolbarButton(viewer) {
     // Apply icon styling directly to the button's container
     const buttonContainer = button.container;
     buttonContainer.style.backgroundImage = 'url(./images/task.svg)';  // Set your icon image source here
+    buttonContainer.style.backgroundColor = 'transparent';  // Make background transparent
     buttonContainer.style.backgroundSize = '30px';  // Adjust size of the background image
     buttonContainer.style.backgroundRepeat = 'no-repeat';  // Ensure no repeat of the image
     buttonContainer.style.backgroundPosition = 'center';  // Center the image inside the button

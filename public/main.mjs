@@ -213,6 +213,7 @@ async function initApp() {
             let property = params["property"];  // The property value, if it exists
             let uniqueID = params["uniqueID"];  // The uniqueID, if it exists
             let ServiceZone = params["SZ"];  // The uniqueID, if it exists
+            let FunctionalLocation = params["FL"];  // The uniqueID, if it exists
 
             if (uniqueID) {
                 localStorage.setItem('uniqueID', uniqueID);
@@ -388,11 +389,12 @@ async function initApp() {
             // Initialize the tree and handle model loading
             let hubId = 'b.7a656dca-000a-494b-9333-d9012c464554';  // Hub ID
             ServiceZone = ServiceZone || 'No Service Zone';
+            FunctionalLocation = FunctionalLocation || 'No Functional Location';
             initTree('#tree', (id) => {
                 // If no ID is provided, use the sample URN
                 console.log(id);
                 const urn = id !== 0 ? window.btoa(id).replace(/=/g, '') : geometry;
-                loadModel(viewer, urn, hubId, projectId, folderId, ServiceZone);
+                loadModel(viewer, urn, hubId, projectId, folderId, ServiceZone, FunctionalLocation);
             });
 
         } else {
