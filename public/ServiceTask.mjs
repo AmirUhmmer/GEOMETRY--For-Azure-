@@ -59,7 +59,7 @@ export function showServiceTasksDockingPanel(viewer, serviceTaskList, NoGreen) {
             });
 
             if (NoGreen == "TRUE"){
-                taskItem1.innerHTML = `<span style="color: white;">●</span><span style="color: green;">Unassigned - green</span>`;
+                taskItem1.innerHTML = `<span style="color: white;">●</span><span style="color: green;"> Unassigned - green</span>`;
                 taskListElement.appendChild(taskItem1);
             }
 
