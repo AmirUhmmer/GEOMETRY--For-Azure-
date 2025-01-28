@@ -94,85 +94,51 @@ export function initViewer(container) {
                 }
             });
             
-            
-            
-
-            // canvas.addEventListener('dblclick', function (event) {
-            //     event.preventDefault(); // Prevents default zoom on double-click
-            
-            //     const selectedItems = viewer.getSelection();
-            //     if (selectedItems.length > 0) {
-            //         const dbid = selectedItems[0];
-            //         console.log("DOUBLE CLICK -- Selected DBID:", dbid);
-            
-            //         // Retrieve properties using the DBID
-            //         viewer.getProperties(dbid, function(props) {
-            //             // Find the GlobalID property
-            //             let globalID = null;
-            //             props.properties.forEach(function(prop) {
-            //                 if (prop.displayName === "Asset ID") {
-            //                     globalID = prop.displayValue;
-            //                 }
-            //             });
-            
-            //             if (globalID) {
-            //                 // Construct the URL using the GlobalID retrieved from the properties
-            //                 var newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
-            //                 console.log("New URL:", newUrl);
-            
-            //                 // Open the URL in a new tab
-            //                 window.open(newUrl, '_blank');
-            //             } else {
-            //                 console.log("GlobalID not found.");
-            //             }
-            //         });
-            //     }
-            // });
 
 
             // Double-click event handler with aggregate selection support
-            canvas.addEventListener('dblclick', function (event) {
-                event.preventDefault(); // Prevent default zoom on double-click
+            // canvas.addEventListener('dblclick', function (event) {
+            //     event.preventDefault(); // Prevent default zoom on double-click
 
-                const aggregateSelection = viewer.getAggregateSelection(); // Get selections from all loaded models
+            //     const aggregateSelection = viewer.getAggregateSelection(); // Get selections from all loaded models
 
-                if (aggregateSelection && aggregateSelection.length > 0) {
-                    // Loop through all selections across models
-                    aggregateSelection.forEach(selection => {
-                        const model = selection.model;           // Get the selected model
-                        const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
+            //     if (aggregateSelection && aggregateSelection.length > 0) {
+            //         // Loop through all selections across models
+            //         aggregateSelection.forEach(selection => {
+            //             const model = selection.model;           // Get the selected model
+            //             const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
 
-                        if (dbIdArray && dbIdArray.length > 0) {
-                            const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
-                            console.log("DOUBLE CLICK -- Selected DBID:", dbId);
+            //             if (dbIdArray && dbIdArray.length > 0) {
+            //                 const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
+            //                 console.log("DOUBLE CLICK -- Selected DBID:", dbId);
 
-                            // Retrieve properties using the DBID and the model (since there are multiple models)
-                            model.getProperties(dbId, function (props) {
-                                // Find the GlobalID or Asset ID property
-                                let globalID = null;
-                                props.properties.forEach(function (prop) {
-                                    if (prop.displayName === "Asset ID") {
-                                        globalID = prop.displayValue;
-                                    }
-                                });
+            //                 // Retrieve properties using the DBID and the model (since there are multiple models)
+            //                 model.getProperties(dbId, function (props) {
+            //                     // Find the GlobalID or Asset ID property
+            //                     let globalID = null;
+            //                     props.properties.forEach(function (prop) {
+            //                         if (prop.displayName === "Asset ID") {
+            //                             globalID = prop.displayValue;
+            //                         }
+            //                     });
 
-                                if (globalID) {
-                                    // Construct the URL using the GlobalID retrieved from the properties
-                                    const newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
-                                    console.log("New URL:", newUrl);
+            //                     if (globalID) {
+            //                         // Construct the URL using the GlobalID retrieved from the properties
+            //                         const newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
+            //                         console.log("New URL:", newUrl);
 
-                                    // Open the URL in a new tab
-                                    window.open(newUrl, '_blank');
-                                } else {
-                                    console.log("GlobalID not found.");
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    console.log('No objects selected or aggregate selection is undefined.');
-                }
-            });
+            //                         // Open the URL in a new tab
+            //                         window.open(newUrl, '_blank');
+            //                     } else {
+            //                         console.log("GlobalID not found.");
+            //                     }
+            //                 });
+            //             }
+            //         });
+            //     } else {
+            //         console.log('No objects selected or aggregate selection is undefined.');
+            //     }
+            // });
 
             
 
@@ -448,6 +414,83 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 ServiceZoneSearch(viewer, ServiceZone);
 
                 FunctionalLocationSearch (viewer, FunctionalLocation);
+
+
+                const canvas = viewer.impl.canvas;
+
+
+                canvas.addEventListener('dblclick', function (event) {
+                    event.preventDefault(); // Prevent default zoom on double-click
+                
+                    const aggregateSelection = viewer.getAggregateSelection(); // Get selections from all loaded models
+                
+                    if (aggregateSelection && aggregateSelection.length > 0) {
+                        // Loop through all selections across models
+                        aggregateSelection.forEach(selection => {
+                            const model = selection.model;           // Get the selected model
+                            const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
+                
+                            if (dbIdArray && dbIdArray.length > 0) {
+                                const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
+                                console.log("DOUBLE CLICK -- Selected DBID:", dbId);
+                
+                                // Retrieve properties using the DBID and the model (since there are multiple models)
+                                model.getProperties(dbId, function (props) {
+                                    // Find the GlobalID or Asset ID property
+                                    let globalID = null;
+                                    let identity = null;
+                                    props.properties.forEach(function (prop) {
+                                        if (prop.displayName === "Asset ID") {
+                                            globalID = prop.displayValue;
+                                        }
+                                        if (prop.displayName === "Asset ID (GUID)") {
+                                            globalID = prop.displayValue;
+                                        }
+                                        if (prop.displayName === "Type Name") {
+                                            identity = prop.displayValue;
+                                            console.log("test" + identity);
+                                        }
+                                    });
+                
+                                    if (globalID) {
+                                        // Check if the selected model is the first or second model
+                                        let newUrl;
+                                        
+
+                                        if (HardAsset === 'Hard Asset' || FunctionalLocation === 'TRUE' || ServiceZone === 'TRUE') {
+                                            if (model === viewer.impl.modelQueue().getModels()[1]) {
+                                                // Second model
+                                                newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
+                                            } else {
+                                                // Default case if neither first nor second model
+                                                newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
+                                            }
+
+                                        }else{
+                                            if (model === viewer.impl.modelQueue().getModels()[1]) {
+                                                // Second model
+                                                newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;                                         
+                                            } else {
+                                                // Default case if neither first nor second model
+                                                newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
+                                            }
+                                        }
+                
+                                        console.log("New URL:", newUrl);
+                
+                                        // Open the URL in a new tab
+                                        window.open(newUrl, '_blank');
+                                    } else {
+                                        console.log("GlobalID not found.");
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        console.log('No objects selected or aggregate selection is undefined.');
+                    }
+                });
+                
 
 
                 
