@@ -461,6 +461,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                             if (model === viewer.impl.modelQueue().getModels()[1]) {
                                                 // Second model
                                                 newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
+                                                // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
                                             } else {
                                                 // Default case if neither first nor second model
                                                 newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;

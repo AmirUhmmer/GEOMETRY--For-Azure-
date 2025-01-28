@@ -330,8 +330,8 @@ async function initApp() {
             // Project and folder IDs based on recordId or property
             const projectMap = {
                 // DB8
-                '06eddd02-c366-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', hardAsset: 'No Hard Asset' }, // liveData: 'DB8',
-                '2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', hardAsset: 'No Hard Asset' }, // liveData: 'DB8',
+                '06eddd02-c366-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', hardAsset: 'No Hard Asset', liveData: 'DB8' }, // liveData: 'DB8',
+                '2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', hardAsset: 'No Hard Asset', liveData: 'DB8' }, // liveData: 'DB8',
                 // HG62
                 '766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset' },
                 '422be7c5-ef69-ef11-bfe2-000d3a6735d4': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset' },
