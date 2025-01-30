@@ -170,6 +170,28 @@ router.get('/api/sensor/:location', async (req, res) => {
     }
 });
 
+router.get('/api/LightSensor/:location', async (req, res) => {
+    const location = req.params.location;
+    try {
+        // Get the connection pool
+        const pool = await getPool();
+
+        // Query the database
+        const result = await pool.request()
+            .input('location', sql.VarChar, location)
+            .query('SELECT TOP (1) [value], [observationTime] FROM [dbo].[LiveData] WHERE sensorId = @location ORDER BY observationTime DESC');
+
+        if (result.recordset.length > 0) {
+            res.json({ value: result.recordset[0].value });
+        } else {
+            res.status(404).send('Sensor not found');
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error retrieving sensor value');
+    }
+});
+
 // Route to fetch graph data
 router.get('/api/graphdata/:location', async (req, res) => {
     const location = req.params.location;
@@ -181,7 +203,7 @@ router.get('/api/graphdata/:location', async (req, res) => {
         const result = await pool.request()
             .input('location', sql.VarChar, location)
             .query(`
-                SELECT TOP (4)
+                SELECT TOP (1)
                 FORMAT(ld.observationTime, 'HH:mm - dd MMM') AS observationTime,
                     ld.value
                 FROM

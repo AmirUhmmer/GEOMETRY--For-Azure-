@@ -95,21 +95,7 @@ export async function SPRITES(viewer, selectedFloor) {
       // Add the viewables to the extension
       extension0.addViewables(viewableData);
 
-
-      // Check if selectedFloor is undefined
-    if (selectedFloor === 'undefined') {
-      console.log('No floor selected.');
-      // Get all models loaded in the viewer
-      const allModels = viewer.getAllModels();
-
-      // Loop through each model and hide all viewables (sprites)
-      allModels.forEach((model) => {
-          extension0.showHideViewables(false);
-          console.log(`Hiding all viewables for model: ${model.id}`);
-      });
-
-      console.log('All viewables should now be hidden across all models.');
-    }
+      const models = viewer.impl.modelQueue().getModels();
 
       viewer.addEventListener(DataVizCore.MOUSE_CLICK, (event) => onSpriteClicked(event, viewer));
       console.log('Viewables added to the extension successfully!');

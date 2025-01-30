@@ -1,7 +1,6 @@
-//push test
 import { HEATMAP } from './DB8SurfaceShading.mjs';
 import { SPRITES } from './DB8Sprites.mjs';
-// import './extensions/LoggerExtension.mjs';
+import { LightSPRITES } from './DB8LightsSprites.mjs';
 import './extensions/HistogramExtension.mjs';
 import { showServiceTasksDockingPanel, createToolbarButton } from './ServiceTask.mjs';
 import { ServiceZoneSearch } from './ServiceZone.mjs';
@@ -303,6 +302,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                         if (LiveData === 'DB8' && selectedLevelIndex !== undefined) {
                             HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
                             SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
+                            // LightSPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                         }
                         // else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
                         //     SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
@@ -547,6 +547,13 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
     // Success handler for loading individual models
     async function onDocumentLoadSuccess(doc) {
+        const loadOptions = {
+            keepCurrentModels: true, // Keeps existing models in the viewer
+            globalOffset: { x: 0, y: 0, z: 0 },  // Force all models to origin
+            applyRefPoint: true, // Apply reference point for 3D shared coordinates
+            // applyScaling: 'm',   // Force all models to the same scale
+            // placementTransform: (new THREE.Matrix4()).setPosition({ x: 0, y: 0, z: 0 }) // Set placement transform for origin
+        };
         console.log("Model loaded successfully:", doc);
         
         let viewables = doc.getRoot().getDefaultGeometry();
