@@ -5,30 +5,12 @@ export class HistogramPanel extends Autodesk.Viewing.UI.DockingPanel {
         this.extension = extension;
         this.container.style.left = (options.x || 0) + 'px';
         this.container.style.top = (options.y || 0) + 'px';
-        this.container.style.width = (options.width || 300) + 'px';
-        this.container.style.height = (options.height || 200) + 'px';
-        this.container.style.resize = 'none';
+        this.container.style.width = (options.width || 350) + 'px';
+        this.container.style.height = (options.height || 300) + 'px';
+        // this.container.style.resize = 'none';
+        this.container.style.resize = "auto";
         this.container.style.overflow = 'hidden';  // Hide overflow
     }
-
-    // initialize() {
-    //     this.title = this.createTitleBar(this.titleLabel || this.container.id);
-    //     this.initializeMoveHandlers(this.title);
-    //     this.container.appendChild(this.title);
-
-    //     // Create content to display the dbId
-    //     this.content = document.createElement('div');
-    //     this.content.style.height = '100%';
-    //     this.content.style.backgroundColor = '#333';
-    //     this.content.style.padding = '1em';
-
-    //     // Add placeholder for displaying dbId
-    //     this.dbIdDisplay = document.createElement('div');
-    //     this.dbIdDisplay.innerHTML = '<strong>Selected Sprite DBId:</strong> <span id="spriteDbId">None</span>';
-    //     this.content.appendChild(this.dbIdDisplay);
-
-    //     this.container.appendChild(this.content);
-    // }
 
     initialize() {
         this.title = this.createTitleBar(this.titleLabel || this.container.id);
@@ -48,12 +30,21 @@ export class HistogramPanel extends Autodesk.Viewing.UI.DockingPanel {
         this.dbIdDisplay = document.createElement('div');
         this.dbIdDisplay1 = document.createElement('div');
         this.dbIdDisplay2 = document.createElement('div');
+        this.dbIdDisplay3 = document.createElement('div');
+        this.dbIdDisplay4 = document.createElement('div');
+        this.dbIdDisplay5 = document.createElement('div');
         this.dbIdDisplay.innerHTML = '<strong style="display: inline-block; padding-top: -10px;">Selected Room:</strong> <span id="spriteDbId">None</span>';
         this.dbIdDisplay1.innerHTML = '<strong style="display: inline-block; padding-top: 10px;">Temperature: </strong> <span id="spriteTemp">0</span>';
         this.dbIdDisplay2.innerHTML = '<strong style="display: inline-block; padding-top: 10px;">As of </strong> <span id="spriteTime">Lorem Ipsum</span>';
+        this.dbIdDisplay3.innerHTML = '<strong style="display: inline-block; padding-top: 10px;">MS Fabrics: </strong> <a style="color: #3399FF;" id="MSFabricsURL" href="https://app.powerbi.com/groups/c9e86663-87b6-49cf-b5b2-a79d6a01d7dd/list?experience=power-bi" target="_blank">View the MS Fabrics</a>'
+        this.dbIdDisplay4.innerHTML = '<strong style="display: inline-block; padding-top: 10px;">Power BI Reports: </strong> <a style="color: #3399FF;" id="BIReports" href="https://app.powerbi.com/groups/c9e86663-87b6-49cf-b5b2-a79d6a01d7dd/list?experience=power-bi&subfolderId=1978" target="_blank">View the Power BI Reports</a>'
+        this.dbIdDisplay5.innerHTML = '<strong style="display: inline-block; padding-top: 10px;">Specific Report for this data point: </strong> <a style="color: #3399FF;" id="SpecificReport" href="https://app.powerbi.com/reportEmbed?reportId=f6f9c99d-e70d-4a97-94dc-375d0d0a9af7&autoAuth=true&ctid=ead65215-ebfd-4a8d-9e73-b403a85a7e04&filter=RelynkIdentifier0711/point_name%20eq%20%27Current%27%20and%20RelynkIdentifier0711/is_point_of_furniture_name%20eq%20%27Small%20Meeting/Office%20(DB8.-.1.004)%27" target="_blank">View Report</a>'
         this.content.appendChild(this.dbIdDisplay);
         this.content.appendChild(this.dbIdDisplay1);
         this.content.appendChild(this.dbIdDisplay2);
+        this.content.appendChild(this.dbIdDisplay3);
+        this.content.appendChild(this.dbIdDisplay4);
+        this.content.appendChild(this.dbIdDisplay5);
     
         // Create a canvas element for the bar chart
         this.chartContainer = document.createElement('div');
@@ -158,10 +149,14 @@ export class HistogramPanel extends Autodesk.Viewing.UI.DockingPanel {
         const spriteDbIdElement = this.content.querySelector('#spriteDbId');
         const spriteTempElement = this.content.querySelector('#spriteTemp');
         const spriteTimeElement = this.content.querySelector('#spriteTime');
+        const specificReportLink = this.content.querySelector('#SpecificReport');  // Select the hyperlink with the ID 'SpecificReport'
         if (spriteDbIdElement) {
             spriteDbIdElement.textContent = name ? name : 'None';
             spriteTempElement.textContent = data[0].value + '°C';
             spriteTimeElement.textContent = data[0].observationTime
+            if (specificReportLink) {
+                specificReportLink.href = 'https://app.powerbi.com/reportEmbed?reportId=f6f9c99d-e70d-4a97-94dc-375d0d0a9af7&autoAuth=true&ctid=ead65215-ebfd-4a8d-9e73-b403a85a7e04&filter=RelynkIdentifier0711%2Fpoint_name+eq+%27Current%27+and+RelynkIdentifier0711%2Fis_point_of_furniture_name+eq+%27' + name + '%27';
+            }
         } else {
             console.error('Failed to find #spriteDbId element.');
         }

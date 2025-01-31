@@ -7,7 +7,7 @@ export class SpriteInfoPanel extends Autodesk.Viewing.UI.DockingPanel {
         this.container.style.top = (options.y || 0) + 'px';
         this.container.style.width = (options.width || 400) + 'px';  // Adjust width as needed
         this.container.style.height = (options.height || 200) + 'px'; // Adjust height as needed
-        this.container.style.resize = 'none';
+        // this.container.style.resize = 'none';
         this.container.style.zIndex = '1000';  // Ensure it’s on top
     }
 
