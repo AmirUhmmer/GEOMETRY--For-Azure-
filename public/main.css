@@ -69,11 +69,11 @@ body, html {
 }
 
 @media (max-width: 768px) {
-    #sidebar {
+    /* #sidebar {
         width: 100%;
         top: 3em;
         bottom: 75%;
-    }
+    } */
     #preview {
         width: 100%;
         top: 25%;
