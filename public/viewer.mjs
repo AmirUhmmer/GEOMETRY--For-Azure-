@@ -2,7 +2,7 @@ import { HEATMAP } from './DB8/DB8SurfaceShading.mjs';
 import { SPRITES } from './DB8/DB8Sprites.mjs';
 import { LightSPRITES } from './DB8/DB8LightsSprites.mjs';
 // import './extensions/HistogramExtension.mjs';
-import { showLiveDataPanel, createToolbarLiveDataButton } from './Live_Data/LiveData.mjs';
+import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton } from './Live_Data/LiveData.mjs';
 import { ServiceZoneSearch } from './Hemy_Functions/ServiceZone.mjs';
 import { FunctionalLocationSearch } from './Hemy_Functions/FunctionalLocation.mjs';
 
@@ -233,29 +233,10 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
             console.log(models);
             // Perform actions only when all models are loaded
 
-            const baseModelOffset = viewer.model.getData().globalOffset;  // Use the global offset of the first model
-            console.log('Base model global offset:', baseModelOffset);
-
-            // Apply the same global offset to other models
-            models.forEach(model => {
-                const currentOffset = model.getData().globalOffset;
-                console.log('Current model offset:', currentOffset);
-                
-                // Adjust the offset to align with the base model
-                if (currentOffset.x !== baseModelOffset.x || currentOffset.y !== baseModelOffset.y || currentOffset.z !== baseModelOffset.z) {
-                    console.log('Adjusting offset for alignment.');
-                    model.getData().globalOffset = baseModelOffset;
-                }
-            });
-
             if (viewer.model) {
                 viewer.loadExtension('Autodesk.DataVisualization').then(() => {
                     console.log('Autodesk.DataVisualization loaded.');
                 });
-    
-                // viewer.loadExtension('HistogramExtension').then(() => {
-                //     console.log('HistogramExtension loaded.');
-                // });
 
                 viewer.loadExtension('Autodesk.DocumentBrowser').then(() => {
                     console.log('Autodesk.DocumentBrowser loaded.');
@@ -284,10 +265,11 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 const settingsTools = viewer.toolbar.getControl('settingsTools');
                 settingsTools.removeControl('toolbar-settingsTool');
-                
 
+                showLiveDataPanel(viewer);
+                // createToolbarLiveDataListButton(viewer);
+                // createToolbarLiveDataButton(viewer);
                 
-                console.log("Geometry loaded.");
                 // Call surface shading setup or any other actions here
                 viewer.loadExtension('Autodesk.AEC.LevelsExtension').then(function(levelsExt) {
                     levelsExt.floorSelector.addEventListener(Autodesk.AEC.FloorSelector.SELECTED_FLOOR_CHANGED, function(event) {
@@ -315,7 +297,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                             // LightSPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                             createToolbarLiveDataButton(viewer);
-                            showLiveDataPanel(viewer);
+                            // showLiveDataPanel(viewer);
                         }
                         // else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
                         //     SPRITES(viewer, selectedLevelIndex); // SPRITES will be called

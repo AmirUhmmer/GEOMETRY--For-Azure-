@@ -10,10 +10,10 @@ export function showLiveDataPanel(viewer) {
             this.container.style.top = "10px";
             this.container.style.left = "10px";
             this.container.style.width = "300px";
-            this.container.style.height = "400px";
+            this.container.style.height = "325px";
             this.container.style.resize = "auto";
             this.container.style.backgroundColor = '#333';
-            this.container.style.title = 'Color Coding';
+            this.container.style.title = 'Live Data';
     
             // Create and configure the scroll container
             this.createScrollContainer();
@@ -101,7 +101,7 @@ export function createToolbarLiveDataButton(viewer) {
     const buttonContainer = button.container;
     buttonContainer.style.backgroundImage = 'url(./images/graph.svg)';  // Set your icon image source here
     buttonContainer.style.backgroundColor = 'transparent';  // Make background transparent
-    buttonContainer.style.backgroundSize = '30px';  // Adjust size of the background image
+    buttonContainer.style.backgroundSize = '25px';  // Adjust size of the background image
     buttonContainer.style.backgroundRepeat = 'no-repeat';  // Ensure no repeat of the image
     buttonContainer.style.backgroundPosition = 'center';  // Center the image inside the button
 
@@ -131,46 +131,46 @@ export function createToolbarLiveDataButton(viewer) {
 }
 
 
-// // Function to create a toolbar button
-// export function createToolbarLiveDataListButton(viewer) {
-//     const toolbar = viewer.getToolbar();
-//     if (!toolbar) {
-//         console.error("Toolbar not found");
-//         return;
-//     }
+// Function to create a toolbar button
+export function createToolbarLiveDataListButton(viewer) {
+    const toolbar = viewer.getToolbar();
+    if (!toolbar) {
+        console.error("Toolbar not found");
+        return;
+    }
 
-//     // Create a new toolbar button
-//     const button = new Autodesk.Viewing.UI.Button('showLiveDataListButton');
+    // Create a new toolbar button
+    const button = new Autodesk.Viewing.UI.Button('showLiveDataListButton');
 
-//     // Apply icon styling directly to the button's container
-//     const buttonContainer = button.container;
-//     buttonContainer.style.backgroundImage = 'url(./images/graph.svg)';  // Set your icon image source here
-//     buttonContainer.style.backgroundColor = 'transparent';  // Make background transparent
-//     buttonContainer.style.backgroundSize = '30px';  // Adjust size of the background image
-//     buttonContainer.style.backgroundRepeat = 'no-repeat';  // Ensure no repeat of the image
-//     buttonContainer.style.backgroundPosition = 'center';  // Center the image inside the button
+    // Apply icon styling directly to the button's container
+    const buttonContainer = button.container;
+    buttonContainer.style.backgroundImage = 'url(./images/task.svg)';  // Set your icon image source here
+    buttonContainer.style.backgroundColor = 'transparent';  // Make background transparent
+    buttonContainer.style.backgroundSize = '30px';  // Adjust size of the background image
+    buttonContainer.style.backgroundRepeat = 'no-repeat';  // Ensure no repeat of the image
+    buttonContainer.style.backgroundPosition = 'center';  // Center the image inside the button
 
-//     button.setToolTip('Live Data Views');  // Set the tooltip for the button
+    button.setToolTip('Live Data Views');  // Set the tooltip for the button
 
-//     // Define the action when the button is clicked
-//     button.onClick = function() {
-//         if (viewer.LiveDataListPanel) {
-//             viewer.LiveDataListPanel.setVisible(!viewer.LiveDataListPanel.isVisible());
-//         } else {
-//             showLiveDataPanel(viewer, []);  // Show panel even if no service tasks exist yet
-//         }
-//     };
+    // Define the action when the button is clicked
+    // button.onClick = function() {
+    //     if (viewer.LiveDataListPanel) {
+    //         viewer.LiveDataListPanel.setVisible(!viewer.LiveDataListPanel.isVisible());
+    //     } else {
+    //         showLiveDataPanel(viewer, []);  // Show panel even if no service tasks exist yet
+    //     }
+    // };
 
-//     // Add the button to a new toolbar group
-//     let subToolbar = viewer.toolbar.getControl('myAppToolbar');
-//     if (!subToolbar) {
-//         subToolbar = new Autodesk.Viewing.UI.ControlGroup('myAppToolbar');
-//         toolbar.addControl(subToolbar);
-//     }
-//     subToolbar.addControl(button);
+    // Add the button to a new toolbar group
+    let subToolbar = viewer.toolbar.getControl('myAppToolbar');
+    if (!subToolbar) {
+        subToolbar = new Autodesk.Viewing.UI.ControlGroup('myAppToolbar');
+        toolbar.addControl(subToolbar);
+    }
+    subToolbar.addControl(button);
 
-//     // Call this function once the viewer is fully initialized
-//     viewer.addEventListener(Autodesk.Viewing.TOOLBAR_CREATED_EVENT, function() {
-//         createToolbarButton(viewer);
-//     });
-// }
+    // Call this function once the viewer is fully initialized
+    viewer.addEventListener(Autodesk.Viewing.TOOLBAR_CREATED_EVENT, function() {
+        createToolbarButton(viewer);
+    });
+}
