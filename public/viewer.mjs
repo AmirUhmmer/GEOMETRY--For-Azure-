@@ -1,10 +1,10 @@
-import { HEATMAP } from './DB8SurfaceShading.mjs';
-import { SPRITES } from './DB8Sprites.mjs';
-import { LightSPRITES } from './DB8LightsSprites.mjs';
-import './extensions/HistogramExtension.mjs';
-import { showServiceTasksDockingPanel, createToolbarButton } from './ServiceTask.mjs';
-import { ServiceZoneSearch } from './ServiceZone.mjs';
-import { FunctionalLocationSearch } from './FunctionalLocation.mjs';
+import { HEATMAP } from './DB8/DB8SurfaceShading.mjs';
+import { SPRITES } from './DB8/DB8Sprites.mjs';
+import { LightSPRITES } from './DB8/DB8LightsSprites.mjs';
+// import './extensions/HistogramExtension.mjs';
+import { showLiveDataPanel, createToolbarLiveDataButton } from './Live_Data/LiveData.mjs';
+import { ServiceZoneSearch } from './Hemy_Functions/ServiceZone.mjs';
+import { FunctionalLocationSearch } from './Hemy_Functions/FunctionalLocation.mjs';
 
 
 
@@ -210,11 +210,6 @@ export function initViewer(container) {
 
 
 export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone, FunctionalLocation) {
-    const loadOptions = {
-        globalOffset: { x: 0, y: 0, z: 0 },  // force all models to origin
-        // placementTransform: (new THREE.Matrix4()).setPosition({ x: 0, y: 0, z: 0 }),  // Force placement to origin
-        keepCurrentModels: true // Keeps existing models in the viewer
-    };
 
     let modelsToLoad = urns;
 
@@ -258,9 +253,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     console.log('Autodesk.DataVisualization loaded.');
                 });
     
-                viewer.loadExtension('HistogramExtension').then(() => {
-                    console.log('HistogramExtension loaded.');
-                });
+                // viewer.loadExtension('HistogramExtension').then(() => {
+                //     console.log('HistogramExtension loaded.');
+                // });
 
                 viewer.loadExtension('Autodesk.DocumentBrowser').then(() => {
                     console.log('Autodesk.DocumentBrowser loaded.');
@@ -275,6 +270,22 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 });
 
                 viewer.unloadExtension('Autodesk.Explode');
+                
+                const navTools = viewer.toolbar.getControl('navTools');
+                navTools.removeControl('toolbar-orbitTools');
+                navTools.removeControl('toolbar-panTool');
+                navTools.removeControl('toolbar-zoomTool');
+                navTools.removeControl('toolbar-cameraSubmenuTool');
+                
+
+                const modelTools = viewer.toolbar.getControl('modelTools');
+                modelTools.removeControl('toolbar-documentModels');
+
+
+                const settingsTools = viewer.toolbar.getControl('settingsTools');
+                settingsTools.removeControl('toolbar-settingsTool');
+                
+
                 
                 console.log("Geometry loaded.");
                 // Call surface shading setup or any other actions here
@@ -303,6 +314,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
                             SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
                             // LightSPRITES(viewer, selectedLevelIndex); // SPRITES will be called
+                            createToolbarLiveDataButton(viewer);
+                            showLiveDataPanel(viewer);
                         }
                         // else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
                         //     SPRITES(viewer, selectedLevelIndex); // SPRITES will be called

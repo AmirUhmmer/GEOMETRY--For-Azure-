@@ -37,7 +37,7 @@ class HistogramExtension extends BaseExtension {
     onToolbarCreated() {
         this._barChartPanel = new HistogramPanel(this, 'dashboard-barchart-panel', 'Temperature', { x: 10, y: 10, chartType: 'bar' });
         this._pieChartPanel = new HistogramPanel(this, 'dashboard-piechart-panel', 'Service Tasks', { x: 10, y: 420, chartType: 'doughnut' });
-        this._barChartButton = this.createToolbarButton('dashboard-barchart-button', 'https://img.icons8.com/small/32/bar-chart.png', 'Live Data');
+        this._barChartButton = this.createToolbarButton('dashboard-barchart-button', '../images/graph.svg', 'Live Data');
         this._barChartButton.onClick = () => {
             this._barChartPanel.setVisible(!this._barChartPanel.isVisible());
             this._barChartButton.setState(this._barChartPanel.isVisible() ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);

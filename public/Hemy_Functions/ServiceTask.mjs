@@ -96,7 +96,7 @@ export function createToolbarButton(viewer) {
 
     // Apply icon styling directly to the button's container
     const buttonContainer = button.container;
-    buttonContainer.style.backgroundImage = 'url(./images/task.svg)';  // Set your icon image source here
+    buttonContainer.style.backgroundImage = 'url(./images/graph.svg)';  // Set your icon image source here
     buttonContainer.style.backgroundColor = 'transparent';  // Make background transparent
     buttonContainer.style.backgroundSize = '30px';  // Adjust size of the background image
     buttonContainer.style.backgroundRepeat = 'no-repeat';  // Ensure no repeat of the image

@@ -2,6 +2,7 @@ body, html {
     margin: 0;
     padding: 0;
     height: 100vh;
+    /* width: 100vw; */
     font-family: Polyphonic SemiBold;
 }
 
@@ -9,12 +10,12 @@ body, html {
     position: absolute;
 }
 
-#overlay {
+/* #overlay {
     position: absolute;
     left: 31em;
     top: 3.5em;
     z-index: 2;
-  }
+  } */
 
 #header {
     height: 3em;
@@ -69,6 +70,10 @@ body, html {
 }
 
 @media (max-width: 768px) {
+
+}
+
+@media (max-width: 10px) {
     /* #sidebar {
         width: 100%;
         top: 3em;
@@ -78,17 +83,16 @@ body, html {
         width: 100%;
         top: 25%;
         bottom: 0;
+        overflow-x: hidden;
     }
     #header {
         height: auto;  /* Allow header to shrink as needed */
     }
      /* Adjust #overlay for smaller screens */
      #overlay {
-        left: 2em; /* Smaller left margin */
-        top: 2em; /* Reduce top margin */
-        width: 100%; /* Make overlay take more space */
-        min-width: 150px; /* Smaller min-width for small screens */
+        display: none;
     }
+    
 }
 
 

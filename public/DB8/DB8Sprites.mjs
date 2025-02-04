@@ -16,17 +16,17 @@ export async function SPRITES(viewer, selectedFloor) {
     const DataVizCore = Autodesk.DataVisualization.Core;
     const viewableType = DataVizCore.ViewableType.SPRITE;
     const spriteColor = new THREE.Color(0xffffff);  // Red color for better visibility
-    const baseURL = "./images/graph.svg";
+    const baseURL = "./images/temp.svg";
     const spriteIconUrl = `${baseURL}`;
     
     const style = new DataVizCore.ViewableStyle(viewableType, spriteColor, spriteIconUrl);
     
     const viewableData = new DataVizCore.ViewableData();
-    viewableData.spriteSize = 28; // Sprites as points of size 24 x 24 pixels
+    viewableData.spriteSize = 30; // Sprites as points of size 24 x 24 pixels
 
     const myDataList = [
       // first floor
-      { position: { x: 791.816162109375 , y: 516.4945068359375 , z: 7.5 }, name: "Main Entrance (DB8.-.1.001)"       ,  pointID: "b957051a-2cb0-4bcb-990c-3c34a6f627a7", objectDBID: 13076 },
+      { position: { x: 791.816162109375 , y: 516.4945068359375 , z: 7.5 }, name: "Main Entrance (DB8.-.1.001)"       ,  pointID: "b957051a-2cb0-4bcb-990c-3c34a6f627a7", objectDBID: 13071 },
       { position: { x: 805.4255981445312, y: 532.2337036132812 , z: 7.5 }, name: "Small Meeting/Office (DB8.-.1.004)",  pointID: "3b69ceda-a9e0-4b04-8a92-7ecccb6286a0", objectDBID: 7898  },
       { position: { x: 817.8609619140625, y: 536.9022827148438 , z: 7.5 }, name: "Office (DB8.-.1.005)"              ,  pointID: "b343e138-36fb-4af4-80be-d266aca41db9", objectDBID: 7899  },
       { position: { x: 829.052001953125 , y: 541.2498779296875 , z: 7.5 }, name: "Office (DB8.-.1.006)"              ,  pointID: "7a97be73-e5f6-422b-ade9-6a14ca78b879", objectDBID: 7896  },
@@ -42,8 +42,8 @@ export async function SPRITES(viewer, selectedFloor) {
       { position: { x: 752.3358764648438, y: 524.6958618164062 , z: 7.5 }, name: "Office (DB8.-.1.018)"              ,  pointID: "1d512e32-54df-4c23-ac36-25fb03665dfd", objectDBID: 7969  }, // x-1   y-3
       { position: { x: 752.1937866210938, y: 514.1864013671875 , z: 7.5 }, name: "Office (DB8.-.1.019)"              ,  pointID: "d7b28135-4a1e-4251-b436-b21b630d0012", objectDBID: 7970  },
       { position: { x: 755.6309814453125, y: 505.3243713378906 , z: 7.5 }, name: "Office (DB8.-.1.020)"              ,  pointID: "ce717192-968f-46b5-bb43-6fb73965da0f", objectDBID: 7971  },
-      { position: { x: 768.8243408203125, y: 492.05230712890625, z: 7.5 }, name: "Electronics Workshop (DB8.-.1.021)",  pointID: "2da239f8-ddab-4d43-823f-8797638123f2", objectDBID: 13074 },
-      { position: { x: 788.08544921875  , y: 497.38482666015625, z: 7.5 }, name: "Mechanical Workshop (DB8.-.1.022)" ,  pointID: "a3215104-8c66-4714-96f4-dcb5b3fb2ab2", objectDBID: 13075 },
+      { position: { x: 768.8243408203125, y: 492.05230712890625, z: 7.5 }, name: "Electronics Workshop (DB8.-.1.021)",  pointID: "2da239f8-ddab-4d43-823f-8797638123f2", objectDBID: 13069 },
+      { position: { x: 788.08544921875  , y: 497.38482666015625, z: 7.5 }, name: "Mechanical Workshop (DB8.-.1.022)" ,  pointID: "a3215104-8c66-4714-96f4-dcb5b3fb2ab2", objectDBID: 13070 },
       // second floor
       { position: { x: 779.6911010742188 , y: 500.82025146484375, z: 18.3 }, name: "Social Area (DB8.-.2.001)"     ,  pointID: "193d3a83-b870-4d7b-83eb-ea73111b8c0a", objectDBID: 7887 },
       { position: { x: 794.48248291015625, y: 493.23358154296875, z: 18.3 }, name: "Office (DB8.-.2.002)"           ,  pointID: "d8d4faa1-2bc9-4809-8a25-08430813fc63", objectDBID: 7886 },
@@ -158,15 +158,15 @@ async function onSpriteClicked(event, viewer) {
           
           // Update the chart with the fetched data
           // Bring back data after test
-          window.histogramPanels.barChart.updateSpriteInfo(name, data);  // Update panel with sprite info
-          window.histogramPanels.barChart.setVisible(true);  // Show the histogram panel
+             viewer.LiveDataPanel.updateSpriteInfo(name, randomData);
+             viewer.LiveDataPanel.setVisible(true);  // Show the Live Data panel
       } else {
           console.log('No viewable found for this dbId.');
       }
   } else {
       // Ignore the event if the click did not happen on a sprite
       console.log("Click outside of sprite detected, no action taken.");
-      window.histogramPanels.barChart.setVisible(false);  // Hide the histogram panel
+      viewer.LiveDataPanel.setVisible(false);  // Hide the Live Data panel
   }
 }
 
@@ -215,16 +215,16 @@ async function onSpriteClicked(event, viewer) {
 //           // Generate random test data
 //           const randomData = generateRandomGraphData();  // Call helper function for random data
 
-//           // Update the chart with the generated random data
-//           window.histogramPanels.barChart.updateSpriteInfo(name, randomData);  // Update panel with sprite info
-//           window.histogramPanels.barChart.setVisible(true);  // Show the histogram panel
+//           // Update the panel with the sprite info and show it
+//           viewer.LiveDataPanel.updateSpriteInfo(name, randomData);
+//           viewer.LiveDataPanel.setVisible(true);  // Show the Live Data panel
 //       } else {
 //           console.log('No viewable found for this dbId.');
 //       }
 //   } else {
 //       // Ignore the event if the click did not happen on a sprite
 //       console.log("Click outside of sprite detected, no action taken.");
-//       window.histogramPanels.barChart.setVisible(false);  // Hide the histogram panel
+//       viewer.LiveDataPanel.setVisible(false);  // Hide the Live Data panel
 //   }
 // }
 

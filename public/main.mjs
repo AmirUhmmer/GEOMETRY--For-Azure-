@@ -317,7 +317,6 @@ async function initApp() {
                 // SOL10
                 'Solbråveien 10 AS': ['urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
                                       'urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
-                                    //   'urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A' //mep
                                      ]
             };
 
