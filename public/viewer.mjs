@@ -1,8 +1,5 @@
-import { HEATMAP } from './DB8/DB8SurfaceShading.mjs';
-import { SPRITES } from './DB8/DB8Sprites.mjs';
-import { LightSPRITES } from './DB8/DB8LightsSprites.mjs';
 // import './extensions/HistogramExtension.mjs';
-import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton } from './Live_Data/LiveData.mjs';
+import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from './Live_Data/LiveData.mjs';
 import { ServiceZoneSearch } from './Hemy_Functions/ServiceZone.mjs';
 import { FunctionalLocationSearch } from './Hemy_Functions/FunctionalLocation.mjs';
 
@@ -267,7 +264,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 settingsTools.removeControl('toolbar-settingsTool');
 
                 showLiveDataPanel(viewer);
-                // createToolbarLiveDataListButton(viewer);
+                showLiveDataListPanel(viewer);
+                createToolbarLiveDataListButton(viewer);
                 // createToolbarLiveDataButton(viewer);
                 
                 // Call surface shading setup or any other actions here
@@ -277,27 +275,13 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                         // console.log(event);
                         const selectedLevelIndex = event.levelIndex; // Get the level index from the event
                         console.log(`Selected Floor: ${selectedLevelIndex}`);
-    
-    
-                        // Check if the loaded model is named "DB8"
-                        // const modelName = viewer.model.getDocumentNode().data.name;
-                        // console.log(modelName);
-                        // if (modelName === 'DB8-SEMY-ARST-ASBUILT' && selectedLevelIndex !== undefined) {
-                            // HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
-                        //     SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
-                        // }
-
 
 
                         // Check if the loaded model is named "DB8"
                         let LiveData = localStorage.getItem('LiveData');
                         console.log(LiveData);
                         if (LiveData === 'DB8' && selectedLevelIndex !== undefined) {
-                            HEATMAP(viewer, selectedLevelIndex); // Call HEATMAP only if the model name is DB8
-                            SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
-                            // LightSPRITES(viewer, selectedLevelIndex); // SPRITES will be called
-                            createToolbarLiveDataButton(viewer);
-                            // showLiveDataPanel(viewer);
+                            viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // LiveDataListPanel will be called
                         }
                         // else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
                         //     SPRITES(viewer, selectedLevelIndex); // SPRITES will be called

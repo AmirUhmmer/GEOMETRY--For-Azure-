@@ -1,6 +1,6 @@
 const viewableMap = new Map();
 
-export async function LightSPRITES(viewer, selectedFloor) {
+export async function LightSPRITES(viewer) {
     const { SurfaceShadingData, SurfaceShadingPoint, SurfaceShadingNode } = Autodesk.DataVisualization.Core;
 
     const extension0 = await viewer.loadExtension('Autodesk.DataVisualization');
@@ -9,8 +9,6 @@ export async function LightSPRITES(viewer, selectedFloor) {
         console.error('Error loading the DataVisualization extension.');
         return;
     }
-
-    console.log('TEST: ' + selectedFloor);
 
     const DataVizCore = Autodesk.DataVisualization.Core;
     const viewableType = DataVizCore.ViewableType.SPRITE;
