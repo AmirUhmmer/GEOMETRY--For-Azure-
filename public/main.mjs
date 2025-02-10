@@ -335,18 +335,18 @@ async function initApp() {
             // Project and folder IDs based on recordId or property
             const projectMap = {
                 // DB8
-                '06eddd02-c366-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', hardAsset: 'No Hard Asset', liveData: 'DB8' }, // liveData: 'DB8',
-                '2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', hardAsset: 'No Hard Asset', liveData: 'DB8' }, // liveData: 'DB8',
+                '06eddd02-c366-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', hardAsset: 'No Hard Asset', liveData: 'DB8', model: 'DB8' }, // liveData: 'DB8',
+                '2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', hardAsset: 'No Hard Asset', liveData: 'DB8', model: 'DB8' }, // liveData: 'DB8',
                 // HG62
-                '766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset' },
-                '422be7c5-ef69-ef11-bfe2-000d3a6735d4': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset' },
+                '766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset', model: 'HG62' },
+                '422be7c5-ef69-ef11-bfe2-000d3a6735d4': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset', model: 'HG62' },
                 // SOL10
-                'f8c64108-adb7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset' },
-                '10ff2730-d365-ef11-bfe3-6045bddd062a': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset' },
+                'f8c64108-adb7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset', model: 'SOL10' },
+                '10ff2730-d365-ef11-bfe3-6045bddd062a': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset', model: 'SOL10' },
                 // SOL 11-23
-                '8e334357-c3cc-ef11-b8e9-000d3a674a78': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset' },
+                '8e334357-c3cc-ef11-b8e9-000d3a674a78': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset', model: 'SOL11' },
                 // JV3
-                '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d', hardAsset: 'No Hard Asset' },
+                '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d', hardAsset: 'No Hard Asset', model: 'JV3' },
                 // '10ff2730-d365-ef11-bfe3-6045bddd062a': { projectId: 'b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d', hardAsset: 'No Hard Asset' },
             };
 
@@ -360,9 +360,10 @@ async function initApp() {
             let folderId = '';
             let hardAsset = 'Hard Asset';
             let liveData = '';
+            let model = '';
 
             if (projectMap[recordId]) {
-                ({ projectId, folderId = '', liveData = '', hardAsset } = projectMap[recordId]);
+                ({ projectId, folderId = '', liveData = '', hardAsset, model } = projectMap[recordId]);
                 localStorage.setItem('LiveData', liveData);
             } else if (propertyMap[property]) {
                 projectId = propertyMap[property];
@@ -380,6 +381,7 @@ async function initApp() {
                 projectId = 'b.bf8f603c-7e37-4367-9900-69e279377191';
                 folderId = 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw';
                 liveData = 'DB8';
+                model = 'DB8';
                 hardAsset = 'No Hard Asset';
                 localStorage.setItem('LiveData', liveData);
                 localStorage.removeItem('ASSET');
@@ -401,7 +403,7 @@ async function initApp() {
                 // If no ID is provided, use the sample URN
                 console.log(id);
                 const urn = id !== 0 ? window.btoa(id).replace(/=/g, '') : geometry;
-                loadModel(viewer, urn, hubId, projectId, folderId, ServiceZone, FunctionalLocation);
+                loadModel(viewer, urn, hubId, projectId, folderId, ServiceZone, FunctionalLocation, model);
             });
 
         } else {

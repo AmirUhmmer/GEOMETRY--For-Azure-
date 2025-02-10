@@ -2,6 +2,7 @@
 import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from './Live_Data/LiveData.mjs';
 import { ServiceZoneSearch } from './Hemy_Functions/ServiceZone.mjs';
 import { FunctionalLocationSearch } from './Hemy_Functions/FunctionalLocation.mjs';
+import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
 
 
 
@@ -206,7 +207,7 @@ export function initViewer(container) {
 // ******************************* WORKING ************************
 
 
-export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone, FunctionalLocation) {
+export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone, FunctionalLocation, model) {
 
     let modelsToLoad = urns;
 
@@ -263,10 +264,13 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 const settingsTools = viewer.toolbar.getControl('settingsTools');
                 settingsTools.removeControl('toolbar-settingsTool');
 
-                showLiveDataPanel(viewer);
-                showLiveDataListPanel(viewer);
-                createToolbarLiveDataListButton(viewer);
-                // createToolbarLiveDataButton(viewer);
+                if(model === 'DB8'){
+                    showLiveDataPanel(viewer);
+                    showLiveDataListPanel(viewer);
+                    createToolbarLiveDataListButton(viewer);
+                }else if(model === 'SOL11'){
+                    Sol11PicsSPRITES(viewer);
+                }
                 
                 // Call surface shading setup or any other actions here
                 viewer.loadExtension('Autodesk.AEC.LevelsExtension').then(function(levelsExt) {
