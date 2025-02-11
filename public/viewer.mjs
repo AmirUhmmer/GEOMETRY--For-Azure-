@@ -4,6 +4,7 @@ import { HardAssetSearch } from './Hemy_Functions/HardAssets.mjs';
 import { ServiceZoneSearch } from './Hemy_Functions/ServiceZone.mjs';
 import { FunctionalLocationSearch } from './Hemy_Functions/FunctionalLocation.mjs';
 import { RepeatingTasks } from './Hemy_Functions/RepeatingTasks.mjs';
+import { WOServiceTask } from './Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
 
 
@@ -327,6 +328,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 FunctionalLocationSearch (viewer, FunctionalLocation);
 
                 RepeatingTasks(viewer, RepeatingTask);
+
+                WOServiceTask(viewer);
 
 
                 const canvas = viewer.impl.canvas;

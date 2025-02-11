@@ -212,9 +212,25 @@ async function initApp() {
             let recordId = params["id"];     // The unique identifier (GUID) of the record
             let property = params["property"];  // The property value, if it exists
             let uniqueID = params["uniqueID"];  // The uniqueID, if it exists
-            let ServiceZone = params["SZ"];  // The uniqueID, if it exists
-            let FunctionalLocation = params["FL"];  // The uniqueID, if it exists
-            let RepeatingTask = params["RT"];  // The uniqueID, if it exists
+            let ServiceZone = params["SZ"];  // The Service Zone, if it exists
+            let FunctionalLocation = params["FL"];  // The Functional Location, if it exists
+            let RepeatingTask = params["RT"];  // The Repeating Task, if it exists
+            let WOST = params["WOST"];  // The Work Order Service Task, if it exists
+
+            if (RepeatingTask || WOST) {
+                const abbreviationToRecordId = {
+                    "DB8": '06eddd02-c366-ef11-bfe2-000d3ab1d1c2',
+                    "HG62": '422be7c5-ef69-ef11-bfe2-000d3a6735d4',
+                    "SOL10": '10ff2730-d365-ef11-bfe3-6045bddd062a',
+                    "SOL11-23": '8e334357-c3cc-ef11-b8e9-000d3a674a78',
+                    "SOL20": '85b61843-c1c8-ef11-b8e9-000d3ab86138',
+                    "JV3": '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2',
+                    "ODV18": 'c2233237-dc9f-ef11-8a6a-00224899e340'
+                  };
+                  
+                  let abbreviation = params["abbreviation"];
+                  recordId = abbreviationToRecordId[abbreviation];
+            }
 
             if (uniqueID) {
                 localStorage.setItem('uniqueID', uniqueID);
@@ -291,7 +307,7 @@ async function initApp() {
                                                         ],
 
 
-                // SOL 20 for Production                                        
+                // SOL20 for Production                                        
                 '85b61843-c1c8-ef11-b8e9-000d3ab86138': ['urn:adsk.wipemea:dm.lineage:k9jCDybIRKK0DqORUNDnrA', //archi
                                                          'urn:adsk.wipemea:dm.lineage:F5rNrMwxSOaRGKtW8iwl1g', //mep
                                                         ],

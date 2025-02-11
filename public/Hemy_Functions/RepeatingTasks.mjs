@@ -8,24 +8,46 @@ export function RepeatingTasks(viewer, RepeatingTask) {
         let taskArray = getSubgridDataFromURL();
         console.log(taskArray);
 
+        let alldbid = [];
+
         taskArray.forEach((task) => {
             // Extract the Functional Location ID and Hard Asset ID from the task object
             let funcLocID = task["Functional Location ID"];
             console.log('This is your ' + funcLocID);
-            if (funcLocID != 'N'){
-                models[1].search(FunctionalLocationID, function(dbIDs) {
-                    
+            if (funcLocID != 'N') {
+                models[0].search(funcLocID, function(dbIDs) {
+                    console.log('Found dbIDs for loc:', dbIDs);
+                    alldbid = alldbid.concat(dbIDs);
                 });
             }
 
             let hardAssetID = task["Hard Asset ID"];
+            if (hardAssetID != 'N') {
+                models[1].search(hardAssetID, function(dbIDs) {
+                    console.log('Found dbIDs for asset:', dbIDs);
+                    alldbid = alldbid.concat(dbIDs);
+                });
+            }
             console.log('This is your HA' + hardAssetID);
 
-            // Highlight the Hard Asset in the viewer
-            viewer.select(dbId, model);
+            // Once dbIDs are found, isolate and set the selection color to green
+            models.forEach(model => {
+                // Isolate the found objects
+                viewer.isolate(alldbid, model);
+
+                // Set the selection color to green
+                viewer.setSelectionColor(new THREE.Color(0x00ff00));
+
+                // Select the found objects to highlight them
+                viewer.select(alldbid, model);
+            });
+
+            // Fit the view to the found objects
+            viewer.fitToView(alldbid, models[1]);
         });
     }
 }
+
 
 // Function to get subgrid data and return an array of task objects
 function getSubgridDataFromURL() {
