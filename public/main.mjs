@@ -289,13 +289,25 @@ async function initApp() {
                 '8e334357-c3cc-ef11-b8e9-000d3a674a78': ['urn:adsk.wipemea:dm.lineage:fdosriHoSSq4NPIIkiyvVw', //archi
                                                          'urn:adsk.wipemea:dm.lineage:1a6uXwpuRXykLPeEX-YFpg', //mep
                                                         ],
+
+
+                // SOL 20 for Production                                        
+                '85b61843-c1c8-ef11-b8e9-000d3ab86138': ['urn:adsk.wipemea:dm.lineage:k9jCDybIRKK0DqORUNDnrA', //archi
+                                                         'urn:adsk.wipemea:dm.lineage:F5rNrMwxSOaRGKtW8iwl1g', //mep
+                                                        ],
+
                                                     
 
                  // JV3 for Production                                        
-                '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2': ['urn:adsk.wipemea:dm.lineage:U9tz-MHvQfS2Hg9gRITkdA', //MEP
+                '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2': ['urn:adsk.wipemea:dm.lineage:VLzD-rrOS9SQvV6rnJT7LA', //ARCHI
+                                                         'urn:adsk.wipemea:dm.lineage:U9tz-MHvQfS2Hg9gRITkdA', //MEP
                                                          'urn:adsk.wipemea:dm.lineage:Ty5wLZ92TqCHkIn80Mmipg', //COMMON AREAS
-                                                         'urn:adsk.wipemea:dm.lineage:VLzD-rrOS9SQvV6rnJT7LA', //ARCHI
-                                                        ]
+                                                        ],
+
+                // ODV18
+                'c2233237-dc9f-ef11-8a6a-00224899e340': ['urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw', //ARCHI
+                                                         'urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA', //MEP
+                                                        ],
 
             };
 
@@ -319,9 +331,28 @@ async function initApp() {
                                       'urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
                                      ],
 
+                                     
+                // SOL11
                 'Solbråveien 11-23': ['urn:adsk.wipemea:dm.lineage:1a6uXwpuRXykLPeEX-YFpg', //mep
                                       'urn:adsk.wipemea:dm.lineage:fdosriHoSSq4NPIIkiyvVw', //archi
                                      ],
+
+                
+                // SOL20
+                'Solbråveien 20 AS': ['urn:adsk.wipemea:dm.lineage:F5rNrMwxSOaRGKtW8iwl1g', //mep
+                                      'urn:adsk.wipemea:dm.lineage:k9jCDybIRKK0DqORUNDnrA', //archi
+                                     ],
+
+                // JV3
+                'Nanna AS': ['urn:adsk.wipemea:dm.lineage:U9tz-MHvQfS2Hg9gRITkdA', //MEP
+                             'urn:adsk.wipemea:dm.lineage:VLzD-rrOS9SQvV6rnJT7LA', //ARCHI
+                             'urn:adsk.wipemea:dm.lineage:Ty5wLZ92TqCHkIn80Mmipg', //COMMON AREAS
+                            ],
+
+                // ODV18
+                'Ole Deviks Vei 18 AS': ['urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA', //MEP
+                                         'urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw', //ARCHI
+                                        ],
             };
 
             // Default geometry if no match is found
@@ -349,9 +380,12 @@ async function initApp() {
                 '10ff2730-d365-ef11-bfe3-6045bddd062a': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset', model: 'SOL10' },
                 // SOL 11-23
                 '8e334357-c3cc-ef11-b8e9-000d3a674a78': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset', model: 'SOL11' },
+                // SOL20
+                '85b61843-c1c8-ef11-b8e9-000d3ab86138': { projectId: 'b.a08e2cf9-5b5c-4254-883e-15a9fcf3cb5c', hardAsset: 'No Hard Asset', model: 'SOL20' },
                 // JV3
                 '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d', hardAsset: 'No Hard Asset', model: 'JV3' },
-                // '10ff2730-d365-ef11-bfe3-6045bddd062a': { projectId: 'b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d', hardAsset: 'No Hard Asset' },
+                // ODV18
+                'c2233237-dc9f-ef11-8a6a-00224899e340': { projectId: 'b.6623a4ce-ac71-4678-af1c-55a4030ff9d9', hardAsset: 'No Hard Asset', model: 'ODV18' },
             };
 
             const propertyMap = {
@@ -359,6 +393,10 @@ async function initApp() {
                 'Helgesensgate 62': 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6',
                 'Solbråveien 10 AS': 'b.e4cde0c5-7fd9-4974-9832-616f058478f9',
                 'Solbråveien 11-23': 'b.e4cde0c5-7fd9-4974-9832-616f058478f9',
+                'Solbråveien 20 AS': 'b.a08e2cf9-5b5c-4254-883e-15a9fcf3cb5c',
+                'Nanna AS': 'b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d',
+                'Ole Deviks Vei 18 AS': 'b.6623a4ce-ac71-4678-af1c-55a4030ff9d9',
+                
             };
 
             let projectId = '';
