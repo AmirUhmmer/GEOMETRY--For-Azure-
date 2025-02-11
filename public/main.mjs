@@ -214,6 +214,7 @@ async function initApp() {
             let uniqueID = params["uniqueID"];  // The uniqueID, if it exists
             let ServiceZone = params["SZ"];  // The uniqueID, if it exists
             let FunctionalLocation = params["FL"];  // The uniqueID, if it exists
+            let RepeatingTask = params["RT"];  // The uniqueID, if it exists
 
             if (uniqueID) {
                 localStorage.setItem('uniqueID', uniqueID);
@@ -230,8 +231,7 @@ async function initApp() {
             // Log the full URL to the console
             let fullURL = window.location.href;
             console.log("Full URL:", fullURL); // This will log the full URL, e.g., http://localhost:8080/index.html?etn=iotdatapoint&id=12345678-1234-1234-1234-123456789abc
-
-
+           
             // Now you can use `entityType` and `recordId` in your web app logic
             console.log("Entity Type:", entityType);
             console.log("Record ID:", recordId);
@@ -317,7 +317,11 @@ async function initApp() {
                 // SOL10
                 'Solbråveien 10 AS': ['urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
                                       'urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
-                                     ]
+                                     ],
+
+                'Solbråveien 11-23': ['urn:adsk.wipemea:dm.lineage:1a6uXwpuRXykLPeEX-YFpg', //mep
+                                      'urn:adsk.wipemea:dm.lineage:fdosriHoSSq4NPIIkiyvVw', //archi
+                                     ],
             };
 
             // Default geometry if no match is found
@@ -353,7 +357,8 @@ async function initApp() {
             const propertyMap = {
                 'Drengsrudbekken 8 AS': 'b.bf8f603c-7e37-4367-9900-69e279377191',
                 'Helgesensgate 62': 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6',
-                'Solbråveien 10 AS': 'b.e4cde0c5-7fd9-4974-9832-616f058478f9'
+                'Solbråveien 10 AS': 'b.e4cde0c5-7fd9-4974-9832-616f058478f9',
+                'Solbråveien 11-23': 'b.e4cde0c5-7fd9-4974-9832-616f058478f9',
             };
 
             let projectId = '';
@@ -399,11 +404,12 @@ async function initApp() {
             let hubId = 'b.7a656dca-000a-494b-9333-d9012c464554';  // Hub ID
             ServiceZone = ServiceZone || 'No Service Zone';
             FunctionalLocation = FunctionalLocation || 'No Functional Location';
+            RepeatingTask = RepeatingTask || 'No Repeating Task';
             initTree('#tree', (id) => {
                 // If no ID is provided, use the sample URN
                 console.log(id);
                 const urn = id !== 0 ? window.btoa(id).replace(/=/g, '') : geometry;
-                loadModel(viewer, urn, hubId, projectId, folderId, ServiceZone, FunctionalLocation, model);
+                loadModel(viewer, urn, hubId, projectId, folderId, ServiceZone, FunctionalLocation, model, RepeatingTask);
             });
 
         } else {
