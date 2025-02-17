@@ -40,7 +40,7 @@ export function showServiceTasksDockingPanel(viewer, serviceTaskList, NoGreen) {
                     // Use a black circle (●) before each tenant name and display the tenant's color
                     if(NoGreen == "FALSE"){
                         console.log("NoGreen is false");
-                        taskItem.innerHTML = `<span style="color: white;">●</span> ${task.Tenant} - ${task.CssColor}`;3
+                        taskItem.innerHTML = `<span style="color: white;">●</span> ${task.Tenant} - ${task.CssColor}`;
                     }
                     else{
                         console.log("NoGreen is true");

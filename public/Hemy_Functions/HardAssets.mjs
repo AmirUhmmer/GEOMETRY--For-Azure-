@@ -29,6 +29,8 @@ export function HardAssetSearch(viewer, HardAsset) {
             // Isolate the found objects
             viewer.isolate(dbIDs, model);
           });
+          
+          
 
           // Fit to view and highlight the found objects
           viewer.fitToView(dbIDs);
