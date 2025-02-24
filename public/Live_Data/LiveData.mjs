@@ -256,7 +256,7 @@ export async function showLiveDataListPanel(viewer) {
         
                 // Append the container to the scroll container
                 this.scrollContainer.appendChild(container);
-            });
+            });           
         }
         
         

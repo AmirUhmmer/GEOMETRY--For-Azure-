@@ -1,6 +1,7 @@
 const express = require('express');
 const Axios = require('axios');
 const cors = require('cors'); // Import CORS
+// const bodyParser = require('body-parser');
 const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
 const { APS_CLIENT_ID, APS_CLIENT_SECRET } = require('../config.js');
 
@@ -226,28 +227,27 @@ router.get('/api/graphdata/:location', async (req, res) => {
 });
 
 
+// // Define a POST route that points to '/task'
+// router.post('/task', (req, res) => {
+//     // Access query parameters from the URL
+//     const rt = req.query.RT;
+//     const abbreviation = req.query.abbreviation;
+//     const guid = req.query.guid;
 
-// Store submitted data in a simple in-memory store (could be a database in real implementation)
-let storedData = {};
+//     // Access the POST request body data (if any)
+//     const bodyData = req.body.message;
 
-// POST route to handle data submission
-router.post('/api/ServiceZone', (req, res) => {
-    try {
-        const data = req.body;
-        console.log('POST data:', data);
+//     // Log query parameters and body data
+//     console.log("Query Parameters:", { rt, abbreviation, guid });
+//     console.log("Body Data:", bodyData);
 
-        // Store the data, using the GUID as the key
-        storedData[data.uniqueID] = data;
-
-        // Send a JSON response back to the client
-        res.json({ message: "Data received", receivedData: data });
-
-        console.log('This is from the website:', storedData);
-    } catch (error) {
-        console.error('Error handling POST request:', error);
-        res.status(500).json({ error: "Something went wrong" });
-    }
-});
+//     // Respond with a success message, including both query parameters and body data
+//     res.json({
+//         message: 'Data received successfully',
+//         queryParameters: { rt, abbreviation, guid },
+//         bodyData: bodyData || "No body data received",
+//     });
+// });
 
 
 module.exports = router;

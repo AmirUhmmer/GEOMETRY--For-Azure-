@@ -225,7 +225,9 @@ async function initApp() {
                     "SOL11-23": '8e334357-c3cc-ef11-b8e9-000d3a674a78',
                     "SOL20": '85b61843-c1c8-ef11-b8e9-000d3ab86138',
                     "JV3": '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2',
-                    "ODV18": 'c2233237-dc9f-ef11-8a6a-00224899e340'
+                    "ODV18": 'c2233237-dc9f-ef11-8a6a-00224899e340',
+                    "BS19": '7ccd91a6-ce66-ef11-bfe2-000d3ab1d1c2',
+                    "FV50": 'b8c950e3-ca66-ef11-bfe2-000d3ab1d1c2',
                   };
                   
                   let abbreviation = params["abbreviation"];
@@ -323,6 +325,21 @@ async function initApp() {
                 // ODV18
                 'c2233237-dc9f-ef11-8a6a-00224899e340': ['urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw', //ARCHI
                                                          'urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA', //MEP
+                                                        ], //
+
+                // BS19
+                '7ccd91a6-ce66-ef11-bfe2-000d3ab1d1c2': ['urn:adsk.wipemea:dm.lineage:cH693J46Riyi-_ccyuHx4g', //ARCHI
+                                                         'urn:adsk.wipemea:dm.lineage:NsE81iHwS6inclXR2YMw_g', //MEP
+                                                        ],
+
+                // FV50
+                'b8c950e3-ca66-ef11-bfe2-000d3ab1d1c2': ['urn:adsk.wipemea:dm.lineage:AkM6xcyXRE-mOxjmxk6-AQ', //ARCHI
+                                                        'urn:adsk.wipemea:dm.lineage:ys5aGM_9S8S7mQQVGsSk1Q', //MEP
+                                                        ],
+
+                // J2
+                '31203385-0ce3-ef11-8eea-000d3a674a78': ['urn:adsk.wipemea:dm.lineage:7kP7byFxQhmsKJm7CrQUyw', //ARCHI
+                                                        // 'urn:adsk.wipemea:dm.lineage:5v1J3zv1Qg6qoJXm6Vw9Xg', //MEP
                                                         ],
 
             };
@@ -369,6 +386,16 @@ async function initApp() {
                 'Ole Deviks Vei 18 AS': ['urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA', //MEP
                                          'urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw', //ARCHI
                                         ],
+
+                // BS19
+                'Billingstadsletta 19 AS': ['urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA', //MEP
+                                            'urn:adsk.wipemea:dm.lineage:cH693J46Riyi-_ccyuHx4g', //ARCHI
+                                           ],
+
+                // FV50
+                'Fornebuveien 50': ['urn:adsk.wipemea:dm.lineage:ys5aGM_9S8S7mQQVGsSk1Q', //MEP
+                                    'urn:adsk.wipemea:dm.lineage:AkM6xcyXRE-mOxjmxk6-AQ', //ARCHI
+                                   ],
             };
 
             // Default geometry if no match is found
@@ -402,6 +429,12 @@ async function initApp() {
                 '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d', hardAsset: 'No Hard Asset', model: 'JV3' },
                 // ODV18
                 'c2233237-dc9f-ef11-8a6a-00224899e340': { projectId: 'b.6623a4ce-ac71-4678-af1c-55a4030ff9d9', hardAsset: 'No Hard Asset', model: 'ODV18' },
+                // BS19
+                '7ccd91a6-ce66-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.1c8224f1-b860-4a2b-821b-d393c94b190d', hardAsset: 'No Hard Asset', model: 'BS19' },
+                // FV50
+                'b8c950e3-ca66-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f', hardAsset: 'No Hard Asset', model: 'FV50' },
+                // J2
+                '31203385-0ce3-ef11-8eea-000d3a674a78': { projectId: 'b.f89b2440-302c-41fc-9f68-111bf391dc1e', hardAsset: 'No Hard Asset', model: 'J2' },
             };
 
             const propertyMap = {
@@ -412,6 +445,8 @@ async function initApp() {
                 'Solbråveien 20 AS': 'b.a08e2cf9-5b5c-4254-883e-15a9fcf3cb5c',
                 'Nanna AS': 'b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d',
                 'Ole Deviks Vei 18 AS': 'b.6623a4ce-ac71-4678-af1c-55a4030ff9d9',
+                'Billingstadsletta 19 AS': 'b.1c8224f1-b860-4a2b-821b-d393c94b190d',
+                'Fornebuveien 50': 'b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f',
                 
             };
 
