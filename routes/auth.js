@@ -227,27 +227,14 @@ router.get('/api/graphdata/:location', async (req, res) => {
 });
 
 
-// // Define a POST route that points to '/task'
-// router.post('/task', (req, res) => {
-//     // Access query parameters from the URL
-//     const rt = req.query.RT;
-//     const abbreviation = req.query.abbreviation;
-//     const guid = req.query.guid;
-
-//     // Access the POST request body data (if any)
-//     const bodyData = req.body.message;
-
-//     // Log query parameters and body data
-//     console.log("Query Parameters:", { rt, abbreviation, guid });
-//     console.log("Body Data:", bodyData);
-
-//     // Respond with a success message, including both query parameters and body data
-//     res.json({
-//         message: 'Data received successfully',
-//         queryParameters: { rt, abbreviation, guid },
-//         bodyData: bodyData || "No body data received",
-//     });
-// });
+// Endpoint to receive data from Power Apps
+router.post('/api/data', (req, res) => {
+    const powerAppsData = req.body;
+    console.log('Received Data:', powerAppsData);
+  
+    // Respond back to Power Apps
+    res.status(200).send('Data received successfully');
+});
 
 
 module.exports = router;

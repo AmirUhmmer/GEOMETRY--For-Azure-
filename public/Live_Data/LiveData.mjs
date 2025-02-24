@@ -256,7 +256,19 @@ export async function showLiveDataListPanel(viewer) {
         
                 // Append the container to the scroll container
                 this.scrollContainer.appendChild(container);
-            });           
+            });
+
+            // // Create and append the iframe under the checkboxes
+            // const iframeContainer = document.createElement('div');
+            // iframeContainer.style.marginTop = '20px';  // Add space above the iframe
+            // const iframe = document.createElement('iframe');
+            // iframe.src = 'https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=bookableresourcebooking&id=2a3ed4ae-6de4-ef11-9341-000d3ab1e3a4&formid=37864dfc-9ded-ef11-9341-7c1e52fae3cc';
+            // iframe.width = '100%';  // Make the iframe take the full width
+            // iframe.height = '600px';  // Set a height for the iframe
+            // iframe.style.border = 'none';  // Remove the border around the iframe
+
+            // iframeContainer.appendChild(iframe);
+            // this.scrollContainer.appendChild(iframeContainer);
         }
         
         
