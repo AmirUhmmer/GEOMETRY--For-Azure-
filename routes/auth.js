@@ -240,15 +240,24 @@ router.get('/api/graphdata/:location', async (req, res) => {
 // test
 const sessionDataStore = {};  // Store data per session
 router.post('/api/data', (req, res) => {
-    const sessionId = req.body.sessionId;  // Get the session ID from request body
-    const powerAppsData = req.body.data;   // The actual data sent
-  
-    // Store data per session in memory
-    sessionDataStore[sessionId] = powerAppsData;
-    
-    // Respond back with a 200 status to confirm receipt
-    res.status(200).send('Data received successfully');
-  });
+    try {
+        console.log('Request Body:', req.body);
+        
+        const sessionId = req.body.sessionId;
+        const powerAppsData = req.body.data;
+        
+        if (!sessionId || !powerAppsData) {
+            return res.status(400).send('Missing sessionId or data');
+        }
+        
+        sessionDataStore[sessionId] = powerAppsData;
+        res.status(200).send('Data received successfully');
+        console.log('Data:', powerAppsData);
+    } catch (error) {
+        console.error('Error processing request:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 
   router.get('/api/get-latest-data/:sessionId', (req, res) => {
