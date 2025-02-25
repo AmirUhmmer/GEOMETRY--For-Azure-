@@ -216,6 +216,24 @@ async function initApp() {
             let FunctionalLocation = params["FL"];  // The Functional Location, if it exists
             let RepeatingTask = params["RT"];  // The Repeating Task, if it exists
             let WOST = params["WOST"];  // The Work Order Service Task, if it exists
+            let sessionId = params["sessionId"];  // The session id, if it exists
+
+            //testttttt
+            // Fetch data from the backend using the session ID
+            function fetchLatestData() {
+                fetch(`https://hemydigitaltwin-dra9gjbxbsaydxdz.northeurope-01.azurewebsites.net/api/get-latest-data/${sessionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`Data fetched for session ${sessionId}:`, data);
+                    // If you need to process/display the data, you could do that here
+                })
+                .catch(error => console.error('Error fetching data:', error));
+            }
+
+            // Trigger data fetch once the iframe loads
+            if (sessionId){
+                fetchLatestData();
+            }
 
             if (RepeatingTask || WOST) {
                 const abbreviationToRecordId = {

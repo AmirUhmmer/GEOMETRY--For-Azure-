@@ -228,13 +228,39 @@ router.get('/api/graphdata/:location', async (req, res) => {
 
 
 // Endpoint to receive data from Power Apps
-router.post('/api/data', (req, res) => {
-    const powerAppsData = req.body;
-    console.log('Received Data:', powerAppsData);
+// router.post('/api/data', (req, res) => {
+//     const powerAppsData = req.body;
+//     console.log('Received Data:', powerAppsData);
   
-    // Respond back to Power Apps
+//     // Respond back to Power Apps
+//     res.status(200).send('Data received successfully');
+// });
+
+
+// test
+router.post('/api/data', (req, res) => {
+    const sessionId = req.body.sessionId;  // Get the session ID from request body
+    const powerAppsData = req.body.data;   // The actual data sent
+  
+    // Store data per session in memory
+    sessionDataStore[sessionId] = powerAppsData;
+    
+    // Respond back with a 200 status to confirm receipt
     res.status(200).send('Data received successfully');
-});
+  });
+
+
+  router.get('/api/get-latest-data/:sessionId', (req, res) => {
+    const sessionId = req.params.sessionId;
+  
+    // Check if data exists for the session
+    if (sessionDataStore[sessionId]) {
+      res.status(200).json(sessionDataStore[sessionId]);
+      console.log('Data:', sessionDataStore[sessionId]);
+    } else {
+      res.status(200).json({ message: 'No data available for this session' });
+    }
+  });
 
 
 module.exports = router;
