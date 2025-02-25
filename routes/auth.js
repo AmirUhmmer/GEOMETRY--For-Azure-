@@ -232,9 +232,9 @@ const sessionDataStore = {};  // Store data per session
 router.post('/api/data', (req, res) => {
     const powerAppsData = req.body;
     console.log('Received Data:', powerAppsData);
-
-    res.status(200).send('Data received successfully', powerAppsData);
-    
+  
+    // Respond back to Power Apps
+    res.status(200).send('Data received successfully');
 });
 
 
@@ -261,17 +261,17 @@ router.post('/api/data', (req, res) => {
 // });
 
 
-  router.get('/api/get-latest-data/:sessionId', (req, res) => {
-    const sessionId = req.params.sessionId;
+//   router.get('/api/get-latest-data/:sessionId', (req, res) => {
+//     const sessionId = req.params.sessionId;
   
-    // Check if data exists for the session
-    if (sessionDataStore[sessionId]) {
-      res.status(200).json(sessionDataStore[sessionId]);
-      console.log('Data:', sessionDataStore[sessionId]);
-    } else {
-      res.status(200).json({ message: 'No data available for this session' });
-    }
-  });
+//     // Check if data exists for the session
+//     if (sessionDataStore[sessionId]) {
+//       res.status(200).json(sessionDataStore[sessionId]);
+//       console.log('Data:', sessionDataStore[sessionId]);
+//     } else {
+//       res.status(200).json({ message: 'No data available for this session' });
+//     }
+//   });
 
 
 module.exports = router;
