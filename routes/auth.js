@@ -238,6 +238,7 @@ router.get('/api/graphdata/:location', async (req, res) => {
 
 
 // test
+const sessionDataStore = {};  // Store data per session
 router.post('/api/data', (req, res) => {
     const sessionId = req.body.sessionId;  // Get the session ID from request body
     const powerAppsData = req.body.data;   // The actual data sent
