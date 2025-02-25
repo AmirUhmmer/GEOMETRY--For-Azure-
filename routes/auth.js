@@ -226,38 +226,45 @@ router.get('/api/graphdata/:location', async (req, res) => {
     }
 });
 
+const sessionDataStore = {};  // Store data per session
 
 // Endpoint to receive data from Power Apps
-// router.post('/api/data', (req, res) => {
-//     const powerAppsData = req.body;
-//     console.log('Received Data:', powerAppsData);
-  
-//     // Respond back to Power Apps
-//     res.status(200).send('Data received successfully');
-// });
+router.post('/api/data', (req, res) => {
+    const powerAppsData = req.body;
+    console.log('Received Data:', powerAppsData);
+  try{
+    sessionDataStore[sessionId] = powerAppsData;
+    // Respond back to Power Apps
+    res.status(200).send('Data received successfully');
+  } catch (error) {
+    console.error('Error processing request:', error);
+    res.status(500).send('Internal Server Error');
+  }
+    
+});
 
 
 // test
-const sessionDataStore = {};  // Store data per session
-router.post('/api/data', (req, res) => {
-    try {
-        console.log('Request Body:', req.body);
+
+// router.post('/api/data', (req, res) => {
+//     try {
+//         console.log('Request Body:', req.body);
         
-        const sessionId = req.body.sessionId;
-        const powerAppsData = req.body.data;
+//         const sessionId = req.body.sessionId;
+//         const powerAppsData = req.body.data;
         
-        if (!sessionId || !powerAppsData) {
-            return res.status(400).send('Missing sessionId or data');
-        }
+//         if (!sessionId || !powerAppsData) {
+//             return res.status(400).send('Missing sessionId or data');
+//         }
         
-        sessionDataStore[sessionId] = powerAppsData;
-        res.status(200).send('Data received successfully');
-        console.log('Data:', powerAppsData);
-    } catch (error) {
-        console.error('Error processing request:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
+//         sessionDataStore[sessionId] = powerAppsData;
+//         res.status(200).send('Data received successfully');
+//         console.log('Data:', powerAppsData);
+//     } catch (error) {
+//         console.error('Error processing request:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
 
   router.get('/api/get-latest-data/:sessionId', (req, res) => {
