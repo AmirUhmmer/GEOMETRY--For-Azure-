@@ -232,14 +232,8 @@ const sessionDataStore = {};  // Store data per session
 router.post('/api/data', (req, res) => {
     const powerAppsData = req.body;
     console.log('Received Data:', powerAppsData);
-  try{
-    sessionDataStore[sessionId] = powerAppsData;
-    // Respond back to Power Apps
-    res.status(200).send('Data received successfully');
-  } catch (error) {
-    console.error('Error processing request:', error);
-    res.status(500).send('Internal Server Error');
-  }
+
+    res.status(200).send('Data received successfully', powerAppsData);
     
 });
 
