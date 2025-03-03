@@ -6,6 +6,7 @@ import { FunctionalLocationSearch } from './Hemy_Functions/FunctionalLocation.mj
 import { RepeatingTasks } from './Hemy_Functions/RepeatingTasks.mjs';
 import { WOServiceTask } from './Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
+import { ToolbarButton2DFaro } from './panelFor2DFaro.mjs';
 
 
 
@@ -213,6 +214,7 @@ export function initViewer(container) {
 export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone, FunctionalLocation, model, RepeatingTask) {
 
     let modelsToLoad = urns;
+    let modelAbbreviation = model;
 
     // Track the number of models to load and the count of successfully loaded models
     // let modelsToLoad = urns.length ? urns : [
@@ -330,6 +332,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 RepeatingTasks(viewer, RepeatingTask);
 
                 WOServiceTask(viewer);
+                
+                // ToolbarButton2DFaro(viewer, modelAbbreviation);
+
 
 
                 const canvas = viewer.impl.canvas;
@@ -358,6 +363,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                     props.properties.forEach(function (prop) {
                                         if (prop.displayName === "Asset ID") {
                                             globalID = prop.displayValue;
+                                            console.log(selection.model);
+                                            console.log(viewer.impl.modelQueue().getModels()[1]);
                                         }
                                         if (prop.displayName === "Asset ID (GUID)") {
                                             globalID = prop.displayValue;
@@ -384,6 +391,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                             }
 
                                         }else{
+                                            
                                             if (model === viewer.impl.modelQueue().getModels()[1]) {
                                                 // Second model
                                                 newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;                                         
@@ -538,11 +546,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
         if (versionsData.data && versionsData.data.length > 0) {
             const latestVersion = versionsData.data[0];  // Assuming the first item is the latest
             let latestVersionUrn = latestVersion.id;  // This will be the URN for the latest version
-            if(latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=20') {
-                // latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=19';
-            }
-            else if(latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.gs0PRB3eRUS6ANLK09vDYA?version=19') {
-                latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.gs0PRB3eRUS6ANLK09vDYA?version=5';
+            if(latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=163') {
+                latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=161';
             }
             console.log('Latest Version URN:', latestVersionUrn);
             const base64Urn = btoa(latestVersionUrn);  // This encodes the URN to base64

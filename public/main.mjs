@@ -300,13 +300,14 @@ async function initApp() {
                                                         ],
                 
                 // HG62
-                '766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca': ['urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
-                                                         'urn:adsk.wipemea:dm.lineage:UwhmTaE5RQ21--nmCQd2pA' //archi
+                '766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca': ['urn:adsk.wipemea:dm.lineage:UwhmTaE5RQ21--nmCQd2pA', //archi
+                                                        'urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
+                                                         
                                                         ],
 
                 // HG62 for Production
-                '422be7c5-ef69-ef11-bfe2-000d3a6735d4': ['urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
-                                                        'urn:adsk.wipemea:dm.lineage:UwhmTaE5RQ21--nmCQd2pA' //archi
+                '422be7c5-ef69-ef11-bfe2-000d3a6735d4': ['urn:adsk.wipemea:dm.lineage:UwhmTaE5RQ21--nmCQd2pA', //archi
+                                                         'urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
                                                         ],
                 
                 // SOL10
@@ -336,13 +337,15 @@ async function initApp() {
 
                  // JV3 for Production                                        
                 '92e191ec-cb66-ef11-bfe2-000d3ab1d1c2': ['urn:adsk.wipemea:dm.lineage:VLzD-rrOS9SQvV6rnJT7LA', //ARCHI
-                                                         'urn:adsk.wipemea:dm.lineage:U9tz-MHvQfS2Hg9gRITkdA', //MEP
                                                          'urn:adsk.wipemea:dm.lineage:Ty5wLZ92TqCHkIn80Mmipg', //COMMON AREAS
+                                                         'urn:adsk.wipemea:dm.lineage:U9tz-MHvQfS2Hg9gRITkdA', //MEP
+                                                         
                                                         ],
 
                 // ODV18
-                'c2233237-dc9f-ef11-8a6a-00224899e340': ['urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw', //ARCHI
-                                                         'urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA', //MEP
+                'c2233237-dc9f-ef11-8a6a-00224899e340': ['urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA', //ARCHI ?????
+                                                        'urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw', //MEP
+                                                         
                                                         ], //
 
                 // BS19
