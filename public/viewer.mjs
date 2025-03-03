@@ -333,7 +333,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 WOServiceTask(viewer);
                 
-                // ToolbarButton2DFaro(viewer, modelAbbreviation);
+                ToolbarButton2DFaro(viewer, modelAbbreviation);
 
 
 
