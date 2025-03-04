@@ -13,8 +13,17 @@ export function PanelContent(viewer, modelAbbreviation) {
         ];
     } else if (modelAbbreviation === 'HG62') {
         content = [
-            // { id: 'faroLabel', label: 'Faro Links', value: '', isParent: true },
-            // { id: 'faroLink', value: 'All Floors', label: '', url: 'https://hemy-as.websharecloud.com/?v=om&t=p:default,c:overviewmap,h:f,m:t,pr:t&om=om1&om1=auto:t&p=db9', parentId: 'faroLabel' },
+            { id: 'faroLabel', label: 'Faro Links', value: '', isParent: true },
+            { id: 'faroLink8', value: 'Roof', label: '', url: 'https://viewer.holobuilder.eu/project/ee327e99-6888-4642-a604-733f947bab42', parentId: 'faroLabel' },
+            { id: 'faroLink7', value: '7 Floor Level', label: '', url: 'https://viewer.holobuilder.eu/project/f5c55aee-80ca-4cc6-80da-2fc0d75c96c2', parentId: 'faroLabel' },
+            { id: 'faroLink6', value: '6 Floor Level', label: '', url: 'https://viewer.holobuilder.eu/project/a7021a42-b291-49f7-93fa-019e236a7014', parentId: 'faroLabel' },
+            { id: 'faroLink5', value: '5 Floor Level', label: '', url: 'https://viewer.holobuilder.eu/project/6dbab601-6f4a-482a-8802-4976047806a3', parentId: 'faroLabel' },
+            { id: 'faroLink4', value: '4 Floor Level', label: '', url: 'https://viewer.holobuilder.eu/project/e2432bce-f58d-4265-a2cb-4f34202c8823', parentId: 'faroLabel' },
+            { id: 'faroLink3', value: '3 Floor Level', label: '', url: 'https://viewer.holobuilder.eu/project/f8c5a19e-1245-4bd8-bf92-216576fbd50e', parentId: 'faroLabel' },
+            { id: 'faroLink2', value: '2 Floor Level', label: '', url: 'https://viewer.holobuilder.eu/project/fdc77a39-ad22-41d4-a2cb-13aae7aefb53', parentId: 'faroLabel' },
+            { id: 'faroLink1', value: '1 Floor Level', label: '', url: 'https://viewer.holobuilder.eu/project/048fc7ca-1aba-43ff-813b-ad9afce64431', parentId: 'faroLabel' },
+            { id: 'faroLinkU1', value: 'U1 Floor Level', label: '', url: 'https://viewer.holobuilder.eu/project/3819247a-5920-4679-9b69-aff755f63d58', parentId: 'faroLabel' },
+            { id: 'faroLinkU2', value: 'U2 Floor Level', label: '', url: 'https://viewer.holobuilder.eu/project/827aaa93-be3d-42f4-9c6d-9d6f4fc5491d', parentId: 'faroLabel' },
             { id: '2dLabel', label: '2D Links ', value: '', isParent: true },
             { id: '2dLinks8', value: '8 Floor Level', label: '', url: 'https://acc.autodesk.eu/docs/files/projects/552de2d1-bc00-41a4-8d90-ec063d64a4c6?folderUrn=urn%3Aadsk.wipemea%3Afs.folder%3Aco.Ts5vEiifUjOgfarDcXmyRA&entityId=urn%3Aadsk.wipemea%3Adm.lineage%3A7eTa-o1zW_eEA5qZ0MsEvw&viewModel=detail&moduleId=folders&viewableGuid=e72baf81-d0fc-46e3-85bf-c8b934026a27', parentId: '2dLabel' },
             { id: '2dLinks7', value: '7 Floor Level', label: '', url: 'https://acc.autodesk.eu/docs/files/projects/552de2d1-bc00-41a4-8d90-ec063d64a4c6?folderUrn=urn%3Aadsk.wipemea%3Afs.folder%3Aco.Ts5vEiifUjOgfarDcXmyRA&entityId=urn%3Aadsk.wipemea%3Adm.lineage%3AkdfiVFKwU-KFv0A5kyLAgg&viewModel=detail&moduleId=folders&viewableGuid=9dfb3046-c35b-48d9-a503-19eabf77a1e2', parentId: '2dLabel' },
@@ -30,6 +39,11 @@ export function PanelContent(viewer, modelAbbreviation) {
     } else if (modelAbbreviation === 'SOL10') {
         content = [
             { id: 'faroLabel', label: 'Faro Links ', value: '', isParent: true },
+            { id: 'faroLinkP', value: 'Parking Area', label: '', url: 'https://viewer.holobuilder.eu/project/3dde8e05-9791-4d8a-80db-3c77b6145872', parentId: 'faroLabel' },
+            { id: 'faroLink1', value: 'Block A - Level 3', label: '', url: 'https://viewer.holobuilder.eu/project/81611f8a-fd4d-4bb1-867d-c41da887aa14', parentId: 'faroLabel' },
+            { id: 'faroLink1', value: 'Block A - Level 2', label: '', url: 'https://viewer.holobuilder.eu/project/d6224509-1ac5-4295-85e9-a7de3de500b0', parentId: 'faroLabel' },
+            { id: 'faroLink1', value: 'Block A - Level 1', label: '', url: 'https://viewer.holobuilder.eu/project/7a00d8ea-e35f-443f-977d-c88e6ab1a61e', parentId: 'faroLabel' },
+            { id: 'faroLink1', value: 'Block A - U1', label: '', url: 'https://viewer.holobuilder.eu/project/8e529626-318c-4d05-8e70-d3beb7f7e604', parentId: 'faroLabel' },
             { id: 'faroLink1', value: 'Block B - (All Floors included)', label: '', url: 'https://hemy-as.websharecloud.com/?v=om&t=p:default,c:overviewmap,h:f,m:t,pr:t&om=om1&om1=x:19.500,y:8.156,zoom:4&p=sol10-block-b-6--23f19e47', parentId: 'faroLabel' },
             { id: 'faroLink2', value: 'Block C - (All Floors included)', label: '', url: 'https://hemy-as.websharecloud.com/?v=om&t=p:default,c:overviewmap,h:f,m:t,pr:t&om=om1&om1=auto:t&p=sol10-block-c-6-', parentId: 'faroLabel' },
             { id: 'faroLink3', value: 'Block D - (All Floors included)', label: '', url: 'https://hemy-as.websharecloud.com/?v=om&t=p:default,c:overviewmap,h:f,m:t,pr:t&om=om1&om1=auto:t&p=sol10-block-d-6-', parentId: 'faroLabel' },

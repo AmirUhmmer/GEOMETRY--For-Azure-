@@ -65,14 +65,22 @@ export function ToolbarButton2DFaro(viewer, modelAbbreviation) {
     createScrollContainer() {
       // Create the scroll container
       this.scrollContainer = document.createElement('div');
-      this.scrollContainer.style.overflow = 'auto';
-      this.scrollContainer.style.padding = '1em';  // Add padding to the scroll container
-      this.scrollContainer.style.height = '100%';  // Ensure it takes full panel height
-      this.container.appendChild(this.scrollContainer);  // Append the scroll container to the panel
-
+      
+      // Apply scroll container styles and class
+      this.scrollContainer.classList.add('scrollContainer'); // Add a class for styling
+      
+      this.scrollContainer.style.overflowY = 'auto'; // Enable vertical scrolling
+      this.scrollContainer.style.padding = '1em';
+      this.scrollContainer.style.height = 'calc(100% - 2em)';
+    
+      // Append the scroll container to the panel
+      this.container.appendChild(this.scrollContainer);
+    
       // Create and append elements to the scroll container
       this.createPanelContent();
     }
+    
+    
 
     createPanelContent() {
       // Get content by calling PanelContent function
