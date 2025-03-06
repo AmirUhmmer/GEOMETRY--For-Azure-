@@ -249,8 +249,12 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     console.log('Autodesk.AEC.LevelsExtension loaded.');
                 });
 
-                viewer.loadExtension('Autodesk.FullScreen').then((levelsExt) => {
+                viewer.loadExtension('Autodesk.FullScreen').then(() => {
                     console.log('Autodesk.FullScreen loaded.');
+                });
+
+                viewer.loadExtension('Autodesk.AEC.Minimap3DExtension').then(() => {
+                    console.log('Autodesk.Minimap3DExtension loaded.');
                 });
 
                 viewer.unloadExtension('Autodesk.Explode');
@@ -369,7 +373,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                         if (prop.displayName === "Asset ID (GUID)") {
                                             globalID = prop.displayValue;
                                         }
-                                        if (prop.displayName === "Type Name") {
+                                        if (prop.displayName === "Name") {
                                             identity = prop.displayValue;
                                             console.log("test" + identity);
                                         }
