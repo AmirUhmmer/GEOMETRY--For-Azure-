@@ -225,7 +225,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
     let modelsLoaded = 0; // Keep track of how many models have loaded
 
-    console.log(modelsToLoad);
+    // console.log(modelsToLoad);
 
     function checkAllModelsLoaded() {
         console.log("CHECK: " + modelsLoaded);
@@ -247,6 +247,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
     
                 viewer.loadExtension('Autodesk.AEC.LevelsExtension').then((levelsExt) => {
                     console.log('Autodesk.AEC.LevelsExtension loaded.');
+                    // levelsExt.floorSelector.selectFloor(1);
                 });
 
                 viewer.loadExtension('Autodesk.FullScreen').then(() => {
@@ -280,30 +281,52 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 }else if(model === 'SOL11'){
                     Sol11PicsSPRITES(viewer);
                 }
+
+
                 
                 // Call surface shading setup or any other actions here
                 viewer.loadExtension('Autodesk.AEC.LevelsExtension').then(function(levelsExt) {
-                    levelsExt.floorSelector.addEventListener(Autodesk.AEC.FloorSelector.SELECTED_FLOOR_CHANGED, function(event) {
-                        // const selectedFloorName = event.floor.name;
-                        // console.log(event);
-                        const selectedLevelIndex = event.levelIndex; // Get the level index from the event
-                        console.log(`Selected Floor: ${selectedLevelIndex}`);
+                    if (levelsExt && levelsExt.floorSelector) {
+                        levelsExt.floorSelector.addEventListener(Autodesk.AEC.FloorSelector.SELECTED_FLOOR_CHANGED, function(event) {
+                            const selectedLevelIndex = event.levelIndex; // Get the level index from the event
+                            console.log(`Selected Floor Index: ${selectedLevelIndex}`);
+                
+                            // Check if the loaded model is named "DB8"
+                            let LiveData = localStorage.getItem('LiveData');
+                            console.log(LiveData);
+                            if (LiveData === 'DB8' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
+                                viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // Call LiveDataListPanel
+                            }
+                        });
+                
+                        // Optionally, set a default floor after loading the extension
+                        // levelsExt.floorSelector.selectFloor(0, true);
+                
+                        // Get and log the floor data
+                        // const floorData = levelsExt.floorSelector;
+                        // console.log("Initial Floor Data:", floorData);
+
+                        // setTimeout(() => {
+                        //     const floorAr = floorData._floors;
+                        //     console.log("Floor Array after delay:", floorAr);
+
+                        //     if (floorAr && floorAr.length > 0) {
+                        //         floorAr.forEach((floor, index) => {
+                        //             console.log(`Floor ${index}:`, floor);
+                        //         });
+                        //     } else {
+                        //         console.error("Floors array is still empty.");
+                        //     }
+                        // }, 1000); // Wait for 1 second before checking
 
 
-                        // Check if the loaded model is named "DB8"
-                        let LiveData = localStorage.getItem('LiveData');
-                        console.log(LiveData);
-                        if (LiveData === 'DB8' && selectedLevelIndex !== undefined) {
-                            viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // LiveDataListPanel will be called
-                        }
-                        // else if (LiveData === 'NOT YET LIVE' && selectedLevelIndex === undefined) {
-                        //     SPRITES(viewer, selectedLevelIndex); // SPRITES will be called
-                        // }
-                    });
-    
-                    // Optionally, you can set a default floor after loading the extension
-                    // levelsExt.floorSelector.selectFloor(0, true); // Replace 0 with the default floor index if needed
+                    } else {
+                        console.error("Levels Extension or floorSelector is not available.");
+                    }
                 });
+                
+                
+                
 
 
                 // Add click event listener to show the dbid of the selected object
@@ -322,6 +345,15 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 //             console.log('World Coordinates:', worldPoint);
                 //     }
                 // }); 
+
+
+                // const aecModelData = viewer.model.getData();
+                // if (aecModelData) {
+                //     console.log('AEC Model Data available:', aecModelData);
+                // } else {
+                //     console.log('AEC Model Data not available for this model.');
+                // }
+
 
                 let HardAsset = localStorage.getItem('HardAssetChecker');
 
