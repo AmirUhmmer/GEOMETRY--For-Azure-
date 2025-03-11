@@ -220,7 +220,7 @@ export function RepeatingTasks(viewer, RepeatingTask) {
     
                               // Change the floor level based on the index
                               if(alldbidAsset.length > 0){
-                                // levelsExt.floorSelector.selectFloor(selectedLevelIndex, true);
+                                levelsExt.floorSelector.selectFloor(selectedLevelIndex, true);
                               }
                               // levelsExt.floorSelector.selectFloor(selectedLevelIndex, true);
                               console.log(`Floor changed to level: ${matchingLevel.name}, Index: ${selectedLevelIndex}`);
