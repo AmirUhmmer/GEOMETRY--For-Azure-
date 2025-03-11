@@ -79,137 +79,129 @@
 
 
 export function HardAssetSearch(viewer, HardAsset) {
-  if (HardAsset === "Hard Asset") {
-    let assetValue = localStorage.getItem("ASSET");
-    console.log("SEARCHED:" + assetValue);
+  if (HardAsset !== "Hard Asset") return;
 
-    // First, get the models from the viewer
-    const models = viewer.impl.modelQueue().getModels();
+  let assetValue = localStorage.getItem("ASSET");
+  console.log("SEARCHED: " + assetValue);
 
-    // Ensure models are loaded before proceeding
-    if (models && models.length > 0 && assetValue) {
-      models.forEach((model) => {
-        model.search(
-          assetValue,
-          function (dbIDs) {
-            if (!dbIDs || dbIDs.length === 0) {
-              console.log("No matching objects found for: " + assetValue);
-              return;
-            }
-
-            // Hide all objects in the current model first
-            viewer.isolate([], model);
-
-            // Loop through found dbIDs to check their properties
-            let matchingDbIDs = [];
-            dbIDs.forEach((dbId) => {
-              model.getProperties(dbId, function (props) {
-                let assetIDValue = null;
-                let assetLevel = null;
-
-                // Check if "Asset ID" matches the searched value and get the Level
-                props.properties.forEach(function (prop) {
-                  if (prop.displayName === "Asset ID") {
-                    assetIDValue = prop.displayValue;
-                  }
-                  if (prop.displayName === "Asset ID (GUID)") {
-                    assetIDValue = prop.displayValue;
-                  }
-                  if (prop.displayName === "Level") {
-                    assetLevel = prop.displayValue; // Save the level value
-                    console.log("Level:", assetLevel);
-                  }
-                  if (prop.displayName === "Schedule Level") {
-                    assetLevel = prop.displayValue; // Save the level value
-                    console.log("Level:", assetLevel);
-                  }
-                });
-
-                if (assetIDValue === assetValue) {
-                  matchingDbIDs.push(dbId); // Add dbId to matching list if it matches
-                  console.log(`Matching dbId: ${dbId} with Asset ID: ${assetIDValue}`);
-
-                  // Check the level in the Levels Extension
-                  viewer.loadExtension('Autodesk.AEC.LevelsExtension').then(function (levelsExt) {
-                    if (levelsExt && levelsExt.floorSelector) {
-
-                      const floorData = levelsExt.floorSelector;
-                        console.log("Initial Floor Data:", floorData);
-
-                        setTimeout(() => {
-                            const levels = floorData._floors;
-                            console.log("Floor Array after delay:", levels);
-
-                            if (levels && levels.length > 0) {
-                                levels.forEach((floor, index) => {
-                                    console.log(`Floor ${index}:`, floor);
-                                });
-                            } else {
-                                console.error("Floors array is still empty.");
-                            }
-
-                              // Search for the level by name in the levels array
-                              let matchingLevel = levels.find(level => level.name === assetLevel);
-      
-                              if (matchingLevel) {
-                                const selectedLevelIndex = matchingLevel.index;
-      
-                                // Change the floor level based on the index
-                                levelsExt.floorSelector.selectFloor(selectedLevelIndex, true);
-                                console.log(`Floor changed to level: ${matchingLevel.name}, Index: ${selectedLevelIndex}`);
-
-                                viewer.loadExtension('Autodesk.BimWalk').then(function(bimWalkExt) {
-                                  // Start BimWalk after loading the extension
-                                  if (bimWalkExt) {
-                                    // viewer.fitToView(dbIDs, model);
-                                    bimWalkExt.activate();
-                                    console.log("BimWalk started.");
-                                    
-                                  } else {
-                                    console.error("BimWalk extension could not be loaded.");
-                                  }
-                                });
-
-                              } else {
-                                console.error('No matching level found for the asset level.');
-                              }
-                            
-
-                        }, 1000); // Wait for 1 second before checking
-
-                      
-                    } else {
-                      console.error("Levels Extension or floorSelector is not available.");
-                    }
-                  });
-                }
-              });
-            });
-
-            // // Isolate the found objects in the current model
-            // viewer.isolate(dbIDs, model);
-
-            // Fit to view the found objects in the current model
-            viewer.fitToView(dbIDs, model);
-
-            // Highlight the found objects with a green color
-            let color = new THREE.Vector4(0, 1, 0, 1); // Green color with full intensity (RGBA)
-            viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB: red, green, blue
-            viewer.setThemingColor(dbIDs, color, model);
-            viewer.select(dbIDs, model); // Optionally highlight the objects
-            console.log("Final matching dbIDs in model:", dbIDs);
-          },
-          function (error) {
-            console.error("Search error in model:", error); // Handle any potential search errors
-          }
-        );
-      });
-    } else {
-      console.warn("No models loaded or invalid asset value.");
-    }
-    
-    
+  // Get models from the viewer
+  const models = viewer.impl.modelQueue().getModels();
+  
+  if (!models || models.length === 0 || !assetValue) {
+    console.warn("No models loaded or invalid asset value.");
+    return;
   }
+
+  // Search through all models for the specified asset
+  models.forEach(model => searchModelForAsset(viewer, model, assetValue));
 }
+
+// Function to search a single model for the asset
+function searchModelForAsset(viewer, model, assetValue) {
+  model.search(assetValue, dbIDs => {
+    if (!dbIDs || dbIDs.length === 0) {
+      console.log("No matching objects found for: " + assetValue);
+      return;
+    }
+
+    let matchingDbIDs = [];
+
+    // Isolate all objects initially
+    viewer.isolate([], model);
+
+    // Check properties of the found objects
+    dbIDs.forEach(dbId => {
+      model.getProperties(dbId, props => {
+        const { assetIDValue, assetLevel } = getAssetProperties(props);
+        
+        if (assetIDValue === assetValue) {
+          matchingDbIDs.push(dbId);
+          console.log(`Matching dbId: ${dbId} with Asset ID: ${assetIDValue}`);
+
+          // Handle floor change and BimWalk activation
+          handleLevelsAndBimWalk(viewer, assetLevel, dbIDs, model);
+        }
+      });
+    });
+
+    // Fit and highlight found objects
+    fitAndHighlightObjects(viewer, dbIDs, model);
+  }, error => {
+    console.error("Search error in model:", error);
+  });
+}
+
+// Helper function to extract the asset properties (Asset ID and Level)
+function getAssetProperties(props) {
+  let assetIDValue = null;
+  let assetLevel = null;
+
+  props.properties.forEach(prop => {
+    if (prop.displayName === "Asset ID" || prop.displayName === "Asset ID (GUID)") {
+      assetIDValue = prop.displayValue;
+    }
+    if (["Level", "Schedule Level"].includes(prop.displayName)) {
+      assetLevel = prop.displayValue;
+      console.log("Level:", assetLevel);
+    }
+  });
+
+  return { assetIDValue, assetLevel };
+}
+
+// Function to handle levels extension and BimWalk activation
+function handleLevelsAndBimWalk(viewer, assetLevel, dbIDs, model) {
+  viewer.loadExtension('Autodesk.AEC.LevelsExtension').then(levelsExt => {
+    if (!levelsExt || !levelsExt.floorSelector) {
+      console.error("Levels Extension or floorSelector is not available.");
+      return;
+    }
+
+    const floorData = levelsExt.floorSelector;
+    console.log("Initial Floor Data:", floorData);
+
+    setTimeout(() => {
+      const levels = floorData._floors;
+      if (!levels || levels.length === 0) {
+        console.error("Floors array is still empty.");
+        return;
+      }
+
+      let matchingLevel = levels.find(level => level.name === assetLevel);
+      if (!matchingLevel) {
+        console.error("No matching level found for the asset level.");
+        return;
+      }
+
+      const selectedLevelIndex = matchingLevel.index;
+      levelsExt.floorSelector.selectFloor(selectedLevelIndex, true);
+      console.log(`Floor changed to level: ${matchingLevel.name}, Index: ${selectedLevelIndex}`);
+
+      viewer.loadExtension('Autodesk.BimWalk').then(bimWalkExt => {
+        if (bimWalkExt) {
+          bimWalkExt.activate();
+          viewer.select(dbIDs, model); // Optionally select the objects
+          console.log("BimWalk started.");
+        } else {
+          console.error("BimWalk extension could not be loaded.");
+        }
+      });
+    }, 2000);
+  });
+}
+
+// Function to fit and highlight objects
+function fitAndHighlightObjects(viewer, dbIDs, model) {
+  viewer.fitToView(dbIDs, model);
+
+  // Highlight objects with green color
+  let color = new THREE.Vector4(0, 1, 0, 1); // RGBA for green
+  viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB: green
+  viewer.setThemingColor(dbIDs, color, model);
+  viewer.select(dbIDs, model); // Optionally select the objects
+
+  console.log("Final matching dbIDs in model:", dbIDs);
+}
+
 
 
