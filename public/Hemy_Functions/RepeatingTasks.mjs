@@ -228,7 +228,7 @@ export function RepeatingTasks(viewer, RepeatingTask) {
                               viewer.loadExtension('Autodesk.BimWalk').then(function(bimWalkExt) {
                                 // Start BimWalk after loading the extension
                                 if (bimWalkExt) {
-                                  bimWalkExt.activate();
+                                  // bimWalkExt.activate();
                                   viewer.select(alldbid, model); // Select all dbIDs at once for the model
                                   console.log("BimWalk started.");
                                   
