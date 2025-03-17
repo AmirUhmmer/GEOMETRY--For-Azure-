@@ -57,10 +57,51 @@ export function RepeatingTasks(viewer, RepeatingTask) {
 
                       console.log("Properties for dbID:", dbID, props);
                       console.log("Properties Name:", props.name);
-                      if (props.name.includes("Model Text")) {
-                        FLname = props.name;
-                        console.log("Fixed Properties Name:", props.name);
-                      }
+                      // let testdbid = [18052, 17948, 15810];
+                      // Office 014
+                      // 
+                      // getElementBoundingBox(viewer, testdbid);
+                      
+                    //   viewer.getObjectTree(function (instanceTree) {
+                    //     // Iterate over each dbId in your testdbid array
+                    //     testdbid.forEach(function (dbId) {
+                    //         var boundingBox = new THREE.Box3(); // Initialize the bounding box here
+                    
+                    //         if (instanceTree) {
+                    //             instanceTree.enumNodeFragments(dbId, function (fragId) {
+                    //                 const fragList = viewer.model.getFragmentList(); // Use viewer's model fragment list
+                    
+                    //                 // Get the bounding box of the fragment
+                    //                 var fragBoundingBox = new THREE.Box3();
+                    //                 fragList.getWorldBounds(fragId, fragBoundingBox);
+                    //                 boundingBox.union(fragBoundingBox); // Accumulate bounding boxes
+                    
+                    //                 // Get the world matrix of the fragment
+                    //                 const matrix = new THREE.Matrix4();
+                    //                 fragList.getWorldMatrix(fragId, matrix);
+                    
+                    //                 // Extract the position (coordinates) from the matrix
+                    //                 const position = new THREE.Vector3();
+                    //                 position.setFromMatrixPosition(matrix);
+                    
+                    //                 // Log the world coordinates
+                    //                 console.log(`World Coordinates for dbId ${dbId} (Model ${viewer.model.id}): x=${position.x}, y=${position.y}, z=${position.z}`);
+                    //             });
+                    
+                    //             // After processing all fragments for the dbId
+                    //             console.log('Bounding Box for dbId ' + dbId + ':', boundingBox);
+                    //         } else {
+                    //             console.log("InstanceTree not available for model:", viewer.model);
+                    //         }
+                    //     });
+                    // });
+
+
+                    // createHeatmapFromDbIds(viewer, testdbid);
+
+                    // generateDevicesFromDbIds(viewer, testdbid);
+                    
+                    
 
                       // Check if "Asset ID" or "Asset ID (GUID)" matches the searched value
                       props.properties.forEach(function (prop) {
@@ -312,6 +353,241 @@ export function RepeatingTasks(viewer, RepeatingTask) {
     
     }
   }
+
+
+
+
+
+
+
+
+  // async function generateDevicesFromDbIds(viewer, dbIds) {
+  //   const dataVizExtn = await viewer.loadExtension("Autodesk.DataVisualization");
+  //   const structureInfo = new Autodesk.DataVisualization.Core.ModelStructureInfo(viewer.model);
+  
+  //   console.log("Using static coordinates for device generation.");
+  
+  //   // Static coordinates without room mapping
+  //   const devices = [
+  //     {
+  //       id: `Device_Static_01`,
+  //       position: { x: 806.887451171875, y: 551.6994018554688, z: 11.482939720153809 },
+  //       roomId: null,
+  //       sensorTypes: ["temperature"],
+  //     },
+  //   ];
+  
+  //   const shadingData = new Autodesk.DataVisualization.Core.SurfaceShadingData({ id: "shadingDataId" });
+  //   const shadingGroup = new Autodesk.DataVisualization.Core.SurfaceShadingGroup({
+  //     id: "static_group",
+  //     name: "Static Device Group",
+  //   });
+  
+  //   devices.forEach((device) => {
+  //     const shadingPoint = new Autodesk.DataVisualization.Core.SurfaceShadingPoint({
+  //       id: device.id,
+  //       position: device.position,
+  //       sensorTypes: device.sensorTypes,
+  //     });
+  //     shadingGroup.addChild(shadingPoint);
+  //   });
+  
+  //   shadingData.addChild(shadingGroup);
+  
+  //   console.log("Generated Shading Data:", shadingData);
+  
+  //   await dataVizExtn.setupSurfaceShading(viewer.model, shadingData);
+  
+  //   const sensorColors = [0x0000ff, 0x00ff00, 0xffff00, 0xff0000];
+  //   const sensorType = "temperature";
+  //   dataVizExtn.registerSurfaceShadingColors(sensorType, sensorColors);
+  
+  //   // Use a fixed value for testing
+  //   function getSensorValue() {
+  //     return 0.5; // Test with a fixed value
+  //   }
+  
+  //   const floorName = "Default Floor";
+  //   console.log("Using floor name:", floorName);
+  
+  //   try {
+  //     await dataVizExtn.renderSurfaceShading(floorName, sensorType, getSensorValue);
+  //     console.log("Heatmap setup completed.");
+  //     viewer.impl.invalidate(true, true, true); // Force re-rendering
+  //   } catch (error) {
+  //     console.error("Error rendering surface shading:", error);
+  //   }
+  // }
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // Function to generate devices from a list of dbIds
+// async function generateDevicesFromDbIds(viewer, dbIds) {
+//   console.log("Generating devices from dbIds:", dbIds); // Log input dbIds
+//   const devices = [];
+  
+//   viewer.getObjectTree(function (instanceTree) {
+//     if (!instanceTree) {
+//       console.error("InstanceTree not available.");
+//       return;
+//     }
+    
+//     dbIds.forEach(function (dbId) {
+//       try {
+//         let boundingBox = new THREE.Box3(); // Initialize the bounding box here
+
+//         instanceTree.enumNodeFragments(dbId, function (fragId) {
+//           const fragList = viewer.model.getFragmentList(); // Use viewer's model fragment list
+
+//           // Get the bounding box of the fragment
+//           const fragBoundingBox = new THREE.Box3();
+//           fragList.getWorldBounds(fragId, fragBoundingBox);
+//           boundingBox.union(fragBoundingBox); // Accumulate bounding boxes
+
+//           // Get the world matrix of the fragment
+//           const matrix = new THREE.Matrix4();
+//           fragList.getWorldMatrix(fragId, matrix);
+
+//           // Extract the position (coordinates) from the matrix
+//           const position = new THREE.Vector3();
+//           position.setFromMatrixPosition(matrix);
+
+//           // Log the world coordinates
+//           console.log(`World Coordinates for dbId ${dbId} (Model ${viewer.model.id}): x=${position.x}, y=${position.y}, z=${position.z}`);
+
+//           // Push device with position
+//           devices.push({
+//             id: `Device_${dbId}`,  // Unique ID for each device
+//             position: { x: position.x, y: position.y, z: position.z },
+//             sensorTypes: ["temperature"],  // Customize this as needed
+//           });
+//         });
+
+//         // Log the bounding box after processing all fragments for this dbId
+//         console.log('Bounding Box for dbId ' + dbId + ':', boundingBox);
+
+//       } catch (error) {
+//         console.error(`Error getting position for dbId ${dbId}:`, error);
+//       }
+//     });
+//   });
+
+//   return devices;
+// }
+
+// async function generateSurfaceShadingData(viewer, devices) {
+//   const shadingData = new Autodesk.DataVisualization.Core.SurfaceShadingData();
+
+//   devices.forEach((device) => {
+//     const shadingPoint = new Autodesk.DataVisualization.Core.SurfaceShadingPoint(device.id);
+//     console.log("Shading Point:", shadingPoint); // Log for debugging
+
+//     device.sensorTypes.forEach((sensorType) => {
+//       // Check if addSensor is a function before calling
+//       if (typeof shadingPoint.addSensor === "function") {
+//         shadingPoint.addSensor(new Autodesk.DataVisualization.Core.SurfaceShadingSensor(sensorType));
+//       } else {
+//         console.error(`addSensor is not a function for shadingPoint: ${device.id}`);
+//       }
+//     });
+
+//     shadingData.addSurfaceShadingPoint(shadingPoint);
+//   });
+
+//   return shadingData;
+// }
+
+
+// // Function to setup heatmap and render it with room logging
+// async function setupAndRenderHeatmap(viewer, devices) {
+//   const dataVizExtn = viewer.getExtension('Autodesk.DataVisualization');
+
+//   console.log("Setting up surface shading for devices:", devices); // Log devices
+
+//   // Generate shading data for the devices
+//   const shadingData = await generateSurfaceShadingData(viewer, devices);
+//   await dataVizExtn.setupSurfaceShading(viewer.model, shadingData);
+
+//   // Register heatmap colors
+//   const sensorColors = [0x0000ff, 0x00ff00, 0xffff00, 0xff0000]; // Blue to Red gradient
+//   const sensorType = "temperature";
+//   dataVizExtn.registerSurfaceShadingColors(sensorType, sensorColors);
+
+//   // Function to get the sensor value for each device and log the room being shaded
+//   function getSensorValue(surfaceShadingPoint, sensorType) {
+//     const deviceId = surfaceShadingPoint.id;
+
+//     // Log the room being shaded (the device id corresponds to the room id)
+//     console.log("Shading room/device with id:", deviceId);
+
+//     // Simulate reading sensor data (replace this with actual sensor data)
+//     let sensorValue = Math.random() * 100; // Example: Random value between 0 and 100
+//     const maxSensorValue = 100;  // Max possible sensor value
+//     const minSensorValue = 0;    // Min possible sensor value
+
+//     // Normalize the sensor value to [0, 1.0]
+//     sensorValue = (sensorValue - minSensorValue) / (maxSensorValue - minSensorValue);
+//     return THREE.MathUtils.clamp(sensorValue, 0.0, 1.0);
+//   }
+
+//   // Apply the heatmap to the desired floor or area and log the floor being rendered
+//   const floorName = "01 - Entry Level";  // Customize based on your model
+//   console.log("Rendering heatmap for floor:", floorName);
+
+//   // Render heatmap and log the result
+//   const room = dataVizExtn.renderSurfaceShading(floorName, sensorType, getSensorValue);
+//   console.log("Room with heatmap:", room); // Log the room with heatmap applied
+// }
+
+// // Function to initiate heatmap creation from dbIds
+// async function createHeatmapFromDbIds(viewer, dbIds) {
+//   console.log("Creating heatmap from dbIds..."); // Log start of the function
+//   const devices = await generateDevicesFromDbIds(viewer, dbIds);
+//   console.log("Devices generated:", devices); // Log generated devices
+//   await setupAndRenderHeatmap(viewer, devices);
+//   console.log("Heatmap setup completed."); // Log after heatmap is set up
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
 
 // Function to get subgrid data and return an array of task objects

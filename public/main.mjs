@@ -307,12 +307,14 @@ async function initApp() {
 
                 // HG62 for Production
                 '422be7c5-ef69-ef11-bfe2-000d3a6735d4': ['urn:adsk.wipemea:dm.lineage:UwhmTaE5RQ21--nmCQd2pA', //archi
-                                                         'urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
+                                                        // 'urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
+                                                        'urn:adsk.wipemea:dm.lineage:Oiuj-KZlQGWHcvIe4nDKKQ'
                                                         ],
                 
                 // SOL10
                 'f8c64108-adb7-ef11-b8e8-7c1e5275e0ca': ['urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA', //archi
                                                          'urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A', //mep
+                                                         
                                                         ],
 
 
