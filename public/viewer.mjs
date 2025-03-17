@@ -441,6 +441,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 
                                         // Open the URL in a new tab
                                         window.open(newUrl, '_blank');
+                                        window.parent.postMessage({ type: 'openUrl', url: newUrl }, '*');
                                     } else {
                                         console.log("GlobalID not found.");
                                     }
