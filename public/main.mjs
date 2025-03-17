@@ -308,7 +308,7 @@ async function initApp() {
                 // HG62 for Production
                 '422be7c5-ef69-ef11-bfe2-000d3a6735d4': ['urn:adsk.wipemea:dm.lineage:UwhmTaE5RQ21--nmCQd2pA', //archi
                                                         // 'urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
-                                                        'urn:adsk.wipemea:dm.lineage:Oiuj-KZlQGWHcvIe4nDKKQ'
+                                                        'urn:adsk.wipemea:dm.lineage:Oiuj-KZlQGWHcvIe4nDKKQ', //mep
                                                         ],
                 
                 // SOL10
@@ -378,7 +378,8 @@ async function initApp() {
                                         ],
 
                 // HG62
-                'Helgesensgate 62': ['urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep
+                'Helgesensgate 62': [//'urn:adsk.wipemea:dm.lineage:vFgMX64TT0Cqe8LxYkdoUA', //mep DELETED FILE
+                                    'urn:adsk.wipemea:dm.lineage:Oiuj-KZlQGWHcvIe4nDKKQ', //mep
                                     'urn:adsk.wipemea:dm.lineage:UwhmTaE5RQ21--nmCQd2pA' //archi
                                     ],
 
