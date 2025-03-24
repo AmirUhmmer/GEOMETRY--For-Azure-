@@ -6,112 +6,122 @@ export async function HEATMAP(viewer, selectedFloor) {
 
     let nodesData;
 
+    function searchForSystemCode(viewer, nodesData) {
+        return new Promise((resolve, reject) => {
+            const systemCodeValue = 2500; // Define the systemCode value you're searching for
+            const model = viewer.impl.modelQueue().getModels()[0]; // Assuming you want to use the first model
+
+            let searchPromises = nodesData.map((node, index) => {
+                return new Promise((searchResolve) => {
+                    model.search(node.name, dbIDs => {
+                        // console.log(`Processing node: ${index} - ${node.name}`);
+                        if (!dbIDs || dbIDs.length === 0) {
+                            console.log(`No matching objects found for: ${node.name}`);
+                            searchResolve(); // Resolve search even if no matches
+                            return;
+                        }
+
+                        let propertyPromises = dbIDs.map(dbId => {
+                            return new Promise((propResolve) => {
+                                model.getProperties(dbId, props => {
+                                    const systemCodeProperty = props.properties.find(prop => prop.displayName === 'systemCode');
+
+                                    if (systemCodeProperty && systemCodeProperty.displayValue == systemCodeValue) {
+                                        // Update the existing nodesData entry with the new dbId and other properties
+                                        nodesData[index] = {
+                                            name: node.name,
+                                            dbId: dbId,
+                                            systemCode: systemCodeValue,
+                                            guid: node.guid // Retaining the original guid if needed
+                                        };
+
+                                        //console.log(`Found matching dbId: ${dbId} for asset: ${node.name} with systemCode: ${systemCodeValue}`);
+                                    }
+                                    propResolve();
+                                });
+                            });
+                        });
+
+                        Promise.all(propertyPromises).then(() => searchResolve()); // Resolve after all properties are processed
+                    }, error => {
+                        console.error("Search error in model:", error);
+                        searchResolve(); // Still resolve even on error
+                    });
+                });
+            });
+
+            Promise.all(searchPromises).then(() => {
+                //console.log("Updated nodesData:", nodesData); // Output the updated nodesData
+                resolve();
+            }).catch(reject);
+        });
+    }
+    
+    
+
     // Render the heatmap for the selected floor
     if (selectedFloor === 1) {
         console.log('Rendering heatmap for the First Floor');
         nodesData = [
         { name: "Main Entrance (DB8.-.1.001)"       , dbId: 25788, guid: "b957051a-2cb0-4bcb-990c-3c34a6f627a7" },
-        { name: "Entrance Area (DB8.-.1.002)"       , dbId: 25874, guid: "d9063147-d93d-4746-858b-e45d810d17d5" },
+        //{ name: "Entrance Area (DB8.-.1.002)"       , dbId: 25874, guid: "d9063147-d93d-4746-858b-e45d810d17d5" },
         { name: "Small Meeting/Office (DB8.-.1.004)", dbId: 25524, guid: "3b69ceda-a9e0-4b04-8a92-7ecccb6286a0" },
-        { name: "Office (DB8.-.1.005)"              , dbId: 25505, guid: "b343e138-36fb-4af4-80be-d266aca41db9" },
-        { name: "Office (DB8.-.1.006)"              , dbId: 25486, guid: "7a97be73-e5f6-422b-ade9-6a14ca78b879" },
-        { name: "Office (DB8.-.1.007)"              , dbId: 25435, guid: "2c570a32-6987-4f6a-bac2-09572d9bcf56" },
+        { name: "Office (DB8.-1.005)"              , dbId: 25505, guid: "b343e138-36fb-4af4-80be-d266aca41db9" },
+        { name: "Office (DB8.-1.006)"              , dbId: 25486, guid: "7a97be73-e5f6-422b-ade9-6a14ca78b879" },
+        { name: "Office (DB8.-1.007)"              , dbId: 25435, guid: "2c570a32-6987-4f6a-bac2-09572d9bcf56" },
         { name: "Hot Desk (DB8.-.1.008)"            , dbId: 25853, guid: "c34c8e2d-67fe-49dc-af3f-4af4991e3f02" },
-        { name: "Office (DB8.-.1.009)"              , dbId: 25452, guid: "d695fb48-8698-41b3-a557-8dbb69524211" },
-        { name: "Office (DB8.-.1.010)"              , dbId: 25466, guid: "d089bfc1-5b63-48d2-9c79-2ee5162b342e" },
-        { name: "Office (DB8.-.1.011)"              , dbId: 25580, guid: "fa29b828-4a93-4f89-91c7-0afc49c37ee1" },
-        { name: "Office (DB8.-.1.012)"              , dbId: 25600, guid: "bcf5cba9-1821-46c9-90e4-737860933e69" },
-        { name: "Office (DB8.-.1.013)"              , dbId: 25615, guid: "a674dc37-bd9a-4afe-a8e0-a04954293334" },
-        { name: "Office (DB8.-.1.014)"              , dbId: 25635, guid: "f545cc16-709c-46ca-8331-41463edead9f" },
+        { name: "Office (DB8.-1.009)"              , dbId: 25452, guid: "d695fb48-8698-41b3-a557-8dbb69524211" },
+        { name: "Office (DB8.-1.010)"              , dbId: 25466, guid: "d089bfc1-5b63-48d2-9c79-2ee5162b342e" },
+        { name: "Office (DB8.-1.011)"              , dbId: 25580, guid: "fa29b828-4a93-4f89-91c7-0afc49c37ee1" },
+        { name: "Office (DB8.-1.012)"              , dbId: 25600, guid: "bcf5cba9-1821-46c9-90e4-737860933e69" },
+        { name: "Office (DB8.-1.013)"              , dbId: 25615, guid: "a674dc37-bd9a-4afe-a8e0-a04954293334" },
+        { name: "Office (DB8.-1.014)"              , dbId: 25635, guid: "f545cc16-709c-46ca-8331-41463edead9f" },
         { name: "Social Area (DB8.-.1.017)"         , dbId: 25924, guid: "1da69c37-4364-4bdd-a40d-ec60078c5593" },
-        { name: "Office (DB8.-.1.018)"              , dbId: 25419, guid: "1d512e32-54df-4c23-ac36-25fb03665dfd" },
-        { name: "Office (DB8.-.1.019)"              , dbId: 25400, guid: "d7b28135-4a1e-4251-b436-b21b630d0012" },
-        { name: "Office (DB8.-.1.020)"              , dbId: 25389, guid: "ce717192-968f-46b5-bb43-6fb73965da0f" },
-        { name: "Electronics Workshop (DB8.-.1.021)", dbId: 25373, guid: "2da239f8-ddab-4d43-823f-8797638123f2" },
-        { name: "Mechanical Workshop (DB8.-.1.022)" , dbId: 25380, guid: "a3215104-8c66-4714-96f4-dcb5b3fb2ab2" },
+        { name: "Office (DB8.-1.018)"              , dbId: 25419, guid: "1d512e32-54df-4c23-ac36-25fb03665dfd" },
+        { name: "Office (DB8.-1.019)"              , dbId: 25400, guid: "d7b28135-4a1e-4251-b436-b21b630d0012" },
+        { name: "Office (DB8.-1.020)"              , dbId: 25389, guid: "ce717192-968f-46b5-bb43-6fb73965da0f" },
+        { name: "Electronics Workshop (DB8.-1.021)", dbId: 25376, guid: "2da239f8-ddab-4d43-823f-8797638123f2" },
+        { name: "Mechanical Workshop (DB8.-1.022)" , dbId: 25383, guid: "a3215104-8c66-4714-96f4-dcb5b3fb2ab2" },
 
-        ]
+        ];
+        await searchForSystemCode(viewer, nodesData); // Wait for search to complete
     } else if (selectedFloor === 2) {
         console.log('Rendering heatmap for the Second Floor');
         nodesData = [
             { name: "Social Area (DB8.-.2.001)", dbId: 26840, guid: "193d3a83-b870-4d7b-83eb-ea73111b8c0a" },
-            { name: "Office (DB8.-.2.002)", dbId: 26075, guid: "d8d4faa1-2bc9-4809-8a25-08430813fc63" },
-            { name: "Office (DB8.-.2.003)", dbId: 26084, guid: "08d4abfb-ca40-4a35-91b4-3582388be8e5" },
-            { name: "Office (DB8.-.2.004)", dbId: 26102, guid: "23600d1e-3798-4b77-8eaa-fede3c1bddc8" },
-            { name: "Office (DB8.-.2.005)", dbId: 26122, guid: "dbe72c0e-6856-4a84-8604-e33a06914608" },
-            { name: "Office (DB8.-.2.006)", dbId: 26142, guid: "5d186d87-62d6-415e-8f23-7ed4f96439dc" },
-            { name: "Office (DB8.-.2.007)", dbId: 26161, guid: "dede5f73-0a26-4330-a7b9-52499d79cc71" },
-            { name: "Office (DB8.-.2.008)", dbId: 26181, guid: "671c9530-5a8c-49ce-aa4c-28e752c8137e" },
-            { name: "Office (DB8.-.2.009)", dbId: 26201, guid: "5c4c68f2-8d13-4b67-b7aa-88c876e12ff0" },
-            { name: "Office (DB8.-.2.010)", dbId: 26216, guid: "f378f3bf-b905-4928-94d4-ce7dc0baffd0" },
-            { name: "Office (DB8.-.2.011)", dbId: 26247, guid: "282a8fdc-d284-43ec-bf87-cb4f0b6b22f9" },
-            { name: "Office (DB8.-.2.012)", dbId: 26269, guid: "b8b962ae-4e0a-4563-848c-04a081e4700e" },
-            { name: "Office (DB8.-.2.013)", dbId: 26284, guid: "008bc641-423d-4d53-bf0e-0046218da1c4" },
-            { name: "Office (DB8.-.2.014)", dbId: 26303, guid: "7a2568ce-4143-427e-9a7d-18d945d3a12b" },
-            { name: "Office (DB8.-.2.015)", dbId: 26322, guid: "9d3aefd9-2b96-4674-b4dd-0a7947117af5" },
-            { name: "Office (DB8.-.2.016)", dbId: 26340, guid: "0e6cd4f0-cdb4-4c1e-8277-9fe15073f7ba" },
-            { name: "Office (DB8.-.2.017)", dbId: 26359, guid: "c3c4b142-1d49-4667-87e2-b9fd7ad3afb1" },
-            { name: "Office (DB8.-.2.018)", dbId: 26376, guid: "1147a344-9089-469f-a51b-ccc7b8b431cc" },
-            { name: "Office (DB8.-.2.019)", dbId: 26393, guid: "5bd45fab-d1ce-401a-9671-f0dd25b39c9e" },
-            { name: "Office (DB8.-.2.020)", dbId: 26412, guid: "310a64d0-dc6c-4ce4-9730-78301272ea99" },
+            { name: "Office (DB8.-2.002)", dbId: 26075, guid: "d8d4faa1-2bc9-4809-8a25-08430813fc63" },
+            { name: "Office (DB8.-2.003)", dbId: 26084, guid: "08d4abfb-ca40-4a35-91b4-3582388be8e5" },
+            { name: "Office (DB8.-2.004)", dbId: 26102, guid: "23600d1e-3798-4b77-8eaa-fede3c1bddc8" },
+            { name: "Office (DB8.-2.005)", dbId: 26122, guid: "dbe72c0e-6856-4a84-8604-e33a06914608" },
+            { name: "Office (DB8.-2.006)", dbId: 26142, guid: "5d186d87-62d6-415e-8f23-7ed4f96439dc" },
+            { name: "Office (DB8.-2.007)", dbId: 26161, guid: "dede5f73-0a26-4330-a7b9-52499d79cc71" },
+            { name: "Office (DB8.-2.008)", dbId: 26181, guid: "671c9530-5a8c-49ce-aa4c-28e752c8137e" },
+            { name: "Office (DB8.-2.009)", dbId: 26201, guid: "5c4c68f2-8d13-4b67-b7aa-88c876e12ff0" },
+            { name: "Office (DB8.-2.010)", dbId: 26216, guid: "f378f3bf-b905-4928-94d4-ce7dc0baffd0" },
+            { name: "Office (DB8.-2.011)", dbId: 26247, guid: "282a8fdc-d284-43ec-bf87-cb4f0b6b22f9" },
+            { name: "Office (DB8.-2.012)", dbId: 26269, guid: "b8b962ae-4e0a-4563-848c-04a081e4700e" },
+            { name: "Office (DB8.-2.013)", dbId: 26284, guid: "008bc641-423d-4d53-bf0e-0046218da1c4" },
+            { name: "Office (DB8.-2.014)", dbId: 26303, guid: "7a2568ce-4143-427e-9a7d-18d945d3a12b" },
+            { name: "Office (DB8.-2.015)", dbId: 26322, guid: "9d3aefd9-2b96-4674-b4dd-0a7947117af5" },
+            { name: "Office (DB8.-2.016)", dbId: 26340, guid: "0e6cd4f0-cdb4-4c1e-8277-9fe15073f7ba" },
+            { name: "Office (DB8.-2.017)", dbId: 26359, guid: "c3c4b142-1d49-4667-87e2-b9fd7ad3afb1" },
+            { name: "Office (DB8.-2.018)", dbId: 26376, guid: "1147a344-9089-469f-a51b-ccc7b8b431cc" },
+            { name: "Office (DB8.-2.019)", dbId: 26393, guid: "5bd45fab-d1ce-401a-9671-f0dd25b39c9e" },
+            { name: "Office (DB8.-2.020)", dbId: 26412, guid: "310a64d0-dc6c-4ce4-9730-78301272ea99" },
             { name: "Meeting Room (DB8.-.2.021)", dbId: 26443, guid: "16bc9315-dd0e-460e-a9c3-10ae5602dd2d" },
-            { name: "Gym/Fitness Room (DB8.-.2.022)", dbId: 26429, guid: "34ad5978-9645-4d9e-a519-6cff67eb1713" },
+            { name: "Gym/Fitness Room (DB8.-.2.022)", dbId: 26432, guid: "34ad5978-9645-4d9e-a519-6cff67eb1713" },
         ];
+        await searchForSystemCode(viewer, nodesData); // Wait for search to complete
     }
     else if (selectedFloor === 0) {
     console.log('Rendering heatmap for U1');
     nodesData = [
         // { name: "Storage (DB8.-.U1.002)", dbId: 26840, guid: "" },
-        { name: "Tenant Area (DB8.-.U1.007)", dbId: 27045, guid: "507ac9f4-73a7-4034-8cf5-33b9e5e9fedb" },
-        { name: "Tenant Area (DB8.-.U1.007)", dbId: 27029, guid: "507ac9f4-73a7-4034-8cf5-33b9e5e9fedb" },
+        { name: "Tenant Area (DB8.-.U1.007)", dbId: 27048, guid: "507ac9f4-73a7-4034-8cf5-33b9e5e9fedb" },
+        { name: "Tenant Area (DB8.-.U1.007)", dbId: 27032, guid: "507ac9f4-73a7-4034-8cf5-33b9e5e9fedb" },
         // { name: "Workshop (DB8.-.U1.011)", dbId: 26840, guid: "" },
-    ]
-    }else{
-        nodesData = [
-            // { name: "Main Entrance (DB8.-.1.001)"       , dbId: 25788, guid: "b957051a-2cb0-4bcb-990c-3c34a6f627a7" },
-            // { name: "Entrance Area (DB8.-.1.002)"       , dbId: 25874, guid: "d9063147-d93d-4746-858b-e45d810d17d5" },
-            // { name: "Small Meeting/Office (DB8.-.1.004)", dbId: 25524, guid: "3b69ceda-a9e0-4b04-8a92-7ecccb6286a0" },
-            // { name: "Office (DB8.-.1.005)"              , dbId: 25505, guid: "b343e138-36fb-4af4-80be-d266aca41db9" },
-            // { name: "Office (DB8.-.1.006)"              , dbId: 25486, guid: "7a97be73-e5f6-422b-ade9-6a14ca78b879" },
-            // { name: "Office (DB8.-.1.007)"              , dbId: 25435, guid: "2c570a32-6987-4f6a-bac2-09572d9bcf56" },
-            // { name: "Hot Desk (DB8.-.1.008)"            , dbId: 25853, guid: "c34c8e2d-67fe-49dc-af3f-4af4991e3f02" },
-            // { name: "Office (DB8.-.1.009)"              , dbId: 25452, guid: "d695fb48-8698-41b3-a557-8dbb69524211" },
-            // { name: "Office (DB8.-.1.010)"              , dbId: 25466, guid: "d089bfc1-5b63-48d2-9c79-2ee5162b342e" },
-            // { name: "Office (DB8.-.1.011)"              , dbId: 25580, guid: "fa29b828-4a93-4f89-91c7-0afc49c37ee1" },
-            // { name: "Office (DB8.-.1.012)"              , dbId: 25600, guid: "bcf5cba9-1821-46c9-90e4-737860933e69" },
-            // { name: "Office (DB8.-.1.013)"              , dbId: 25615, guid: "a674dc37-bd9a-4afe-a8e0-a04954293334" },
-            // { name: "Office (DB8.-.1.014)"              , dbId: 25635, guid: "f545cc16-709c-46ca-8331-41463edead9f" },
-            // { name: "Social Area (DB8.-.1.017)"         , dbId: 25924, guid: "1da69c37-4364-4bdd-a40d-ec60078c5593" },
-            // { name: "Office (DB8.-.1.018)"              , dbId: 25419, guid: "1d512e32-54df-4c23-ac36-25fb03665dfd" },
-            // { name: "Office (DB8.-.1.019)"              , dbId: 25400, guid: "d7b28135-4a1e-4251-b436-b21b630d0012" },
-            // { name: "Office (DB8.-.1.020)"              , dbId: 25389, guid: "ce717192-968f-46b5-bb43-6fb73965da0f" },
-            // { name: "Electronics Workshop (DB8.-.1.021)", dbId: 25373, guid: "2da239f8-ddab-4d43-823f-8797638123f2" },
-            // { name: "Mechanical Workshop (DB8.-.1.022)" , dbId: 25380, guid: "a3215104-8c66-4714-96f4-dcb5b3fb2ab2" },
-            // { name: "Social Area (DB8.-.2.001)", dbId: 26840, guid: "193d3a83-b870-4d7b-83eb-ea73111b8c0a" },
-            // { name: "Office (DB8.-.2.002)", dbId: 26075, guid: "d8d4faa1-2bc9-4809-8a25-08430813fc63" },
-            // { name: "Office (DB8.-.2.003)", dbId: 26084, guid: "08d4abfb-ca40-4a35-91b4-3582388be8e5" },
-            // { name: "Office (DB8.-.2.004)", dbId: 26102, guid: "23600d1e-3798-4b77-8eaa-fede3c1bddc8" },
-            // { name: "Office (DB8.-.2.005)", dbId: 26122, guid: "dbe72c0e-6856-4a84-8604-e33a06914608" },
-            // { name: "Office (DB8.-.2.006)", dbId: 26142, guid: "5d186d87-62d6-415e-8f23-7ed4f96439dc" },
-            // { name: "Office (DB8.-.2.007)", dbId: 26161, guid: "dede5f73-0a26-4330-a7b9-52499d79cc71" },
-            // { name: "Office (DB8.-.2.008)", dbId: 26181, guid: "671c9530-5a8c-49ce-aa4c-28e752c8137e" },
-            // { name: "Office (DB8.-.2.009)", dbId: 26201, guid: "5c4c68f2-8d13-4b67-b7aa-88c876e12ff0" },
-            // { name: "Office (DB8.-.2.010)", dbId: 26216, guid: "f378f3bf-b905-4928-94d4-ce7dc0baffd0" },
-            // { name: "Office (DB8.-.2.011)", dbId: 26247, guid: "282a8fdc-d284-43ec-bf87-cb4f0b6b22f9" },
-            // { name: "Office (DB8.-.2.012)", dbId: 26269, guid: "b8b962ae-4e0a-4563-848c-04a081e4700e" },
-            // { name: "Office (DB8.-.2.013)", dbId: 26284, guid: "008bc641-423d-4d53-bf0e-0046218da1c4" },
-            // { name: "Office (DB8.-.2.014)", dbId: 26303, guid: "7a2568ce-4143-427e-9a7d-18d945d3a12b" },
-            // { name: "Office (DB8.-.2.015)", dbId: 26322, guid: "9d3aefd9-2b96-4674-b4dd-0a7947117af5" },
-            // { name: "Office (DB8.-.2.016)", dbId: 26340, guid: "0e6cd4f0-cdb4-4c1e-8277-9fe15073f7ba" },
-            // { name: "Office (DB8.-.2.017)", dbId: 26359, guid: "c3c4b142-1d49-4667-87e2-b9fd7ad3afb1" },
-            // { name: "Office (DB8.-.2.018)", dbId: 26376, guid: "1147a344-9089-469f-a51b-ccc7b8b431cc" },
-            // { name: "Office (DB8.-.2.019)", dbId: 26393, guid: "5bd45fab-d1ce-401a-9671-f0dd25b39c9e" },
-            // { name: "Office (DB8.-.2.020)", dbId: 26412, guid: "310a64d0-dc6c-4ce4-9730-78301272ea99" },
-            // { name: "Meeting Room (DB8.-.2.021)", dbId: 26443, guid: "16bc9315-dd0e-460e-a9c3-10ae5602dd2d" },
-            // { name: "Gym/Fitness Room (DB8.-.2.022)", dbId: 26429, guid: "34ad5978-9645-4d9e-a519-6cff67eb1713" },
-            // { name: "Tenant Area (DB8.-.U1.007)", dbId: 27045, guid: "507ac9f4-73a7-4034-8cf5-33b9e5e9fedb" },
-            // { name: "Tenant Area (DB8.-.U1.007)", dbId: 27029, guid: "507ac9f4-73a7-4034-8cf5-33b9e5e9fedb" },
-            ]
+    ];
+    await searchForSystemCode(viewer, nodesData); // Wait for search to complete
     }
    
     // working code
@@ -126,7 +136,7 @@ export async function HEATMAP(viewer, selectedFloor) {
 
     // Specify a valid model and dbId
     const model = models[0]; // Assuming you want to use the first model
-    const dbId = 26840; // Replace with a valid dbId for a specific nod
+    const dbId = nodesData[0].dbId; // Replace with a valid dbId for a specific node
 
     // Creating shading points for all nodes
     const shadingPoint = new SurfaceShadingPoint("Location", undefined, ["TEMP"]);
@@ -148,7 +158,7 @@ export async function HEATMAP(viewer, selectedFloor) {
 
     // Load extension only once
     const extension = await viewer.loadExtension('Autodesk.DataVisualization');
-    console.log('SurfaceShadingExtension loaded successfully!');
+    // console.log('SurfaceShadingExtension loaded successfully!');
 
     try {
         // Get the first model (models[0]) explicitly for heatmap rendering
@@ -217,9 +227,6 @@ async function getSensorValue(location) {
         console.error(err);
     }
 }
-
-
-
 
 
 

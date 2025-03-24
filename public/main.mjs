@@ -428,7 +428,8 @@ async function initApp() {
                 'urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg', // archi
                 'urn:adsk.wipemea:dm.lineage:cuy9_KQiSyadqUu2aI_Bsg', // mep
                 // 'urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg', // archi
-                'urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww' // site
+                'urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww', // site
+                //'urn:adsk.wipemea:dm.lineage:wysX64UTQY-_PnDNppec1g', // plan 1
             ];
 
             // Attempt to find geometry based on recordId
@@ -440,8 +441,8 @@ async function initApp() {
                 '06eddd02-c366-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', hardAsset: 'No Hard Asset', liveData: 'DB8', model: 'DB8' }, // liveData: 'DB8',
                 '2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.bf8f603c-7e37-4367-9900-69e279377191', folderId: 'urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw', hardAsset: 'No Hard Asset', liveData: 'DB8', model: 'DB8' }, // liveData: 'DB8',
                 // HG62
-                '766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset', model: 'HG62' },
-                '422be7c5-ef69-ef11-bfe2-000d3a6735d4': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset', model: 'HG62' },
+                '766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset', liveData: 'HG62', model: 'HG62' },
+                '422be7c5-ef69-ef11-bfe2-000d3a6735d4': { projectId: 'b.552de2d1-bc00-41a4-8d90-ec063d64a4c6', hardAsset: 'No Hard Asset', liveData: 'HG62', model: 'HG62' },
                 // SOL10
                 'f8c64108-adb7-ef11-b8e8-7c1e5275e0ca': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset', model: 'SOL10' },
                 '10ff2730-d365-ef11-bfe3-6045bddd062a': { projectId: 'b.e4cde0c5-7fd9-4974-9832-616f058478f9', hardAsset: 'No Hard Asset', model: 'SOL10' },
@@ -530,7 +531,7 @@ async function initApp() {
             throw new Error('Failed to authenticate');
         }
 
-        console.log(resp);
+        // console.log(resp);
         login.style.visibility = 'hidden'; //test
         // login.style.visibility = 'visible';
     } catch (err) {

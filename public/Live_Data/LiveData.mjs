@@ -1,6 +1,7 @@
 import { SPRITES } from '../DB8/DB8Sprites.mjs';
 import { HEATMAP } from '../DB8/DB8SurfaceShading.mjs';
 import { LightSPRITES } from '../DB8/DB8LightsSprites.mjs';
+import { HG62HEATMAP } from '../HG62/HG62SurfaceShading.mjs';
 
 
 let LiveData = localStorage.getItem('LiveData');
@@ -257,18 +258,6 @@ export async function showLiveDataListPanel(viewer) {
                 // Append the container to the scroll container
                 this.scrollContainer.appendChild(container);
             });
-
-            // // Create and append the iframe under the checkboxes
-            // const iframeContainer = document.createElement('div');
-            // iframeContainer.style.marginTop = '20px';  // Add space above the iframe
-            // const iframe = document.createElement('iframe');
-            // iframe.src = 'https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=bookableresourcebooking&id=2a3ed4ae-6de4-ef11-9341-000d3ab1e3a4&formid=37864dfc-9ded-ef11-9341-7c1e52fae3cc';
-            // iframe.width = '100%';  // Make the iframe take the full width
-            // iframe.height = '600px';  // Set a height for the iframe
-            // iframe.style.border = 'none';  // Remove the border around the iframe
-
-            // iframeContainer.appendChild(iframe);
-            // this.scrollContainer.appendChild(iframeContainer);
         }
         
         
@@ -290,10 +279,24 @@ export async function showLiveDataListPanel(viewer) {
          showDataOnModel(viewId) {
             let selectedFloor = -1;
             let LiveData = localStorage.getItem('LiveData');
+            console.log(LiveData);
             if (viewId === 'temperatureView') {
                  if (LiveData === 'DB8') {
                     HEATMAP(viewer, selectedFloor); // HEATMAP will be called
                     this.heatmapSprites = SPRITES(viewer, selectedFloor); // Save heatmap sprites for later use
+                    // Create the toolbar button only if it hasn't been created yet
+                    if (!showLiveDataButton) {
+                        createToolbarLiveDataButton(viewer);
+                    }
+
+                    // Show the button
+                    if (showLiveDataButton && showLiveDataButton.container) {
+                        showLiveDataButton.container.style.display = 'block';  // Show the button
+                    }
+                 }else if (LiveData === 'HG62') {
+                    console.log('HG62');
+                    HG62HEATMAP(viewer, selectedFloor); // HEATMAP will be called
+                    // this.heatmapSprites = SPRITES(viewer, selectedFloor); // Save heatmap sprites for later use
                     // Create the toolbar button only if it hasn't been created yet
                     if (!showLiveDataButton) {
                         createToolbarLiveDataButton(viewer);
@@ -340,11 +343,15 @@ export async function showLiveDataListPanel(viewer) {
             // Implement similar logic for other data views
         }
 
-
+        // Method to handle changes in the selected floor
         changedfloor(viewer, selectedFloor) {
             const temperatureCheckbox = document.getElementById('temperatureView').checked;
-            if (temperatureCheckbox) {
+            let LiveData = localStorage.getItem('LiveData');
+            console.log('Changed floor to:', selectedFloor, 'Live Data: ', LiveData);
+            if (temperatureCheckbox && LiveData === 'DB8') {
                 HEATMAP(viewer, selectedFloor);
+            } else if (temperatureCheckbox && LiveData === 'HG62') {
+                HG62HEATMAP(viewer, selectedFloor);
             }
         }
     }

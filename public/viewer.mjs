@@ -43,6 +43,7 @@ export function initViewer(container) {
                 ]
             };
             const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
+            // const viewer = new Autodesk.Viewing.AggregatedView(container, config);
             viewer.start();
             viewer.setTheme('dark-theme');
 
@@ -94,57 +95,7 @@ export function initViewer(container) {
                     console.log('No objects selected or aggregate selection is undefined.');
                 }
             });
-            
-
-
-            // Double-click event handler with aggregate selection support
-            // canvas.addEventListener('dblclick', function (event) {
-            //     event.preventDefault(); // Prevent default zoom on double-click
-
-            //     const aggregateSelection = viewer.getAggregateSelection(); // Get selections from all loaded models
-
-            //     if (aggregateSelection && aggregateSelection.length > 0) {
-            //         // Loop through all selections across models
-            //         aggregateSelection.forEach(selection => {
-            //             const model = selection.model;           // Get the selected model
-            //             const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
-
-            //             if (dbIdArray && dbIdArray.length > 0) {
-            //                 const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
-            //                 console.log("DOUBLE CLICK -- Selected DBID:", dbId);
-
-            //                 // Retrieve properties using the DBID and the model (since there are multiple models)
-            //                 model.getProperties(dbId, function (props) {
-            //                     // Find the GlobalID or Asset ID property
-            //                     let globalID = null;
-            //                     props.properties.forEach(function (prop) {
-            //                         if (prop.displayName === "Asset ID") {
-            //                             globalID = prop.displayValue;
-            //                         }
-            //                     });
-
-            //                     if (globalID) {
-            //                         // Construct the URL using the GlobalID retrieved from the properties
-            //                         const newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
-            //                         console.log("New URL:", newUrl);
-
-            //                         // Open the URL in a new tab
-            //                         window.open(newUrl, '_blank');
-            //                     } else {
-            //                         console.log("GlobalID not found.");
-            //                     }
-            //                 });
-            //             }
-            //         });
-            //     } else {
-            //         console.log('No objects selected or aggregate selection is undefined.');
-            //     }
-            // });
-
-            
-
-
-
+                     
         
 
             
@@ -180,33 +131,6 @@ export function initViewer(container) {
 // }
 
 
-// DB8
-
-// {3D - dsa3J29U}
-// dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMw
-// dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMg     --Without archi
-// SMY-DB8-SITE
-// dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnNSZk9sS1BJVE1HM3pTZ0JvZUYzV3c/dmVyc2lvbj00   -- Site
-// SMY-DB8-ARCHI
-// dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg
-
-
-// HG62
-// MEP
-// dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnZGZ01YNjRUVDBDcWU4THhZa2RvVUE/dmVyc2lvbj0xNw --old
-// dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnZGZ01YNjRUVDBDcWU4THhZa2RvVUE/dmVyc2lvbj0yMA --new
-// ARCHI
-// dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLlV3aG1UYUU1UlEyMS0tbm1DUWQycEE/dmVyc2lvbj05OQ --old
-// dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLlV3aG1UYUU1UlEyMS0tbm1DUWQycEE/dmVyc2lvbj0xMDc --new
-
-
-// SOL10
-// MEP
-// dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnE4ZzFMRTB2UTJXTzVBSEo5S2Q1NUE/dmVyc2lvbj04
-// ARCHI
-// dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmdzMFBSQjNlUlVTNkFOTEswOXZEWUE/dmVyc2lvbj0xOQ
-
-
 
 // ******************************* WORKING ************************
 
@@ -216,24 +140,18 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
     let modelsToLoad = urns;
     let modelAbbreviation = model;
 
-    // Track the number of models to load and the count of successfully loaded models
-    // let modelsToLoad = urns.length ? urns : [
-    //     { name: '3D - dsa3J29U', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMw' },
-    //     { name: 'SMY-DB8-SITE', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnNSZk9sS1BJVE1HM3pTZ0JvZUYzV3c/dmVyc2lvbj00' },
-    //     { name: 'SMY-DB8-xxx-SIT-R24', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg' }
-    // ];
-
     let modelsLoaded = 0; // Keep track of how many models have loaded
 
     // console.log(modelsToLoad);
 
     function checkAllModelsLoaded() {
-        console.log("CHECK: " + modelsLoaded);
+        // console.log("CHECK: " + modelsLoaded);
 
         if (modelsLoaded === modelsToLoad.length) {
             console.log("All models have been loaded.");
+            var view = new Autodesk.Viewing.AggregatedView();
             const models = viewer.impl.modelQueue().getModels();
-            console.log(models);
+            console.log(view);
             // Perform actions only when all models are loaded
 
             if (viewer.model) {
@@ -280,7 +198,12 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     createToolbarLiveDataListButton(viewer);
                 }else if(model === 'SOL11'){
                     Sol11PicsSPRITES(viewer);
+                }else if(model === 'HG62'){
+                    showLiveDataPanel(viewer);
+                    showLiveDataListPanel(viewer);
+                    createToolbarLiveDataListButton(viewer);
                 }
+
 
 
                 
@@ -295,6 +218,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             let LiveData = localStorage.getItem('LiveData');
                             console.log(LiveData);
                             if (LiveData === 'DB8' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
+                                viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // Call LiveDataListPanel
+                            }else if (LiveData === 'HG62' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
                                 viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // Call LiveDataListPanel
                             }
                         });
@@ -512,17 +437,15 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
             keepCurrentModels: true, // Keeps existing models in the viewer
             globalOffset: { x: 0, y: 0, z: 0 },  // Force all models to origin
             applyRefPoint: true, // Apply reference point for 3D shared coordinates
-            // applyScaling: 'm',   // Force all models to the same scale
-            // placementTransform: (new THREE.Matrix4()).setPosition({ x: 0, y: 0, z: 0 }) // Set placement transform for origin
         };
-        console.log("Model loaded successfully:", doc);
+        // console.log("Model loaded successfully:", doc);
         
         let viewables = doc.getRoot().getDefaultGeometry();
 
         try {
             // Load the document node and aggregate models in the viewer
             const node = await viewer.loadDocumentNode(doc, viewables, loadOptions);
-            console.log("Model node loaded into viewer:", node);
+            // console.log("Model node loaded into viewer:", node);
 
             // const offset = viewer.model.getData().globalOffset //= { x: 0, y: 0, z: 0 }; Set the global offset for all models
             // console.log(offset);
@@ -540,31 +463,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
         console.error("Failed to load model:", message);
         alert("Could not load model. See console for details.");
     }
-
-    // // Async function to load all models
-    // async function loadModels() {
-    //     for (let model of modelsToLoad) {
-    //         // Base64 encode the URN if it's not encoded already
-    //         const base64Urn = btoa(model);
-
-    //         console.log(`Attempting to load model with URN: urn:${base64Urn}`);
-            
-    //         // Load the model document and wait for the load to complete before moving to the next
-    //         await new Promise((resolve, reject) => {
-    //             Autodesk.Viewing.Document.load(
-    //                 'urn:' + base64Urn, 
-    //                 async (doc) => {
-    //                     // Load and aggregate each model without replacing the previous one
-    //                     await onDocumentLoadSuccess(doc).then(resolve).catch(reject);
-    //                 }, 
-    //                 onDocumentLoadFailure
-    //             );
-    //         });
-    //     }
-    // }
-
-    // // Load each model sequentially
-    // loadModels();
 
 
     // Function to fetch the latest version URN of a file inside a folder
@@ -586,6 +484,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
             if(latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=163') {
                 latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=161';
             }
+            // if(latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=35') {
+            //     latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=34';
+            // }
             console.log('Latest Version URN:', latestVersionUrn);
             const base64Urn = btoa(latestVersionUrn);  // This encodes the URN to base64
             // console.log('Base64 URN:', base64Urn);

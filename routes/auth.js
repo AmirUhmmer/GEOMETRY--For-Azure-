@@ -148,6 +148,12 @@ async function getPool() {
     return poolPromise;
 }
 
+
+
+
+// --------------------------------------------------------------------------- LIVE DATA ---------------------------------------------------------------------------
+
+// TEMPERATURE SENSOR
 // Route to retrieve sensor value
 router.get('/api/sensor/:location', async (req, res) => {
     const location = req.params.location;
@@ -159,6 +165,29 @@ router.get('/api/sensor/:location', async (req, res) => {
         const result = await pool.request()
             .input('location', sql.VarChar, location)
             .query('SELECT TOP (1) [value], [observationTime] FROM [dbo].[LiveData] WHERE sensorId = @location ORDER BY observationTime DESC');
+
+        if (result.recordset.length > 0) {
+            res.json({ value: result.recordset[0].value });
+        } else {
+            res.status(404).send('Sensor not found');
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error retrieving sensor value');
+    }
+});
+
+// TEMPERATURE SENSOR V2
+router.get('/api/sensorv2/:location', async (req, res) => {
+    const location = req.params.location;
+    try {
+        // Get the connection pool
+        const pool = await getPool();
+
+        // Query the database
+        const result = await pool.request()
+            .input('location', sql.VarChar, location)
+            .query('SELECT TOP (1) [value], [observationTime] FROM [dbo].[LiveData] WHERE deviceId = @location ORDER BY observationTime DESC');
 
         if (result.recordset.length > 0) {
             res.json({ value: result.recordset[0].value });
@@ -226,6 +255,20 @@ router.get('/api/graphdata/:location', async (req, res) => {
     }
 });
 
+
+// --------------------------------------------------------------------------- LIVE DATA ---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
 const sessionDataStore = {};  // Store data per session
 
 // Endpoint to receive data from Power Apps
@@ -239,39 +282,6 @@ router.post('/api/data', (req, res) => {
 
 
 // test
-
-// router.post('/api/data', (req, res) => {
-//     try {
-//         console.log('Request Body:', req.body);
-        
-//         const sessionId = req.body.sessionId;
-//         const powerAppsData = req.body.data;
-        
-//         if (!sessionId || !powerAppsData) {
-//             return res.status(400).send('Missing sessionId or data');
-//         }
-        
-//         sessionDataStore[sessionId] = powerAppsData;
-//         res.status(200).send('Data received successfully');
-//         console.log('Data:', powerAppsData);
-//     } catch (error) {
-//         console.error('Error processing request:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-
-//   router.get('/api/get-latest-data/:sessionId', (req, res) => {
-//     const sessionId = req.params.sessionId;
-  
-//     // Check if data exists for the session
-//     if (sessionDataStore[sessionId]) {
-//       res.status(200).json(sessionDataStore[sessionId]);
-//       console.log('Data:', sessionDataStore[sessionId]);
-//     } else {
-//       res.status(200).json({ message: 'No data available for this session' });
-//     }
-//   });
 
 
 module.exports = router;
