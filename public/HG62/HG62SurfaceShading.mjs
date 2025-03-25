@@ -157,7 +157,7 @@ async function getSensorValue(location) {
 
 //         //21 below celsius to blue 
 //         //20-24 up green 
-//         //22 transition to red
+//         //25 transition to red
 
 //     } catch (err) {
 //         console.error(err);

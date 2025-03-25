@@ -158,7 +158,8 @@ async function onSpriteClicked(event, viewer) {
           
           // Update the chart with the fetched data
           // Bring back data after test
-             viewer.LiveDataPanel.updateSpriteInfo(name, data);
+          let model = 'DB8';
+             viewer.LiveDataPanel.updateSpriteInfo(name, data, model);
              viewer.LiveDataPanel.setVisible(true);  // Show the Live Data panel
       } else {
           console.log('No viewable found for this dbId.');

@@ -2,15 +2,14 @@ import { SPRITES } from '../DB8/DB8Sprites.mjs';
 import { HEATMAP } from '../DB8/DB8SurfaceShading.mjs';
 import { LightSPRITES } from '../DB8/DB8LightsSprites.mjs';
 import { HG62HEATMAP } from '../HG62/HG62SurfaceShading.mjs';
+import { HG62SPRITES } from '../HG62/HG62Sprites.mjs';
 
 
 let LiveData = localStorage.getItem('LiveData');
-console.log(LiveData);
-if (LiveData === 'DB8') {
-   
-}
 
 
+
+// ---------------------------LIVE DATA PANEL-----------------------------------
 
 // Function to create and display a docking panel
 export function showLiveDataPanel(viewer) {
@@ -73,14 +72,30 @@ export function showLiveDataPanel(viewer) {
         }
 
         // Add a method to update the panel's content
-        updateSpriteInfo(name, data) {
-            document.getElementById('spriteDbId').innerText = name;
-            document.getElementById('spriteTemp').innerText = data[0].value + '°C';  // Assuming randomData has a 'temp' property
-            document.getElementById('spriteTime').innerText = data[0].observationTime;  // Assuming randomData has a 'time' property
-            const specificReportLink = this.container.querySelector('#SpecificReport');  // Select the hyperlink with the ID 'SpecificReport'
-            if (specificReportLink) {
-                specificReportLink.href = 'https://app.powerbi.com/reportEmbed?reportId=f6f9c99d-e70d-4a97-94dc-375d0d0a9af7&autoAuth=true&ctid=ead65215-ebfd-4a8d-9e73-b403a85a7e04&filter=RelynkIdentifier0711%2Fpoint_name+eq+%27Current%27+and+RelynkIdentifier0711%2Fis_point_of_furniture_name+eq+%27' + name + '%27';
+        updateSpriteInfo(name, data, model) {
+            if (model === 'DB8') {
+                document.getElementById('spriteDbId').innerText = name;
+                document.getElementById('spriteTemp').innerText = data[0].value + '°C';  // Assuming randomData has a 'temp' property
+                document.getElementById('spriteTime').innerText = data[0].observationTime;  // Assuming randomData has a 'time' property
+                const specificReportLink = this.container.querySelector('#SpecificReport');  // Select the hyperlink with the ID 'SpecificReport'
+                if (specificReportLink) {
+                    specificReportLink.href = 'https://app.powerbi.com/reportEmbed?reportId=f6f9c99d-e70d-4a97-94dc-375d0d0a9af7&autoAuth=true&ctid=ead65215-ebfd-4a8d-9e73-b403a85a7e04&filter=RelynkIdentifier0711%2Fpoint_name+eq+%27Current%27+and+RelynkIdentifier0711%2Fis_point_of_furniture_name+eq+%27' + name + '%27';
+                }
+            } else if (model === 'HG62') {
+                document.getElementById('spriteDbId').innerText = name;
+                document.getElementById('spriteTemp').innerText = data[0].value + '°C';  // Assuming randomData has a 'temp' property
+                document.getElementById('spriteTime').innerText = data[0].observationTime;  // Assuming randomData has a 'time' property
+                const elementsToHide = ['MSFabricsURL', 'BIReports', 'SpecificReport'];
+
+                elementsToHide.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.style.display = 'none';  // Hide the link
+                        element.previousElementSibling.style.display = 'none';  // Hide the label
+                    }
+                });
             }
+            
         }
 
     }
@@ -95,6 +110,14 @@ export function showLiveDataPanel(viewer) {
     // Create a new panel with the title 'Service Task'
     viewer.LiveDataPanel = new LiveDataPanel(viewer, "Live Data", "Live Data", {});
 }
+
+
+
+
+// ---------------------------LIVE DATA PANEL-----------------------------------
+
+
+
 
 
 
@@ -156,6 +179,7 @@ export function createToolbarLiveDataButton(viewer) {
 
 
 
+// -------------------------------LIVE DATA LIST PANEL-----------------------------------
 
 
 
@@ -296,7 +320,7 @@ export async function showLiveDataListPanel(viewer) {
                  }else if (LiveData === 'HG62') {
                     console.log('HG62');
                     HG62HEATMAP(viewer, selectedFloor); // HEATMAP will be called
-                    // this.heatmapSprites = SPRITES(viewer, selectedFloor); // Save heatmap sprites for later use
+                    this.heatmapSprites = HG62SPRITES(viewer, selectedFloor); // Save heatmap sprites for later use
                     // Create the toolbar button only if it hasn't been created yet
                     if (!showLiveDataButton) {
                         createToolbarLiveDataButton(viewer);
@@ -321,7 +345,7 @@ export async function showLiveDataListPanel(viewer) {
         hideDataOnModel(viewId) {
             let LiveData = localStorage.getItem('LiveData');
             if (viewId === 'temperatureView') {
-                if (LiveData === 'DB8') {
+                if (LiveData === 'DB8' || LiveData === 'HG62') {
                     dataVizExtn.removeSurfaceShading();  // Remove surface shading
                     // dataVizExtn.removeAllViewables();
                     // Ensure the button is defined and exists before trying to hide it
@@ -369,6 +393,7 @@ export async function showLiveDataListPanel(viewer) {
 
 
 
+// -------------------------------LIVE DATA LIST PANEL-----------------------------------
 
 
 

@@ -214,7 +214,7 @@ async function getSensorValue(location) {
         const maxTemp = 24;
 
         // Normalize the temperature value to range [0, 1]
-        console.log(`Sensor value for ${location}: ${data.value}`);
+        // console.log(`Sensor value for ${location}: ${data.value}`);
         const result = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp), 0), 1);
         return result;
 
