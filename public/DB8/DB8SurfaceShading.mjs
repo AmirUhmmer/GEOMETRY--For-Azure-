@@ -9,7 +9,16 @@ export async function HEATMAP(viewer, selectedFloor) {
     function searchForSystemCode(viewer, nodesData) {
         return new Promise((resolve, reject) => {
             const systemCodeValue = 2500; // Define the systemCode value you're searching for
-            const model = viewer.impl.modelQueue().getModels()[0]; // Assuming you want to use the first model
+            let model = viewer.impl.modelQueue().getModels()[0];
+            const models = viewer.impl.modelQueue().getModels();
+            models.forEach((selectedModel, index) => {
+                let bubbleNode = selectedModel.getData().loadOptions.bubbleNode;
+                // console.log('Model:', model, 'name:', bubbleNode.data.name);
+                if(bubbleNode.data.name === 'DB8-SEMY-ARST-ASBUILT'){
+                    console.log('Model Found');
+                    model = viewer.impl.modelQueue().getModels()[index];
+                }
+            });
 
             let searchPromises = nodesData.map((node, index) => {
                 return new Promise((searchResolve) => {
