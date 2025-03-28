@@ -50,6 +50,7 @@ export function showLiveDataPanel(viewer) {
             const content = [
                 { id: 'spriteDbId', label: 'Selected Room:', value: 'None' },
                 { id: 'spriteTemp', label: 'Temperature:', value: '0' },
+                { id: 'spriteSetPoint', label: 'Setpoint:', value: '0' },
                 { id: 'spriteTime', label: 'As of:', value: 'Lorem Ipsum' },
                 { id: 'MSFabricsURL', label: 'MS Fabrics:', value: 'View the MS Fabrics', url: 'https://app.powerbi.com/groups/c9e86663-87b6-49cf-b5b2-a79d6a01d7dd/list?experience=power-bi' },
                 { id: 'BIReports', label: 'Power BI Reports:', value: 'View the Power BI Reports', url: 'https://app.powerbi.com/groups/c9e86663-87b6-49cf-b5b2-a79d6a01d7dd/list?experience=power-bi&subfolderId=1978' },
@@ -81,10 +82,39 @@ export function showLiveDataPanel(viewer) {
                 if (specificReportLink) {
                     specificReportLink.href = 'https://app.powerbi.com/reportEmbed?reportId=f6f9c99d-e70d-4a97-94dc-375d0d0a9af7&autoAuth=true&ctid=ead65215-ebfd-4a8d-9e73-b403a85a7e04&filter=RelynkIdentifier0711%2Fpoint_name+eq+%27Current%27+and+RelynkIdentifier0711%2Fis_point_of_furniture_name+eq+%27' + name + '%27';
                 }
+                // Hide the setpoint
+                const elementsToHide = ['spriteSetPoint'];
+
+                elementsToHide.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.style.display = 'none';  // Hide the link
+                        element.previousElementSibling.style.display = 'none';  // Hide the label
+                    }
+                });
             } else if (model === 'HG62') {
+                // Parse the ISO 8601 string and adjust to local timezone
+                const observationDate = new Date(data.observationTime);
+
+                // Format the time as "3:34 PM"
+                const formattedTime = observationDate.toLocaleString('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                });
+
+                // Format the date as "28 Mar"
+                const formattedDate = observationDate.toLocaleString('en-US', {
+                    day: 'numeric',
+                    month: 'short'
+                });
+
+                // Combine the formatted time and date
+                const formattedObservationTime = `${formattedTime} - ${formattedDate}`;
                 document.getElementById('spriteDbId').innerText = name;
-                document.getElementById('spriteTemp').innerText = data[0].value + '°C';  // Assuming randomData has a 'temp' property
-                document.getElementById('spriteTime').innerText = data[0].observationTime;  // Assuming randomData has a 'time' property
+                document.getElementById('spriteTemp').innerText = data.value + '°C';  // Assuming randomData has a 'temp' property
+                document.getElementById('spriteSetPoint').innerText = data.setpoint;  // Assuming randomData has a 'setpoint' property
+                document.getElementById('spriteTime').innerText = formattedObservationTime;  // Assuming randomData has a 'time' property
                 const elementsToHide = ['MSFabricsURL', 'BIReports', 'SpecificReport'];
 
                 elementsToHide.forEach(id => {

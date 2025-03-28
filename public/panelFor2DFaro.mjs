@@ -160,3 +160,94 @@ export function ToolbarButton2DFaro(viewer, modelAbbreviation) {
   viewer.Faro2DPanel.setVisible(true);
 }
  
+
+
+
+
+
+
+
+
+
+
+
+
+// // Assuming you're using Autodesk.Viewing as `viewer`
+// export function ToolbarButton2DFaro(viewer, modelAbbreviation) {
+//   const toolbar = viewer.getToolbar();
+//   if (!toolbar) {
+//       console.error("Toolbar not found");
+//       return;
+//   }
+
+//   // Create a new toolbar button
+//   const showFaro2DPanelButton = new Autodesk.Viewing.UI.Button('showFaro2DPanelButton');
+
+//   // Apply icon styling directly to the button's container
+//   const buttonContainer = showFaro2DPanelButton.container;
+//   buttonContainer.style.backgroundImage = 'url(./images/faro.svg)';  // Set your icon image source here
+//   buttonContainer.style.backgroundColor = 'transparent';  // Make background transparent
+//   buttonContainer.style.backgroundSize = '32px';  // Adjust size of the background image
+//   buttonContainer.style.backgroundRepeat = 'no-repeat';  // Ensure no repeat of the image
+//   buttonContainer.style.backgroundPosition = 'center';  // Center the image inside the button
+//   buttonContainer.classList.add('custom-toolbar-button');
+//   showFaro2DPanelButton.setToolTip('Different Views');  // Set the tooltip for the button
+
+//   // Define the action when the button is clicked
+//   showFaro2DPanelButton.onClick = function() {
+//       if (viewer.Faro2DPanel) {
+//           viewer.Faro2DPanel.setVisible(!viewer.Faro2DPanel.isVisible());
+//       } else {
+//           showFaro2DPanel(viewer);  // Replace this with your custom function
+//       }
+//   };
+
+//   // Create a new ControlGroup (subToolbar)
+//   let subToolbar = new Autodesk.Viewing.UI.ControlGroup('myAppLeftToolbar');
+//   toolbar.addControl(subToolbar);
+
+//   // Add the custom button to the subToolbar
+//   subToolbar.addControl(showFaro2DPanelButton);
+
+//   // Now, we move the subToolbar to the left side
+//   const subToolbarContainer = subToolbar.container;
+//   subToolbarContainer.style.position = 'absolute';  // Make it absolute positioned
+//   subToolbarContainer.style.top = '-50vh';           // Adjust the top position as needed
+//   subToolbarContainer.style.left = '20px';          // Move it to the left side of the viewer
+//   subToolbarContainer.style.zIndex = '1000';        // Ensure it is on top of the viewer elements
+
+//   let models = viewer.impl.modelQueue().getModels();
+
+// //   // Loop through each model and log the 2D views
+// //   models.forEach((model) => {
+// //     const docRoot = model.getDocumentNode();
+// //     if (docRoot) {
+// //         // Recursively search for 2D viewables in the bubble tree
+// //         const viewables = find2DViewables(docRoot);
+// //         if (viewables.length > 0) {
+// //             console.log('2D Floor Plans found:', viewables);
+// //         } else {
+// //             console.log('No 2D viewables found in the model.');
+// //         }
+// //     } else {
+// //         console.log('No document node found for this model.');
+// //     }
+// // });
+// }
+
+// function find2DViewables(node) {
+// //   let results = [];
+// //   if (node.isLeaf()) {
+// //       const data = node.data;
+// //       if (data && data.role === '2d' && data.type === 'geometry') {
+// //           results.push(data);  // Push the viewable data if it matches 2D geometry
+// //       }
+// //   } else if (node.children && node.children.length > 0) {
+// //       // Recursively search child nodes
+// //       node.children.forEach((childNode) => {
+// //           results = results.concat(find2DViewables(childNode));
+// //       });
+// //   }
+// //   return results;
+// }
+

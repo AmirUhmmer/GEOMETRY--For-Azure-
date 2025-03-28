@@ -177,7 +177,9 @@ router.get('/api/sensor/:location', async (req, res) => {
     }
 });
 
-// TEMPERATURE SENSOR V2
+// TEMPERATURE SENSOR V2 [HG62]
+//Room Thermostat-1.92.HG62_Setpoint
+//Panel Heater-1.89.HG62_Status
 router.get('/api/sensorv2/:location', async (req, res) => {
     const location = req.params.location;
     try {
@@ -254,6 +256,66 @@ router.get('/api/graphdata/:location', async (req, res) => {
         res.status(500).send('Error retrieving graph data');
     }
 });
+
+
+
+router.get('/api/TempSetpoint/:location', async (req, res) => {
+    const location = req.params.location;
+    try {
+        // Get the connection pool
+        const pool = await getPool();
+
+        // Query the database
+        const result = await pool.request()
+            .input('location', sql.VarChar, location)
+            .query(`
+                WITH RankedData AS (
+                    SELECT 
+                        [deviceId], 
+                        [value], 
+                        [observationTime], 
+                        [quantityKind], 
+                        ROW_NUMBER() OVER (PARTITION BY [quantityKind] ORDER BY [observationTime] DESC) AS rn 
+                    FROM 
+                        [dbo].[LiveData] 
+                    WHERE 
+                        deviceId = @location 
+                        AND (quantityKind LIKE '%HG62_Sensor%' OR quantityKind LIKE '%HG62_Setpoint%')
+                )
+                SELECT 
+                    [deviceId], 
+                    [value], 
+                    [observationTime], 
+                    [quantityKind]
+                FROM 
+                    RankedData
+                WHERE 
+                    rn = 1;
+            `);
+
+        if (result.recordset.length > 0) {
+            // Assuming you want to respond with both value and setpoint based on quantityKind
+            const sensorData = result.recordset.reduce((acc, record) => {
+                if (record.quantityKind.includes('Sensor')) {
+                    acc.value = record.value;
+                }
+                if (record.quantityKind.includes('Setpoint')) {
+                    acc.setpoint = record.value;
+                }
+                acc.observationTime = record.observationTime; // Format the date
+                return acc;
+            }, {});
+
+            res.json(sensorData);
+        } else {
+            res.status(404).send('Sensor not found');
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error retrieving sensor value');
+    }
+});
+
 
 
 // --------------------------------------------------------------------------- LIVE DATA ---------------------------------------------------------------------------

@@ -140,15 +140,11 @@ export async function SPRITES(viewer, selectedFloor) {
     
       // Try finishing and adding the viewables, with success confirmation
       await viewableData.finish();  // Ensure the viewable data is finished before proceeding
-      console.log('Viewable Data finished successfully!');
+      viewer.addEventListener(DataVizCore.MOUSE_CLICK, (event) => onSpriteClicked(event, viewer));  // Add the event listener after
       
+      // console.log('Viewables added to the extension successfully!');
       // Add the viewables to the extension
       extension0.addViewables(viewableData);
-
-      const models = viewer.impl.modelQueue().getModels();
-
-      viewer.addEventListener(DataVizCore.MOUSE_CLICK, (event) => onSpriteClicked(event, viewer));
-      console.log('Viewables added to the extension successfully!');
     } catch (error) {
       // Catch any errors that occur during the process
       console.error('Error adding viewables:', error);
@@ -166,6 +162,7 @@ export async function SPRITES(viewer, selectedFloor) {
 // Define the onSpriteClicked function to handle sprite clicks
 async function onSpriteClicked(event, viewer) {
   // Check if the clicked event contains a valid sprite (dbId)
+  console.log('Clicked event:', event);  // Debugging line
   if (event.dbId && event.dbId !== -1) {
       console.log(`Sprite clicked: ${event.dbId}`);
       
@@ -220,7 +217,6 @@ async function onSpriteClicked(event, viewer) {
       viewer.LiveDataPanel.setVisible(false);  // Hide the Live Data panel
   }
 }
-
 
 
 

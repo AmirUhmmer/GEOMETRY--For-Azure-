@@ -26,8 +26,8 @@ export async function HG62SPRITES(viewer, selectedFloor) {
 
     const myDataList = [
       // 3RD floor
-      { position: { x: -97.79080200195312, y: -2.323376417160034 , z: 23.6 }, name: "Apartment Room (HG62.ID.-.3.034)",  pointID: "b957051a-2cb0-4bcb-990c-3c34a6f627a7", objectDBID: 10939 },
-      { position: { x: -91.14710235595703 , y: -2.323376417160034 , z: 23.6 }, name: "Apartment Room (HG62.ID.-.3.036)",  pointID: "3b69ceda-a9e0-4b04-8a92-7ecccb6286a0", objectDBID: 10950 },
+      { position: { x: -97.79080200195312, y: -2.323376417160034 , z: 23.6  }, name: "Apartment Room (HG62.ID.-.3.034)",  pointID: "e0ddd286-51f0-ef11-9342-0022489fdfca", objectDBID: 10939 },
+      { position: { x: -91.14710235595703 , y: -2.323376417160034 , z: 23.6 }, name: "Apartment Room (HG62.ID.-.3.036)",  pointID: "e2ddd286-51f0-ef11-9342-0022489fdfca", objectDBID: 10950 },
       // second floor
     //   { position: { x: 779.6911010742188 , y: 500.82025146484375, z: 18.3 }, name: "Social Area (DB8.-.2.001)"     ,  pointID: "193d3a83-b870-4d7b-83eb-ea73111b8c0a", objectDBID: 7887 },
     //   { position: { x: 794.48248291015625, y: 493.23358154296875, z: 18.3 }, name: "Office (DB8.-.2.002)"           ,  pointID: "d8d4faa1-2bc9-4809-8a25-08430813fc63", objectDBID: 7886 },
@@ -54,15 +54,11 @@ export async function HG62SPRITES(viewer, selectedFloor) {
     
       // Try finishing and adding the viewables, with success confirmation
       await viewableData.finish();  // Ensure the viewable data is finished before proceeding
-    //   console.log('Viewable Data finished successfully!');
+      viewer.addEventListener(DataVizCore.MOUSE_CLICK, (event) => onSpriteClicked(event, viewer));
       
       // Add the viewables to the extension
       extension0.addViewables(viewableData);
 
-      const models = viewer.impl.modelQueue().getModels();
-
-      viewer.addEventListener(DataVizCore.MOUSE_CLICK, (event) => onSpriteClicked(event, viewer));
-    //   console.log('Viewables added to the extension successfully!');
     } catch (error) {
       // Catch any errors that occur during the process
       console.error('Error adding viewables:', error);
@@ -113,18 +109,19 @@ async function onSpriteClicked(event, viewer) {
           }
 
           // Fetch data from the server for dynamic chart update
-          const response = await fetch(`/api/graphdata/${pointID}`);
+          const response = await fetch(`/api/TempSetpoint/${pointID}`);
           if (!response.ok) {
             throw new Error(`Error fetching sensor data: ${response.statusText}`);
           }
 
           const data = await response.json();
           
+          console.log(`Sensor value for ${location}: `, data);
           // Update the chart with the fetched data
           let model = 'HG62';
           //Update the panel with the sprite info and show it
-            viewer.LiveDataPanel.updateSpriteInfo(name, data, model);
-            viewer.LiveDataPanel.setVisible(true);  // Show the Live Data panel
+          viewer.LiveDataPanel.updateSpriteInfo(name, data, model);
+          viewer.LiveDataPanel.setVisible(true);  // Show the Live Data panel
       } else {
           console.log('No viewable found for this dbId.');
       }
