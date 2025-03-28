@@ -168,7 +168,7 @@ export function createToolbarLiveDataButton(viewer) {
 
     // Apply icon styling directly to the button's container
     const buttonContainer = showLiveDataButton.container;
-    buttonContainer.style.backgroundImage = 'url(./images/graph.svg)';  // Set your icon image source here
+    buttonContainer.style.backgroundImage = 'url(./images/graph2.svg)';  // Set your icon image source here
     buttonContainer.style.backgroundColor = 'transparent';  // Make background transparent
     buttonContainer.style.backgroundSize = '25px';  // Adjust size of the background image
     buttonContainer.style.backgroundRepeat = 'no-repeat';  // Ensure no repeat of the image
