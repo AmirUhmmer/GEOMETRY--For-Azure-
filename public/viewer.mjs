@@ -185,25 +185,23 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 navTools.removeControl('toolbar-cameraSubmenuTool');
                 
 
-                const modelTools = viewer.toolbar.getControl('modelTools');
-                modelTools.removeControl('toolbar-documentModels');
-
 
                 const settingsTools = viewer.toolbar.getControl('settingsTools');
                 settingsTools.removeControl('toolbar-settingsTool');
 
-                if(model === 'DB8'){
+
+                
+
+                
+                
+
+                if(model === 'DB8' || model === 'HG62'){
                     showLiveDataPanel(viewer);
                     showLiveDataListPanel(viewer);
                     createToolbarLiveDataListButton(viewer);
                 }else if(model === 'SOL11'){
                     Sol11PicsSPRITES(viewer);
-                }else if(model === 'HG62'){
-                    showLiveDataPanel(viewer);
-                    showLiveDataListPanel(viewer);
-                    createToolbarLiveDataListButton(viewer);
                 }
-
 
 
                 
@@ -215,13 +213,14 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             console.log(`Selected Floor Index: ${selectedLevelIndex}`);
                 
                             // Check if the loaded model is named "DB8"
-                            let LiveData = localStorage.getItem('LiveData');
+                            //let LiveData = localStorage.getItem('LiveData');
+                            let LiveData = model;
                             console.log(LiveData);
-                            if (LiveData === 'DB8' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
+                            if (LiveData === 'DB8' || LiveData === 'HG62' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
                                 viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // Call LiveDataListPanel
-                            }else if (LiveData === 'HG62' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
-                                viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // Call LiveDataListPanel
-                            }
+                             }//else if (LiveData === 'HG62' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
+                            //     viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // Call LiveDataListPanel
+                            // }
                         });
                 
                         // Optionally, set a default floor after loading the extension
@@ -328,11 +327,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                             console.log(viewer.impl.modelQueue().getModels()[1]);
                                         }
                                         if (prop.displayName === "Asset ID (GUID)") {
+                                            console.log("Asset ID (GUID):", prop.displayValue);
                                             globalID = prop.displayValue;
-                                        }
-                                        if (prop.displayName === "Name") {
-                                            identity = prop.displayValue;
-                                            console.log("test" + identity);
                                         }
                                     });
                 

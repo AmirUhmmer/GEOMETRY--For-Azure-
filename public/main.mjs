@@ -504,6 +504,22 @@ async function initApp() {
                 hardAsset = 'No Hard Asset';
                 localStorage.setItem('LiveData', liveData);
                 localStorage.removeItem('ASSET');
+
+
+                // const access_token = localStorage.getItem('authToken');
+                // async function fetchSheets(projectId, access_token) {
+                //                     const response = await fetch(`https://developer.api.autodesk.com/construction/sheets/v1/projects/${projectId}/sheets`, {
+                //                         method: 'GET',
+                //                         headers: {
+                //                             'Authorization': `Bearer ${access_token}`
+                //                         }
+                //                     });
+                                
+                //                     const data = await response.json();
+                //                     console.log('Sheets:', data);
+                //                 }
+                                
+                // fetchSheets(projectId, access_token);
             }
 
             // if(ServiceZone){
