@@ -44,8 +44,11 @@ export function initViewer(container) {
             };
             const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
             // const viewer = new Autodesk.Viewing.AggregatedView(container, config);
+
             viewer.start();
             viewer.setTheme('dark-theme');
+            viewer.setQualityLevel(true, true);
+
 
 
             const canvas = viewer.impl.canvas;
@@ -217,7 +220,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             let LiveData = model;
                             console.log(LiveData);
                             if (LiveData === 'DB8' || LiveData === 'HG62' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
-                                viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // Call LiveDataListPanel
+                                viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex, LiveData); // Call LiveDataListPanel
                              }//else if (LiveData === 'HG62' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
                             //     viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // Call LiveDataListPanel
                             // }
@@ -477,13 +480,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
         if (versionsData.data && versionsData.data.length > 0) {
             const latestVersion = versionsData.data[0];  // Assuming the first item is the latest
             let latestVersionUrn = latestVersion.id;  // This will be the URN for the latest version
-            if(latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=163') {
-                latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=161';
-            }
-            // Floor [1885372]
-            // if(latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=37') {
-            //     latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=30';
-            // }
             console.log('Latest Version URN:', latestVersionUrn);
             const base64Urn = btoa(latestVersionUrn);  // This encodes the URN to base64
             // console.log('Base64 URN:', base64Urn);
@@ -495,37 +491,74 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
     }
 
     // Function to load all models with their latest versions
-    async function loadModels() {
-        const updatedModelsToLoad = [];
-        
-        // Fetch the latest URNs for all base URNs
-        for (let baseUrn of modelsToLoad) {
-            try {
-                const latestUrn = await fetchLatestUrn(hubId, projectId, folderId, baseUrn); // Fetch latest version URN
-                updatedModelsToLoad.push(latestUrn); // Add latest version URN to the array
-            } catch (error) {
-                console.error(`Failed to fetch latest URN for ${baseUrn}:`, error);
-                alert(`Could not fetch latest URN for ${baseUrn}. See console for details.`);
+    async function fetchLatestUrn(hubId, projectId, folderId, baseUrn) {
+        const accessToken = localStorage.getItem('authToken');
+    
+        const versionsUrl = `https://developer.api.autodesk.com/data/v1/projects/${projectId}/items/${baseUrn}/versions`;
+        const response = await fetch(versionsUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            },
+        });
+    
+        const versionsData = await response.json();
+    
+        if (versionsData.data && versionsData.data.length > 0) {
+            let latestVersionUrn = versionsData.data[0].id;
+    
+            // Your override logic
+            if (latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=163') {
+                latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=161';
             }
-        }
-
-        // Now load the models with the latest URNs
-        for (let modelUrn of updatedModelsToLoad) {
-            console.log(`Attempting to load model with URN: urn:${modelUrn}`);
-
-            // Load the model document and wait for the load to complete before moving to the next
-            await new Promise((resolve, reject) => {
-                Autodesk.Viewing.Document.load(
-                    'urn:' + modelUrn,
-                    async (doc) => {
-                        // Success handler: model loaded successfully
-                        await onDocumentLoadSuccess(doc).then(resolve).catch(reject);
-                    },
-                    onDocumentLoadFailure  // Failure handler
-                );
-            });
+    
+            console.log('Latest Version URN:', latestVersionUrn);
+            return btoa(latestVersionUrn); // Base64 encode
+        } else {
+            console.error('No versions found for the file.');
+            throw new Error('No versions found');
         }
     }
+    
+    async function loadModels() {
+        try {
+            // ✅ Fetch all latest URNs in parallel
+            const latestUrns = await Promise.all(
+                modelsToLoad.map(async (baseUrn) => {
+                    try {
+                        return await fetchLatestUrn(hubId, projectId, folderId, baseUrn);
+                    } catch (error) {
+                        console.error(`Failed to fetch latest URN for ${baseUrn}:`, error);
+                        alert(`Could not fetch latest URN for ${baseUrn}. See console for details.`);
+                        return null; // Skip this model
+                    }
+                })
+            );
+    
+            // ✅ Filter out failed fetches (nulls)
+            const validUrns = latestUrns.filter(urn => urn);
+    
+            // ✅ Load all models in parallel using AggregatedView
+            await Promise.all(
+                validUrns.map((modelUrn) => {
+                    console.log(`Attempting to load model with URN: urn:${modelUrn}`);
+    
+                    return new Promise((resolve, reject) => {
+                        Autodesk.Viewing.Document.load(
+                            'urn:' + modelUrn,
+                            async (doc) => {
+                                await onDocumentLoadSuccess(doc).then(resolve).catch(reject);
+                            },
+                            onDocumentLoadFailure
+                        );
+                    });
+                })
+            );
+        } catch (error) {
+            console.error("Unexpected error in loadModels:", error);
+        }
+    }
+    
     
     // Load each model sequentially
     loadModels();

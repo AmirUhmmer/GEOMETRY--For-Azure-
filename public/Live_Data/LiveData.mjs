@@ -398,9 +398,8 @@ export async function showLiveDataListPanel(viewer) {
         }
 
         // Method to handle changes in the selected floor
-        changedfloor(viewer, selectedFloor) {
+        changedfloor(viewer, selectedFloor, LiveData) {
             const temperatureCheckbox = document.getElementById('temperatureView').checked;
-            let LiveData = localStorage.getItem('LiveData');
             console.log('Changed floor to:', selectedFloor, 'Live Data: ', LiveData);
             if (temperatureCheckbox && LiveData === 'DB8') {
                 HEATMAP(viewer, selectedFloor);

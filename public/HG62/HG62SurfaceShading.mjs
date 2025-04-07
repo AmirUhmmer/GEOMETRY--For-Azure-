@@ -8,11 +8,22 @@ export async function HG62HEATMAP(viewer, selectedFloor) {
 
     // Render the heatmap for the selected floor
     console.log('Rendering heatmap for the selected floor:', selectedFloor);
-    if (selectedFloor === 8) {
+    if (selectedFloor === 0) {
         console.log('Rendering heatmap for the First Floor');
         nodesData = [
-        { name: "Apartment Room (HG62.ID.-.3.034)"       , dbId: 51716, guid: "e0ddd286-51f0-ef11-9342-0022489fdfca" },
-        { name: "Apartment Room (HG62.ID.-.3.036)"       , dbId: 51739, guid: "e2ddd286-51f0-ef11-9342-0022489fdfca" },
+        { name: "Boiler Room (HG62.ID.-.U2.021)"          , dbId: 37786, guid: "529208a9-42d7-ef11-8eea-0022489fd3f3" },
+        { name: "Technical Room (HG62.ID.-.U2.003)"       , dbId: 37474, guid: "489208a9-42d7-ef11-8eea-0022489fd3f3" },
+        ]
+    }else if (selectedFloor === 8) {
+        console.log('Rendering heatmap for the First Floor');
+        nodesData = [
+        { name: "Apartment Room (HG62.ID.-.3.034)"       , dbId: 51524, guid: "e0ddd286-51f0-ef11-9342-0022489fdfca" },
+        { name: "Apartment Room (HG62.ID.-.3.036)"       , dbId: 51547, guid: "e2ddd286-51f0-ef11-9342-0022489fdfca" },
+        ]
+    }else if (selectedFloor === 10) {
+        console.log('Rendering heatmap for the First Floor');
+        nodesData = [
+        { name: "Corridor (HG62.ID.-.4.010)"       , dbId: 14187, guid: "4e9208a9-42d7-ef11-8eea-0022489fd3f3" },
         ]
     }
 
