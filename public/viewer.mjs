@@ -200,8 +200,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 if(model === 'DB8' || model === 'HG62'){
                     showLiveDataPanel(viewer);
-                    showLiveDataListPanel(viewer);
-                    createToolbarLiveDataListButton(viewer);
+                    showLiveDataListPanel(viewer, model);
+                    createToolbarLiveDataListButton(viewer, model);
                 }else if(model === 'SOL11'){
                     Sol11PicsSPRITES(viewer);
                 }

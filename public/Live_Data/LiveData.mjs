@@ -156,7 +156,7 @@ export function showLiveDataPanel(viewer) {
 // Declare the button globally so it can be accessed in other functions
 let showLiveDataButton;
 
-export function createToolbarLiveDataButton(viewer) {
+export function createToolbarLiveDataButton(viewer, model) {
     const toolbar = viewer.getToolbar();
     if (!toolbar) {
         console.error("Toolbar not found");
@@ -195,7 +195,7 @@ export function createToolbarLiveDataButton(viewer) {
 
     // Call this function once the viewer is fully initialized
     viewer.addEventListener(Autodesk.Viewing.TOOLBAR_CREATED_EVENT, function() {
-        createToolbarButton(viewer);
+        createToolbarButton(viewer, model);
     });
 }
 
@@ -216,7 +216,7 @@ export function createToolbarLiveDataButton(viewer) {
 
 
 // Function to create and display a docking panel
-export async function showLiveDataListPanel(viewer) {
+export async function showLiveDataListPanel(viewer, model) {
     // Load 'Autodesk.DataVisualization' and store it as a variable for later use
     const dataVizExtn = await viewer.loadExtension("Autodesk.DataVisualization");
     // Create a custom Docking Panel class
@@ -289,7 +289,7 @@ export async function showLiveDataListPanel(viewer) {
                 toggle.addEventListener('change', () => {
                     // When checkbox is unchecked
                     if (!toggle.checked) {
-                        this.hideDataOnModel(item.id);  // Call hideDataOnModel when checkbox is unchecked
+                        this.hideDataOnModel(item.id, model);  // Call hideDataOnModel when checkbox is unchecked
                     }
         
                     if (toggle.checked) {
@@ -297,12 +297,12 @@ export async function showLiveDataListPanel(viewer) {
                         checkboxes.forEach(cb => {
                             if (cb !== toggle) {
                                 cb.checked = false;  // Uncheck other checkboxes
-                                this.hideDataOnModel(cb.id);  // Call hideDataOnModel for unchecked checkboxes
+                                this.hideDataOnModel(cb.id, model);  // Call hideDataOnModel for unchecked checkboxes
                             }
                         });
                     }
         
-                    this.toggleLiveDataView(item.id, toggle.checked);  // Call the method when checkbox is changed
+                    this.toggleLiveDataView(item.id, toggle.checked, model);  // Call the method when checkbox is changed
                 });
         
                 // Append the label and toggle to the container
@@ -317,22 +317,22 @@ export async function showLiveDataListPanel(viewer) {
         
     
         // Method to handle toggling of data views
-        toggleLiveDataView(viewId, isVisible) {
+        toggleLiveDataView(viewId, isVisible, model) {
             if (isVisible) {
                 console.log(viewId + ' is now visible');
                 // Logic to show the live data view in the viewer
-                this.showDataOnModel(viewId);
+                this.showDataOnModel(viewId, model);
             } else {
                 console.log(viewId + ' is now hidden');
                 // Logic to hide the live data view from the viewer
-                this.hideDataOnModel(viewId);
+                this.hideDataOnModel(viewId, model);
             }
         }
 
          // Example method to show live data on the model
-         showDataOnModel(viewId) {
+         showDataOnModel(viewId, model) {
             let selectedFloor = -1;
-            let LiveData = localStorage.getItem('LiveData');
+            let LiveData = model;
             console.log(LiveData);
             if (viewId === 'temperatureView') {
                  if (LiveData === 'DB8') {
@@ -372,8 +372,8 @@ export async function showLiveDataListPanel(viewer) {
         }
 
        // Example method to hide live data from the model
-        hideDataOnModel(viewId) {
-            let LiveData = localStorage.getItem('LiveData');
+        hideDataOnModel(viewId, model) {
+            let LiveData = model;
             if (viewId === 'temperatureView') {
                 if (LiveData === 'DB8' || LiveData === 'HG62') {
                     dataVizExtn.removeSurfaceShading();  // Remove surface shading
