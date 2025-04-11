@@ -48,6 +48,7 @@ export function initViewer(container) {
             viewer.start();
             viewer.setTheme('dark-theme');
             viewer.setQualityLevel(true, true);
+            // console.log(accessToken);
 
 
 
@@ -148,10 +149,13 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
     // console.log(modelsToLoad);
 
     function checkAllModelsLoaded() {
+
         // console.log("CHECK: " + modelsLoaded);
 
         if (modelsLoaded === modelsToLoad.length) {
             console.log("All models have been loaded.");
+            const accessToken = localStorage.getItem('authToken'); // Retrieve the access token
+            // console.log('Access Token:', accessToken);
             var view = new Autodesk.Viewing.AggregatedView();
             const models = viewer.impl.modelQueue().getModels();
             console.log(view);
@@ -467,7 +471,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
     // Function to fetch the latest version URN of a file inside a folder
     async function fetchLatestUrn(hubId, projectId, folderId, baseUrn) {
         const accessToken = localStorage.getItem('authToken'); // Retrieve the access token
-
         const versionsUrl = `https://developer.api.autodesk.com/data/v1/projects/${projectId}/items/${baseUrn}/versions`;
         const response = await fetch(versionsUrl, {
             method: 'GET',
@@ -490,7 +493,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
     }
 
-    // Function to load all models with their latest versions
     async function fetchLatestUrn(hubId, projectId, folderId, baseUrn) {
         const accessToken = localStorage.getItem('authToken');
     
@@ -538,22 +540,20 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
             // ✅ Filter out failed fetches (nulls)
             const validUrns = latestUrns.filter(urn => urn);
     
-            // ✅ Load all models in parallel using AggregatedView
-            await Promise.all(
-                validUrns.map((modelUrn) => {
-                    console.log(`Attempting to load model with URN: urn:${modelUrn}`);
+            // 🔄 Load each model sequentially
+            for (let modelUrn of validUrns) {
+                console.log(`Attempting to load model with URN: urn:${modelUrn}`);
     
-                    return new Promise((resolve, reject) => {
-                        Autodesk.Viewing.Document.load(
-                            'urn:' + modelUrn,
-                            async (doc) => {
-                                await onDocumentLoadSuccess(doc).then(resolve).catch(reject);
-                            },
-                            onDocumentLoadFailure
-                        );
-                    });
-                })
-            );
+                await new Promise((resolve, reject) => {
+                    Autodesk.Viewing.Document.load(
+                        'urn:' + modelUrn,
+                        async (doc) => {
+                            await onDocumentLoadSuccess(doc).then(resolve).catch(reject);
+                        },
+                        onDocumentLoadFailure
+                    );
+                });
+            }
         } catch (error) {
             console.error("Unexpected error in loadModels:", error);
         }

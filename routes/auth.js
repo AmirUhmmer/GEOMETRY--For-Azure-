@@ -83,12 +83,15 @@ router.get('/api/auth/token', async (req, res) => {
             url: 'https://developer.api.autodesk.com/authentication/v2/token',
             headers: {
                 'content-type': 'application/x-www-form-urlencoded',
+                // 'Accept': 'application/json',
+                // 'Authorization': `Basic SERuVXlvcDFCcjZoS2dGa1BGTWZka3JOY1k4MTFpTTc1OUJFQ2hwWWtmZVVaM3JyOkJoRzdNaG1FMjdka1RuY3ZiRjFGOFlMd09wRllxT3I0aTN2ak9zUWpwVVplUGkzdnBhMW1VcTNHNlgwdjdLUHA=`,
+                'x-user-id': '3a15881a-370e-4d72-80f7-8701c4b1806c'
             },
             data: querystring.stringify({
                 client_id: APS_CLIENT_ID,
                 client_secret: APS_CLIENT_SECRET,
                 grant_type: 'client_credentials',
-                scope: scopes
+                scope: 'data:read data:write account:read',
             })
         });
 
