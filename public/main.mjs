@@ -246,6 +246,7 @@ async function initApp() {
                     "ODV18": 'c2233237-dc9f-ef11-8a6a-00224899e340',
                     "BS19": '7ccd91a6-ce66-ef11-bfe2-000d3ab1d1c2',
                     "FV50": 'b8c950e3-ca66-ef11-bfe2-000d3ab1d1c2',
+                    "BS17": 'fc7d5d21-3506-f011-bae3-000d3ab487b3',
                   };
                   
                   let abbreviation = params["abbreviation"];
@@ -345,11 +346,10 @@ async function initApp() {
                                                         ],
 
                 // ODV18
-                'c2233237-dc9f-ef11-8a6a-00224899e340': ['urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA', //ARCHI ?????
-                                                        'urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw', //MEP
-                                                         
-                                                        ], //
-
+                'c2233237-dc9f-ef11-8a6a-00224899e340': ['urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw', //ARCHI ?????
+                                                        'urn:adsk.wipemea:dm.lineage:QlwJKiUVTzORuyDvPuGl1Q', //MEP
+                                                         //urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA //deleted file
+                                                        ],
                 // BS19
                 '7ccd91a6-ce66-ef11-bfe2-000d3ab1d1c2': ['urn:adsk.wipemea:dm.lineage:cH693J46Riyi-_ccyuHx4g', //ARCHI
                                                          'urn:adsk.wipemea:dm.lineage:NsE81iHwS6inclXR2YMw_g', //MEP
@@ -364,6 +364,15 @@ async function initApp() {
                 '31203385-0ce3-ef11-8eea-000d3a674a78': ['urn:adsk.wipemea:dm.lineage:7kP7byFxQhmsKJm7CrQUyw', //ARCHI
                                                         // 'urn:adsk.wipemea:dm.lineage:5v1J3zv1Qg6qoJXm6Vw9Xg', //MEP
                                                         ],
+                // BS17
+                'fc7d5d21-3506-f011-bae3-000d3ab487b3': ['urn:adsk.wipemea:dm.lineage:WNYKT1wuRgGtn_HVS_4HwQ', //IFC???
+                                                        ],
+
+                //TI135
+                'cc023922-5405-f011-bae2-6045bde167c3': ['urn:adsk.wipemea:dm.lineage:o9HaviQfQeimUj369y5d2Q', //ARCHI
+                                                        // 'urn:adsk.wipemea:dm.lineage:7kP7byFxQhmsKJm7CrQUyw', //MEP
+                                                        ],
+
 
             };
 
@@ -420,6 +429,15 @@ async function initApp() {
                 'Fornebuveien 50': ['urn:adsk.wipemea:dm.lineage:ys5aGM_9S8S7mQQVGsSk1Q', //MEP
                                     'urn:adsk.wipemea:dm.lineage:AkM6xcyXRE-mOxjmxk6-AQ', //ARCHI
                                    ],
+
+                // BS17
+                'Billingstadsletta 17 AS': ['urn:adsk.wipemea:dm.lineage:WNYKT1wuRgGtn_HVS_4HwQ', //IFC??
+                                           ],
+
+                // TI135
+                'Trondheimsveien 135 AS': [//'urn:adsk.wipemea:dm.lineage:7kP7byFxQhmsKJm7CrQUyw', //MEP
+                                           'urn:adsk.wipemea:dm.lineage:o9HaviQfQeimUj369y5d2Q', //ARCHI
+                                          ],
             };
 
             // Default geometry if no match is found
@@ -427,9 +445,8 @@ async function initApp() {
                 //  DB8
                 'urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg', // archi
                 'urn:adsk.wipemea:dm.lineage:cuy9_KQiSyadqUu2aI_Bsg', // mep
-                // 'urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg', // archi
                 'urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww', // site
-                //'urn:adsk.wipemea:dm.lineage:wysX64UTQY-_PnDNppec1g', // plan 1
+
             ];
 
             // Attempt to find geometry based on recordId
@@ -460,6 +477,10 @@ async function initApp() {
                 'b8c950e3-ca66-ef11-bfe2-000d3ab1d1c2': { projectId: 'b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f', hardAsset: 'No Hard Asset', model: 'FV50' },
                 // J2
                 '31203385-0ce3-ef11-8eea-000d3a674a78': { projectId: 'b.f89b2440-302c-41fc-9f68-111bf391dc1e', hardAsset: 'No Hard Asset', model: 'J2' },
+                // BS17
+                'fc7d5d21-3506-f011-bae3-000d3ab487b3': { projectId: 'b.09751ad8-ce14-4f21-99c2-440312cd216f', hardAsset: 'No Hard Asset', model: 'BS17' },
+                // TI135
+                'cc023922-5405-f011-bae2-6045bde167c3': { projectId: 'b.39d3702e-4095-44d4-8c29-becf571a90aa', hardAsset: 'No Hard Asset', model: 'TI135' },
             };
 
             const propertyMap = {
@@ -472,7 +493,8 @@ async function initApp() {
                 'Ole Deviks Vei 18 AS': 'b.6623a4ce-ac71-4678-af1c-55a4030ff9d9',
                 'Billingstadsletta 19 AS': 'b.1c8224f1-b860-4a2b-821b-d393c94b190d',
                 'Fornebuveien 50': 'b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f',
-                
+                'Billingstadsletta 17 AS': 'b.09751ad8-ce14-4f21-99c2-440312cd216f',
+                'Trondheimsveien 135 AS': 'b.39d3702e-4095-44d4-8c29-becf571a90aa',
             };
 
             let projectId = '';

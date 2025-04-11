@@ -156,9 +156,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
             console.log("All models have been loaded.");
             const accessToken = localStorage.getItem('authToken'); // Retrieve the access token
             // console.log('Access Token:', accessToken);
-            var view = new Autodesk.Viewing.AggregatedView();
             const models = viewer.impl.modelQueue().getModels();
-            console.log(view);
             // Perform actions only when all models are loaded
 
             if (viewer.model) {
@@ -206,9 +204,36 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     showLiveDataPanel(viewer);
                     showLiveDataListPanel(viewer, model);
                     createToolbarLiveDataListButton(viewer, model);
+                    hideGenericModels(viewer, models[0]);
                 }else if(model === 'SOL11'){
                     Sol11PicsSPRITES(viewer);
                 }
+
+
+                function hideGenericModels(viewer, model) {
+                    model.getObjectTree(function (instanceTree) {
+                        const dbIdsToHide = [];
+                        console.log(dbIdsToHide);
+                        instanceTree.enumNodeChildren(instanceTree.getRootId(), function (dbId) {
+                            model.getProperties(dbId, function (props) {
+                                if (props && props.properties) {
+                                    const categoryProp = props.properties.find(p => p.displayName === 'Category');
+                                    if (categoryProp && categoryProp.displayValue === 'Generic Models') {
+                                        dbIdsToHide.push(dbId);
+                                    }
+                                }
+                            }, true);
+                        }, true);
+                
+                        // Wait a short delay to allow getProperties to complete for multiple dbIds
+                        setTimeout(() => {
+                            if (dbIdsToHide.length > 0) {
+                                viewer.hide(dbIdsToHide);
+                            }
+                        }, 2000);
+                    });
+                }
+                
 
 
                 
