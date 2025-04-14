@@ -353,12 +353,12 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                     let globalID = null;
                                     let identity = null;
                                     props.properties.forEach(function (prop) {
-                                        if (prop.displayName === "Asset ID") {
+                                        if (prop.displayName === "Asset ID" && prop.displayValue != '') {
                                             globalID = prop.displayValue;
                                             console.log(selection.model);
                                             console.log(viewer.impl.modelQueue().getModels()[1]);
                                         }
-                                        if (prop.displayName === "Asset ID (GUID)") {
+                                        if (prop.displayName === "Asset ID (GUID)" && prop.displayValue != '') {
                                             console.log("Asset ID (GUID):", prop.displayValue);
                                             globalID = prop.displayValue;
                                         }
