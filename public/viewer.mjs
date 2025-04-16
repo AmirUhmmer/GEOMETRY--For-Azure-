@@ -217,7 +217,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                         instanceTree.enumNodeChildren(instanceTree.getRootId(), function (dbId) {
                             model.getProperties(dbId, function (props) {
                                 if (props && props.properties) {
-                                    console.log(props);
+                                    //console.log(props);
                                     const categoryProp = props.properties.find(p => p.displayName === 'Category');
                                     if (categoryProp && categoryProp.displayValue === 'Revit Generic Models') {
                                         dbIdsToHide.push(dbId);
@@ -229,7 +229,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                         // Wait a short delay to allow getProperties to complete for multiple dbIds
                         setTimeout(() => {
                             if (dbIdsToHide.length > 0) {
-                                console.log("Hiding Generic Models:", dbIdsToHide);
+                                //console.log("Hiding Generic Models:", dbIdsToHide);
                                 viewer.hide(dbIdsToHide);
 
                                 // const frags = model.getFragmentList();
