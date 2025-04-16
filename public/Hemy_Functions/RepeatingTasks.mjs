@@ -189,6 +189,7 @@ export function RepeatingTasks(viewer, RepeatingTask) {
         console.log("This is your dbid for Asset", alldbidAsset);
         console.log("This is your dbid for FL", alldbidFunctionalLocation);
         const models = viewer.impl.modelQueue().getModels();
+        //viewer.hide(alldbid); // Hide all dbIDs in the first model
         models.forEach((model) => {
           alldbid.forEach((dbId) => {
             model.getProperties(dbId, function (props) {
@@ -310,29 +311,11 @@ export function RepeatingTasks(viewer, RepeatingTask) {
         
 
         // console.log("Final matching dbIDs in model:", dbIDs);
+
       });
-  
+      
       createToolbarRepeatingTaskButton(viewer);
       showRepeatingTaskPanel(viewer, taskArray, staticColors);
-    }
-
-
-    else if (RepeatingTask === "TRUE1") {
-      // First, get the models from the viewer
-      const models = viewer.impl.modelQueue().getModels();
-  
-      createToolbarRepeatingTaskButtonTEST(viewer);
-      showRepeatingTaskPanelTEST(viewer);
-
-      window.addEventListener('message', function(event) {
-        // Ensure the message comes from a trusted origin
-        // if (event.origin !== 'https://your-dynamics-origin') return;
-    
-        var data = event.data;
-        console.log("Data received from iframe:", data);
-        // You can now process the `data` object, which contains the guid, abbreviation, and any other data
-    });
-    
     }
   }
 
@@ -504,111 +487,3 @@ export function showRepeatingTaskPanel(viewer, taskArray, colorMapping) {
     // Show the panel by setting it to visible
     viewer.RepeatingTaskPanel.setVisible(true);
   }
-  
-
-// Declare the button globally so it can be accessed in other functions
-let showRepeatingTaskButtonTEST;
-
-function createToolbarRepeatingTaskButtonTEST(viewer) {
-    const toolbar = viewer.getToolbar();
-    if (!toolbar) {
-        console.error("Toolbar not found");
-        return;
-    }
-
-    // Create a new toolbar button
-    showRepeatingTaskButtonTEST = new Autodesk.Viewing.UI.Button('showRepeatingTaskButtonTEST');
-
-    // Apply icon styling directly to the button's container
-    const buttonContainer = showRepeatingTaskButtonTEST.container;
-    buttonContainer.style.backgroundImage = 'url(./images/task.svg)';  // Set your icon image source here
-    buttonContainer.style.backgroundColor = 'transparent';  // Make background transparent
-    buttonContainer.style.backgroundSize = '32px';  // Adjust size of the background image
-    buttonContainer.style.backgroundRepeat = 'no-repeat';  // Ensure no repeat of the image
-    buttonContainer.style.backgroundPosition = 'center';  // Center the image inside the button
-
-    showRepeatingTaskButtonTEST.setToolTip('Repeating Task TEST');  // Set the tooltip for the button
-
-    // Define the action when the button is clicked
-    showRepeatingTaskButtonTEST.onClick = function() {
-        if (viewer.RepeatingTaskPanelTEST) {
-            viewer.RepeatingTaskPanelTEST.setVisible(!viewer.RepeatingTaskPanelTEST.isVisible());
-        } else {
-            showRepeatingTaskPanelTEST(viewer, []);  // Show panel even if no service tasks exist yet
-        }
-    };
-
-    // Add the button to a new toolbar group
-    let subToolbar = viewer.toolbar.getControl('myAppToolbar');
-    if (!subToolbar) {
-        subToolbar = new Autodesk.Viewing.UI.ControlGroup('myAppToolbar');
-        toolbar.addControl(subToolbar);
-    }
-    subToolbar.addControl(showRepeatingTaskButtonTEST);
-
-    // Call this function once the viewer is fully initialized
-    viewer.addEventListener(Autodesk.Viewing.TOOLBAR_CREATED_EVENT, function() {
-        createToolbarRepeatingTaskButtonTEST(viewer);
-    });
-}
-
-
-
-// TEST
-
-
-// Function to create and display a docking panel
-export function showRepeatingTaskPanelTEST(viewer, taskArray, colorMapping) {
-  // Create a custom Docking Panel class
-  class RepeatingTaskPanelTEST extends Autodesk.Viewing.UI.DockingPanel {
-    constructor(viewer, title, options) {
-      super(viewer.container, title, options);
-
-      // Set the panel styles
-      this.container.style.top = "10px";
-      this.container.style.left = "10px";
-      this.container.style.width = "300px";
-      this.container.style.height = "650px";
-      this.container.style.resize = "auto";
-      this.container.style.backgroundColor = '#333';
-      this.container.style.title = 'Tasks';
-
-      // Create and configure the scroll container
-      this.createScrollContainer();
-    }
-
-    // Create the content of the panel
-    createScrollContainer() {
-      // Create the scroll container
-      this.scrollContainer = document.createElement('div');
-      this.scrollContainer.style.overflow = 'auto';
-      this.scrollContainer.style.padding = '1em';  // Add padding to the scroll container
-      this.scrollContainer.style.height = '100%';  // Ensure it takes full panel height
-      this.container.appendChild(this.scrollContainer);  // Append the scroll container to the panel
-
-      // Create and append the iframe under the checkboxes
-      const iframeContainer = document.createElement('div');
-      iframeContainer.style.marginTop = '5px';  // Add space above the iframe
-      const iframe = document.createElement('iframe');
-      iframe.src = 'https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=bookableresourcebooking&id=2a3ed4ae-6de4-ef11-9341-000d3ab1e3a4&formid=37864dfc-9ded-ef11-9341-7c1e52fae3cc';
-      iframe.width = '100%';  // Make the iframe take the full width
-      iframe.height = '600px';  // Set a height for the iframe
-      iframe.style.border = 'none';  // Remove the border around the iframe
-
-      iframeContainer.appendChild(iframe);
-      this.scrollContainer.appendChild(iframeContainer);
-    }
-  }
-
-  // Check if a panel already exists and remove it
-  if (viewer.RepeatingTaskPanelTEST) {
-    viewer.RepeatingTaskPanelTEST.setVisible(false);
-    viewer.RepeatingTaskPanelTEST.uninitialize();
-  }
-
-  // Create a new panel with the title 'Service Task'
-  viewer.RepeatingTaskPanelTEST = new RepeatingTaskPanelTEST(viewer, "Repeating Task TEST", "Repeating Task TEST", {});
-
-  // Show the panel by setting it to visible
-  viewer.RepeatingTaskPanelTEST.setVisible(true);
-}

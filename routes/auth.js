@@ -91,7 +91,7 @@ router.get('/api/auth/token', async (req, res) => {
                 client_id: APS_CLIENT_ID,
                 client_secret: APS_CLIENT_SECRET,
                 grant_type: 'client_credentials',
-                scope: 'data:read data:write account:read',
+                scope: 'data:read data:write account:read viewables:read',
             })
         });
 

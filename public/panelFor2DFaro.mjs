@@ -203,7 +203,7 @@ export function ToolbarButton2DFaro(viewer, modelAbbreviation) {
           
 //           models.forEach((model) => {
 //               const docRoot = model.getDocumentNode();
-//               console.log('docRoot:', docRoot); // Log the document root for debugging
+//               //console.log('docRoot:', docRoot); // Log the document root for debugging
 
 //               let promise = new Promise((resolveInner) => {
 //                   setTimeout(() => {
@@ -214,7 +214,7 @@ export function ToolbarButton2DFaro(viewer, modelAbbreviation) {
 //                       all2DFiles = [...all2DFiles, ...twoDFiles];
 
 //                       // Log after merging to verify
-//                       // console.log("Consolidated 2D Files Across Models:", all2DFiles);
+//                       console.log("Consolidated 2D Files Across Models:", all2DFiles);
 
 //                       resolveInner(); // Resolve the inner promise once files are processed
 //                   }, 2000);  // Adjust delay if necessary
@@ -312,7 +312,7 @@ export function ToolbarButton2DFaro(viewer, modelAbbreviation) {
 
 
 //  // Function to create and display a docking panel
-//  export function showFaro2DPanel(viewer, all2DFiles) {
+//  export async function showFaro2DPanel(viewer, all2DFiles) {
 //   class Faro2DPanel extends Autodesk.Viewing.UI.DockingPanel {
 //     constructor(viewer, title, options) {
 //       super(viewer.container, title, options);
@@ -356,7 +356,7 @@ export function ToolbarButton2DFaro(viewer, modelAbbreviation) {
 //               id: `faroFile-${index}`,       // Unique ID for each file
 //               //label: `2D File ${index + 1}:`, // Label for each file
 //               value: file.name || 'Unnamed',  // Assuming the 2D file has a `name` property
-//               viewableID: file.viewableID,   // Store the viewableID for later use
+//               viewableID: file.guid,   // Store the viewableID for later use
 //               urn: file.children[0].urn, // Assuming the 2D file has a `child` property with `urn`
 
 //           });
@@ -380,19 +380,55 @@ export function ToolbarButton2DFaro(viewer, modelAbbreviation) {
 //             //---------------ON ClICK FUNCTION------------------
 //             clickableItem.onclick = () => {
 //               console.log(`Loading 2D View - URN: ${item.urn}, Viewable ID: ${item.viewableID}`);
-//               const modelUrn = btoa('urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg?version=38')
+//               const modelUrn = btoa('urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=55')
 //               const access_token = localStorage.getItem('authToken');
-
+//               console.log('URN:', modelUrn); // Log the access token for debugging
+//               const viewableID = item.viewableID;
+//               // Load the model
 //               Autodesk.Viewing.Document.load(
 //                 'urn:' + modelUrn,
-//                 onDocumentLoadFailure
-//             );
+//                 (doc) => onDocumentLoadSuccess(doc, viewableID),
+//                 onDocumentLoadFailure,
+//                 { accessToken: access_token } // Ensure access token is passed correctly
+//               );
 
-//                 // Failure handler for loading models
+//               // Success handler
+//               async function onDocumentLoadSuccess(doc, item) {
+//                 const loadOptions = {
+//                   keepCurrentModels: true, // Keep existing models in the viewer
+//                   globalOffset: { x: 0, y: 0, z: 0 }, // Force all models to origin
+//                   applyRefPoint: true // Use reference point from model
+//                 };
+
+//                 try {
+//                   //const viewable = doc.getRoot().getDefaultGeometry();
+//                   const geometryItems = doc.getRoot().search({ type: 'geometry' });
+//                   console.log("Geometry Items:", geometryItems); // Log the geometry items for debugging
+//                   const viewable = item;
+//                   const viewableNode = geometryItems.find(node => node.data.viewableID === viewable);
+
+//                   if (!viewableNode) {
+//                     console.error("Viewable not found for ID:", viewable);
+//                     return;
+//                   }
+
+//                   // If you have multiple models, loop through them:
+//                   viewer.getVisibleModels().forEach(model => {
+//                     viewer.unloadModel(model);
+//                   });
+//                   const model = await viewer.loadDocumentNode(doc, viewableNode, loadOptions);
+//                   console.log("Model loaded successfully:", model);
+//                 } catch (error) {
+//                   console.error("Error loading model:", error);
+//                 }
+//               }
+
+//               // Failure handler
 //               function onDocumentLoadFailure(code, message) {
 //                 console.error("Failed to load model:", message);
 //                 alert("Could not load model. See console for details.");
 //               }
+
               
 //             };
 //           //---------------ON ClICK FUNCTION------------------
