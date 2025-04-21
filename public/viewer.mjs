@@ -7,6 +7,7 @@ import { RepeatingTasks } from './Hemy_Functions/RepeatingTasks.mjs';
 import { WOServiceTask } from './Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
 import { ToolbarButton2DFaro } from './panelFor2DFaro.mjs';
+import { button3D } from './button3D.mjs';
 
 
 
@@ -323,7 +324,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 let HardAsset = localStorage.getItem('HardAssetChecker');
 
-                console.log(HardAsset);
+                //console.log(HardAsset);
 
                 HardAssetSearch(viewer, HardAsset);
 
@@ -334,8 +335,18 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 RepeatingTasks(viewer, RepeatingTask);
 
                 WOServiceTask(viewer);
-                
+
+                let urn, modelUrn, urns = [];
+                models.forEach(model => {
+                    urn = model.getDocumentNode().getDefaultGeometry().children[1].data.urn; // Get the URN of the first model
+                    modelUrn = urn.split('fs.file:')[1].split('/')[0];
+                    urns.push(modelUrn);
+                });
+                //console.log('URNS', urns);
+
                 ToolbarButton2DFaro(viewer, modelAbbreviation);
+
+                button3D(viewer, urns);
 
 
 
@@ -543,7 +554,10 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
     
         if (versionsData.data && versionsData.data.length > 0) {
             let latestVersionUrn = versionsData.data[0].id;
-    
+            
+            const AppState = {
+                URN: latestVersionUrn
+              };              
             // Your override logic
             if (latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=163') {
                 latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=161';
