@@ -8,7 +8,7 @@ export async function HEATMAP(viewer, selectedFloor) {
 
     function searchForSystemCode(viewer, nodesData) {
         return new Promise((resolve, reject) => {
-            const systemCodeValue = 2500; // Define the systemCode value you're searching for
+            const systemCodeValue = "2500 Slab Constructions"; // Define the systemCode value you're searching for
             let model = viewer.impl.modelQueue().getModels()[0];
             const models = viewer.impl.modelQueue().getModels();
             models.forEach((selectedModel, index) => {
@@ -33,7 +33,8 @@ export async function HEATMAP(viewer, selectedFloor) {
                         let propertyPromises = dbIDs.map(dbId => {
                             return new Promise((propResolve) => {
                                 model.getProperties(dbId, props => {
-                                    const systemCodeProperty = props.properties.find(prop => prop.displayName === 'systemCode');
+                                    console.log(props);
+                                    const systemCodeProperty = props.properties.find(prop => prop.displayName === 'System Code');
 
                                     if (systemCodeProperty && systemCodeProperty.displayValue == systemCodeValue) {
                                         // Update the existing nodesData entry with the new dbId and other properties
@@ -60,7 +61,7 @@ export async function HEATMAP(viewer, selectedFloor) {
             });
 
             Promise.all(searchPromises).then(() => {
-                //console.log("Updated nodesData:", nodesData); // Output the updated nodesData
+                console.log("[HEATMAP] Updated nodesData:", nodesData); // Output the updated nodesData
                 resolve();
             }).catch(reject);
         });
@@ -72,7 +73,7 @@ export async function HEATMAP(viewer, selectedFloor) {
     if (selectedFloor === 1) {
         console.log('Rendering heatmap for the First Floor');
         nodesData = [
-        { name: "Main Entrance (DB8.-.1.001)"       , dbId: 25788, guid: "b957051a-2cb0-4bcb-990c-3c34a6f627a7" },
+        { name: "Main Entrance (DB8.-.1.001)"       , dbId: 25788, guid: "b957051a-2cb0-4bcb-990c-3c34a6f627a7" }, //uid: "b957051a-2cb0-4bcb-990c-3c34a6f627a7"
         //{ name: "Entrance Area (DB8.-.1.002)"       , dbId: 25874, guid: "d9063147-d93d-4746-858b-e45d810d17d5" },
         { name: "Small Meeting/Office (DB8.-.1.004)", dbId: 25524, guid: "3b69ceda-a9e0-4b04-8a92-7ecccb6286a0" },
         { name: "Office (DB8.-1.005)"              , dbId: 25505, guid: "b343e138-36fb-4af4-80be-d266aca41db9" },

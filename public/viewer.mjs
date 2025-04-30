@@ -218,10 +218,16 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                         instanceTree.enumNodeChildren(instanceTree.getRootId(), function (dbId) {
                             model.getProperties(dbId, function (props) {
                                 if (props && props.properties) {
-                                    //console.log(props);
                                     const categoryProp = props.properties.find(p => p.displayName === 'Category');
                                     if (categoryProp && categoryProp.displayValue === 'Revit Generic Models') {
-                                        dbIdsToHide.push(dbId);
+                                        const zoneNameProp = props.properties.find(p => p.displayName === 'NV3DZoneName');
+                                        if (zoneNameProp) {
+                                            if (zoneNameProp.displayValue.includes("Parking Area")) {
+                                                // Do nothing
+                                            } else {
+                                                dbIdsToHide.push(dbId);
+                                            }
+                                        }
                                     }
                                 }
                             }, true);
