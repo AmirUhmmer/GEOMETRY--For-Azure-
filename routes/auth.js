@@ -10,8 +10,7 @@ const querystring = require('querystring');
 
 const sql = require('mssql');
 
-
-
+//
 // Azure SQL configuration
 const config = {
     user: 'sqlserverdb8_admin',

@@ -356,8 +356,9 @@ async function initApp() {
                                                         ],
 
                 // FV50
-                'b8c950e3-ca66-ef11-bfe2-000d3ab1d1c2': ['urn:adsk.wipemea:dm.lineage:AkM6xcyXRE-mOxjmxk6-AQ', //ARCHI
+                'b8c950e3-ca66-ef11-bfe2-000d3ab1d1c2': ['urn:adsk.wipemea:dm.lineage:HT_kw5D_SEyxCe84jqaASQ', //ARCHI
                                                         'urn:adsk.wipemea:dm.lineage:ys5aGM_9S8S7mQQVGsSk1Q', //MEP
+                                                        //'urn:adsk.wipemea:dm.lineage:Qyq6oVLxVAiZVx6BYKbFcw' //before building
                                                         ],
 
                 // J2
@@ -427,7 +428,7 @@ async function initApp() {
 
                 // FV50
                 'Fornebuveien 50': ['urn:adsk.wipemea:dm.lineage:ys5aGM_9S8S7mQQVGsSk1Q', //MEP
-                                    'urn:adsk.wipemea:dm.lineage:AkM6xcyXRE-mOxjmxk6-AQ', //ARCHI
+                                    'urn:adsk.wipemea:dm.lineage:HT_kw5D_SEyxCe84jqaASQ', //ARCHI
                                    ],
 
                 // BS17
