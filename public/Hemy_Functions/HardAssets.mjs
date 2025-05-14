@@ -139,6 +139,7 @@ function getAssetProperties(props) {
   props.properties.forEach(prop => {
     if (prop.displayName === "Asset ID" || prop.displayName === "Asset ID (GUID)") {
       assetIDValue = prop.displayValue;
+      console.log("Asset ID:", prop);
     }
     if (["Level", "Schedule Level"].includes(prop.displayName)) {
       assetLevel = prop.displayValue;
@@ -174,8 +175,8 @@ function handleLevelsAndBimWalk(viewer, assetLevel, dbIDs, model) {
       }
 
       const selectedLevelIndex = matchingLevel.index;
-      levelsExt.floorSelector.selectFloor(selectedLevelIndex, true);
-      console.log(`Floor changed to level: ${matchingLevel.name}, Index: ${selectedLevelIndex}`);
+      // levelsExt.floorSelector.selectFloor(selectedLevelIndex, true);
+      // console.log(`Floor changed to level: ${matchingLevel.name}, Index: ${selectedLevelIndex}`);
 
       viewer.loadExtension('Autodesk.BimWalk').then(bimWalkExt => {
         if (bimWalkExt) {
