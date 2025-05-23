@@ -382,8 +382,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                     props.properties.forEach(function (prop) {
                                         if (prop.displayName === "Asset ID" && prop.displayValue != '') {
                                             globalID = prop.displayValue;
-                                            console.log(selection.model);
-                                            console.log(viewer.impl.modelQueue().getModels()[1]);
+                                            // console.log(selection.model);
+                                            // console.log(viewer.impl.modelQueue().getModels()[1]);
                                         }
                                         if (prop.displayName === "Asset ID (GUID)" && prop.displayValue != '') {
                                             console.log("Asset ID (GUID):", prop.displayValue);
@@ -394,7 +394,18 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                     if (globalID) {
                                         // Check if the selected model is the first or second model
                                         let newUrl;
-                                        
+                                        let HardAssetInsideARModel = false;
+                                        console.log('Properties:', props);
+                                        props.properties.forEach((prop) => {
+                                            if (prop.displayName === "Category" && prop.displayValue !==  'Revit Mass') {
+                                                HardAssetInsideARModel = true;
+                                                console.log('Properties HARD ASSET');
+                                            }
+                                        });
+
+
+
+                                       
 
                                         if (HardAsset === 'Hard Asset' || FunctionalLocation === 'TRUE' || ServiceZone === 'TRUE') {
                                             if (model === viewer.impl.modelQueue().getModels()[1]) {
@@ -403,7 +414,11 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                                 // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
                                             } else {
                                                 // Default case if neither first nor second model
-                                                newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
+                                                if (HardAssetInsideARModel) {
+                                                    newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
+                                                } else {
+                                                    newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
+                                                }
                                             }
 
                                         }else{
@@ -413,7 +428,11 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                                 newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;                                         
                                             } else {
                                                 // Default case if neither first nor second model
-                                                newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
+                                                if (HardAssetInsideARModel) {
+                                                    newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
+                                                } else {
+                                                    newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
+                                                }
                                             }
                                         }
                 
