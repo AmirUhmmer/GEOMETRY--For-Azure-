@@ -485,6 +485,6 @@ export function showRepeatingTaskPanel(viewer, taskArray, colorMapping) {
     // Create a new panel with the title 'Service Task'
     viewer.RepeatingTaskPanel = new RepeatingTaskPanel(viewer, "Repeating Task", "Repeating Task", {});
 
-    // Show the panel by setting it to visible
-    viewer.RepeatingTaskPanel.setVisible(true);
+    // // Show the panel by setting it to visible
+    // viewer.RepeatingTaskPanel.setVisible(true);
   }
