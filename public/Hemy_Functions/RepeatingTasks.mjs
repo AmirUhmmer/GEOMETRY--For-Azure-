@@ -3,9 +3,10 @@ export function RepeatingTasks(viewer, RepeatingTask) {
       // First, get the models from the viewer
       const models = viewer.impl.modelQueue().getModels();
 
-      const header = document.getElementById("header");
-      header.style.visiblity = "hidden";
+      const header = document.getElementById("preview");
+      header.style.top = "0em";
   
+      viewer.resize();
       // Call the function to get the array of tasks and log it
       let taskArray = getSubgridDataFromURL();
       console.log(taskArray);
