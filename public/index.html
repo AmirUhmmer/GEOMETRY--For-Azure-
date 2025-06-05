@@ -28,6 +28,24 @@
         <button id="search">Search</button>
     </div>
 
+
+
+
+
+
+    
+    <script>window.agreementFL = window.agreementFL || [];
+
+window.addEventListener("message", (event) => {
+  console.log("📨 Message received in iframe:", event.data);
+
+  if (event.data?.type === "functionallocations") {
+    console.log("✅ FL payload received:", event.data.payload);
+    window.agreementFL.push(...event.data.payload);
+    //AgreementFunctionalLocationSearch(viewer, event.data.payload);
+  }
+});</script>
+
     <script>window.USE_OPFS = true;</script>
     <!-- <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js"></script> -->
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.99/viewer3D.min.js"></script>

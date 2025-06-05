@@ -79,9 +79,13 @@
 
 
 export function HardAssetSearch(viewer, HardAsset) {
-  if (HardAsset !== "Hard Asset") return;
-
   let assetValue = localStorage.getItem("ASSET");
+
+  if (HardAsset !== "Hard Asset" || assetValue !== null || assetValue === "" || assetValue === undefined) {
+    return;
+  }
+
+
   console.log("SEARCHED: " + assetValue);
 
   // Get models from the viewer

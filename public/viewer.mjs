@@ -8,6 +8,7 @@ import { WOServiceTask } from './Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
 import { ToolbarButton2DFaro } from './panelFor2DFaro.mjs';
 import { button3D } from './button3D.mjs';
+import { AgreementFunctionalLocationSearch } from './Hemy_Functions/Agreement.mjs';
 
 
 
@@ -342,17 +343,19 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 WOServiceTask(viewer);
 
+                ToolbarButton2DFaro(viewer, modelAbbreviation);
+
+
                 let urn, modelUrn, urns = [];
                 models.forEach(model => {
                     urn = model.getDocumentNode().getDefaultGeometry().children[1].data.urn; // Get the URN of the first model
                     modelUrn = urn.split('fs.file:')[1].split('/')[0];
                     urns.push(modelUrn);
                 });
-                //console.log('URNS', urns);
-
-                ToolbarButton2DFaro(viewer, modelAbbreviation);
 
                 button3D(viewer, urns);
+
+                AgreementFunctionalLocationSearch(viewer, window.agreementFL);
 
 
 
