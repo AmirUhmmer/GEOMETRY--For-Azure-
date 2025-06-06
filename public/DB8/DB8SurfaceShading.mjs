@@ -94,8 +94,8 @@ export async function HEATMAP(viewer, selectedFloor) {
         { name: "Office (DB8.-1.018)"              , dbId: 25419, guid: "1d512e32-54df-4c23-ac36-25fb03665dfd", modelName: "Floor [1860949]" },
         { name: "Office (DB8.-1.019)"              , dbId: 25400, guid: "d7b28135-4a1e-4251-b436-b21b630d0012", modelName: "Floor [1859489]" },
         { name: "Office (DB8.-1.020)"              , dbId: 25389, guid: "ce717192-968f-46b5-bb43-6fb73965da0f", modelName: "Floor [1858458]" },
-        { name: "Electronics Workshop (DB8.-1.021)", dbId: 23552, guid: "2da239f8-ddab-4d43-823f-8797638123f2", modelName: "Floor [1856561]" },
-        { name: "Mechanical Workshop (DB8.-1.022)" , dbId: 23559, guid: "a3215104-8c66-4714-96f4-dcb5b3fb2ab2", modelName: "Floor [1857330]" },
+        { name: "Electronics Workshop (DB8.-1.021)", dbId: 23558, guid: "2da239f8-ddab-4d43-823f-8797638123f2", modelName: "Floor [1856561]" },
+        { name: "Mechanical Workshop (DB8.-1.022)" , dbId: 23565, guid: "a3215104-8c66-4714-96f4-dcb5b3fb2ab2", modelName: "Floor [1857330]" },
 
         ];
         await searchForSystemCode(viewer, nodesData); // Wait for search to complete
@@ -123,7 +123,7 @@ export async function HEATMAP(viewer, selectedFloor) {
             { name: "Office (DB8.-2.019)", dbId: 26393, guid: "5bd45fab-d1ce-401a-9671-f0dd25b39c9e", modelName: "Floor [1931340]" },
             { name: "Office (DB8.-2.020)", dbId: 26412, guid: "310a64d0-dc6c-4ce4-9730-78301272ea99", modelName: "Floor [1932440]" },
             { name: "Meeting Room (DB8.-.2.021)", dbId: 24382, guid: "16bc9315-dd0e-460e-a9c3-10ae5602dd2d", modelName: "Floor [1934689]" },
-            { name: "Gym/Fitness Room (DB8.-.2.022)", dbId: 24382, guid: "34ad5978-9645-4d9e-a519-6cff67eb1713", modelName: "Floor [1933386]" },
+            { name: "Gym/Fitness Room (DB8.-.2.022)", dbId: 24388, guid: "34ad5978-9645-4d9e-a519-6cff67eb1713", modelName: "Floor [1933386]" },
             
         ];
         await searchForSystemCode(viewer, nodesData); // Wait for search to complete
@@ -216,65 +216,23 @@ export async function HEATMAP(viewer, selectedFloor) {
 
 //             ACTUAL FUNCTION TO GET DATA FROM DATABASE
 
-// async function getSensorValue(location) {
-//     try {
-//         const response = await fetch(`/api/sensor/${location}`);
-//         if (!response.ok) {
-//             throw new Error(`Error fetching sensor data: ${response.statusText}`);
-//         }
-
-//         const data = await response.json();
-//         const temp = parseInt(data.value); // Converts data.value to an integer
-//         const minTemp = 16;
-//         const maxTemp = 24;
-
-//         // Normalize the temperature value to range [0, 1]
-//         // console.log(`Sensor value for ${location}: ${data.value}`);
-//         const result = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp), 0), 1);
-//         return result;
-
-
-//         //18 below celsius to blue 
-//         //19 up green 20-23
-//         //22 transition to red
-
-//     } catch (err) {
-//         console.error(err);
-//     }
-// }
-
-
-
-
-
-
-
-// SAMPLE DATA 
-
 async function getSensorValue(location) {
     try {
-        // Comment out the actual fetch request for now
-        /*
         const response = await fetch(`/api/sensor/${location}`);
         if (!response.ok) {
             throw new Error(`Error fetching sensor data: ${response.statusText}`);
         }
+
         const data = await response.json();
         const temp = parseInt(data.value); // Converts data.value to an integer
-        */
-
-        // Generate random temperature between 16 and 25
-        const randomTemp = Math.floor(Math.random() * (25 - 16 + 1)) + 16;
-        const sampleData = { value: randomTemp };
-        const temp = parseInt(sampleData.value);
-
         const minTemp = 16;
         const maxTemp = 24;
 
         // Normalize the temperature value to range [0, 1]
-        // console.log(`Sensor value for ${location}: ${sampleData.value}`);
+        // console.log(`Sensor value for ${location}: ${data.value}`);
         const result = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp), 0), 1);
         return result;
+
 
         //18 below celsius to blue 
         //19 up green 20-23
@@ -284,6 +242,48 @@ async function getSensorValue(location) {
         console.error(err);
     }
 }
+
+
+
+
+
+
+
+// SAMPLE DATA 
+
+// async function getSensorValue(location) {
+//     try {
+//         // Comment out the actual fetch request for now
+//         /*
+//         const response = await fetch(`/api/sensor/${location}`);
+//         if (!response.ok) {
+//             throw new Error(`Error fetching sensor data: ${response.statusText}`);
+//         }
+//         const data = await response.json();
+//         const temp = parseInt(data.value); // Converts data.value to an integer
+//         */
+
+//         // Generate random temperature between 16 and 25
+//         const randomTemp = Math.floor(Math.random() * (25 - 16 + 1)) + 16;
+//         const sampleData = { value: randomTemp };
+//         const temp = parseInt(sampleData.value);
+
+//         const minTemp = 16;
+//         const maxTemp = 24;
+
+//         // Normalize the temperature value to range [0, 1]
+//         // console.log(`Sensor value for ${location}: ${sampleData.value}`);
+//         const result = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp), 0), 1);
+//         return result;
+
+//         //18 below celsius to blue 
+//         //19 up green 20-23
+//         //22 transition to red
+
+//     } catch (err) {
+//         console.error(err);
+//     }
+// }
 
 
 
