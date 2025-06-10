@@ -1,3 +1,4 @@
+import { AgreementFunctionalLocationSearch } from "./Hemy_Functions/Agreement.mjs";
 window.agreementFL = window.agreementFL || [];
 
 window.addEventListener("message", (event) => {
