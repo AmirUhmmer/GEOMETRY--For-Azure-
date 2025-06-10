@@ -56,6 +56,8 @@ export function initViewer(container) {
 
             const canvas = viewer.impl.canvas;
 
+            window.viewerInstance = viewer; // Store the viewer instance globally for access in other modules
+
             canvas.addEventListener('click', function (event) {
                 // console.log("Canvas clicked:", event); // Log the event to ensure the click is firing
             
@@ -355,9 +357,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 button3D(viewer, urns);
 
+                // rightToolbar(viewer, modelAbbreviation);
+
                 AgreementFunctionalLocationSearch(viewer, window.agreementFL);
-
-
 
                 const canvas = viewer.impl.canvas;
 

@@ -18,15 +18,82 @@
         <span class="title"><span style="font-size: x-large; font-weight: bold; color: red; font-family: Georgia, 'Times New Roman', Times, serif;">Hemy</span> Digital Twin</span>
         <button id="login" style="visibility: hidden;">Login</button>
     </div>
+
+    <!----------------------------- VIEWER SIDEBAR ----------------------------->
+    <!-- <div id="viewerSidebar">
+      <div id="viewerControls">
+        <button class="control-btn" id="model-browser">
+          <img src="images/model-browser.svg" alt="Model Browser" />
+        </button>
+        <button class="control-btn" id="sheets">
+          <img src="images/3D-black.svg" alt="Sheets & Views" />
+        </button>
+        </button>
+        <button class="control-btn" id="model-browser">
+          <img src="images/model search.png" alt="Model Browser" />
+        </button>
+      </div>
+    </div> -->
+    <!----------------------------- VIEWER SIDEBAR ----------------------------->
+
+
     <div id="sidebar">
         <div id="tree"></div>
     </div>
     <div id="preview"></div>
 
-    <div id="overlay" style="visibility: hidden;">
-        <input type="search" id="filter" value="">
-        <button id="search">Search</button>
+
+
+
+
+    <!----------------------------- MODEL BROWSER ----------------------------->
+<!-- <div class="model-browser" id="model-browser-panel">
+  <h2>Model Browser</h2>
+  <div class="search-bar">
+    <div class="search-container">
+      <input id="filter" type="text" placeholder="Search" />
+      <button id="search" aria-label="Search"></button>
     </div>
+  </div>
+  
+  <div class="filter-group">
+    <label for="categories">Categories</label>
+    <select id="categories">
+      <option>Select categories...</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="disciplines">Disciplines</label>
+    <select id="disciplines">
+      <option>Select disciplines...</option>
+    </select>
+  </div>
+
+  <div class="filters-footer">
+    Show more &nbsp;|&nbsp; Edit filters
+  </div>
+
+  <div class="tree">
+    <div class="tree-item parent" data-id="walls">
+      <span class="expand">▾</span>
+      <span class="eye">👁️</span>
+      Walls
+    </div>
+    <div class="children" data-parent="walls">
+      <div class="tree-item">
+        <span class="expand"></span>
+        <span class="eye">👁️</span>
+        Basic Wall
+      </div>
+      <div class="tree-item">
+        <span class="expand"></span>
+        <span class="eye">👁️</span>
+        Curtain Wall
+      </div>
+    </div>
+  </div>
+</div> -->
 
 
 
@@ -34,17 +101,7 @@
 
 
     
-    <script>window.agreementFL = window.agreementFL || [];
-
-window.addEventListener("message", (event) => {
-  console.log("📨 Message received in iframe:", event.data);
-
-  if (event.data?.type === "functionallocations") {
-    console.log("✅ FL payload received:", event.data.payload);
-    window.agreementFL.push(...event.data.payload);
-    //AgreementFunctionalLocationSearch(viewer, event.data.payload);
-  }
-});</script>
+    <script src="./functions.mjs"></script>
 
     <script>window.USE_OPFS = true;</script>
     <!-- <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js"></script> -->
