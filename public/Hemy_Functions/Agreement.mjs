@@ -1,5 +1,5 @@
-export function AgreementFunctionalLocationSearch(viewer, functionalLocations) {
-  const panel = document.getElementById("model-browser-panel");
+export async function AgreementFunctionalLocationSearch(viewer, functionalLocations) {
+  await new Promise(resolve => setTimeout(resolve, 15000)); // 15 second delay
   console.log(
     "AgreementFunctionalLocationSearch called with FunctionalLocations:",
     functionalLocations
