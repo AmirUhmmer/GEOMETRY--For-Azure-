@@ -359,7 +359,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 // rightToolbar(viewer, modelAbbreviation);
 
-                AgreementFunctionalLocationSearch(viewer, window.agreementFL);
+                //AgreementFunctionalLocationSearch(viewer, window.agreementFL);
 
                 const canvas = viewer.impl.canvas;
 

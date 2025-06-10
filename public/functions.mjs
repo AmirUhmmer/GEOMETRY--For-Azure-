@@ -6,7 +6,7 @@ window.addEventListener("message", (event) => {
   if (event.data?.type === "functionallocations") {
     console.log("✅ FL payload received:", event.data.payload);
     window.agreementFL.push(...event.data.payload);
-    //AgreementFunctionalLocationSearch(viewer, event.data.payload);
+    AgreementFunctionalLocationSearch(viewer, event.data.payload);
   }
 });
 
