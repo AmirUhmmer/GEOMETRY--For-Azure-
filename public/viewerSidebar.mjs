@@ -84,6 +84,7 @@ document.getElementById("search").addEventListener("click", function first() {
 });
 
 
+
 // ***************************** model browser panel functionality **************************
 
 function modelBrowserPanel() {
@@ -364,6 +365,7 @@ function levelsPanel() {
 async function liveDataPanel() {
   const viewer = window.viewerInstance;
   const dataVizExtn = await viewer.loadExtension("Autodesk.DataVisualization");
+
   const browserPanel = document.getElementById("model-browser-panel");
   const levelsPanel = document.getElementById("levels-panel");
   const panel = document.getElementById("live-data-panel");
@@ -379,6 +381,8 @@ async function liveDataPanel() {
   }, 300);
 
   const listItems = document.querySelectorAll(".live-data-list li");
+  const details = document.querySelector(".live-data-details");
+  const legend = document.querySelector(".live-data-legend");
 
   listItems.forEach(item => {
     item.addEventListener("click", () => {
@@ -398,6 +402,15 @@ async function liveDataPanel() {
       }
       if (window.showLiveDataButton && showLiveDataButton.container) {
         showLiveDataButton.container.style.display = 'none';
+      }
+
+      // Handle temperature-specific UI visibility
+      if (label === "temperature" && !isAlreadyActive) {
+        details.classList.remove("hidden");
+        legend.classList.remove("hidden");
+      } else {
+        details.classList.add("hidden");
+        legend.classList.add("hidden");
       }
 
       // If clicking the same active item → deactivate and return
@@ -432,5 +445,6 @@ async function liveDataPanel() {
     });
   });
 }
+
 
 

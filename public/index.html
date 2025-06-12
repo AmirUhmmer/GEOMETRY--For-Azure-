@@ -133,17 +133,31 @@
 
 
     <!----------------------------- LIVE DATA PANEL ----------------------------->
-    <div class="live-data" id="live-data-panel">
-      <h2>Live Data</h2>
-      <div class="list-container">
-        <ul class="live-data-list">
-          <li id="temperature">Temperature</li>
-          <li id="occupancy">Occupancy</li>
-          <li id="alarms">Alarms</li>
-          <li id="lights">Lights</li>
-        </ul>
-      </div>
+  <div class="live-data" id="live-data-panel">
+    <h2>Live Data</h2>
+
+    <div class="list-container">
+      <ul class="live-data-list">
+        <li id="temperature">Temperature</li>
+        <li id="occupancy">Occupancy</li>
+        <li id="alarms">Alarms</li>
+        <li id="lights">Lights</li>
+      </ul>
     </div>
+
+    <div class="live-data-details hidden">
+      <div><strong>Selected Room:</strong> <span id="selectedRoom"></span></div>
+      <div><strong>Temperature:</strong> <span id="temperatureData"></span></div>
+      <div><strong>As of:</strong> <span id="readingData"></span></div>
+    </div>
+
+    <div class="live-data-legend hidden">
+      <div><span class="color-box blue"></span> 18°C below</div>
+      <div><span class="color-box green"></span> 20–23°C</div>
+      <div><span class="color-box red"></span> 24°C above</div>
+    </div>
+  </div>
+
 
 
 

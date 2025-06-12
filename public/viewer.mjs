@@ -354,7 +354,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     urns.push(modelUrn);
                 });
 
-                button3D(viewer, urns);
+                // button3D(viewer, urns);
 
                 // rightToolbar(viewer, modelAbbreviation);
 

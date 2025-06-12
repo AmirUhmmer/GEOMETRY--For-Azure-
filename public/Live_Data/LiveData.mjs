@@ -78,6 +78,9 @@ export function showLiveDataPanel(viewer) {
                 document.getElementById('spriteDbId').innerText = name;
                 document.getElementById('spriteTemp').innerText = data[0].value + '°C';  // Assuming randomData has a 'temp' property
                 document.getElementById('spriteTime').innerText = data[0].observationTime;  // Assuming randomData has a 'time' property
+                document.getElementById('selectedRoom').innerText = name;
+                document.getElementById('temperatureData').innerText = data[0].value + '°C';
+                document.getElementById('readingData').innerText = data[0].observationTime;
                 const specificReportLink = this.container.querySelector('#SpecificReport');  // Select the hyperlink with the ID 'SpecificReport'
                 if (specificReportLink) {
                     specificReportLink.href = 'https://app.powerbi.com/reportEmbed?reportId=f6f9c99d-e70d-4a97-94dc-375d0d0a9af7&autoAuth=true&ctid=ead65215-ebfd-4a8d-9e73-b403a85a7e04&filter=RelynkIdentifier0711%2Fpoint_name+eq+%27Current%27+and+RelynkIdentifier0711%2Fis_point_of_furniture_name+eq+%27' + name + '%27';

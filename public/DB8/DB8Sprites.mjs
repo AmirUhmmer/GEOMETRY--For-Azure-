@@ -207,7 +207,7 @@ async function onSpriteClicked(event, viewer) {
           // Bring back data after test
           let model = 'DB8';
              viewer.LiveDataPanel.updateSpriteInfo(name, data, model);
-             viewer.LiveDataPanel.setVisible(true);  // Show the Live Data panel
+             viewer.LiveDataPanel.setVisible(false);  // Show the Live Data panel
       } else {
           console.log('No viewable found for this dbId.');
       }
