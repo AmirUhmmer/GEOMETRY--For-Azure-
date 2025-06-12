@@ -13,21 +13,92 @@ document.getElementById("live-data").addEventListener("click", liveDataPanel);
 
 
 
+
+document.getElementById("filter").addEventListener("keydown", function (event) {
+  window.viewerInstance.search(
+    document.getElementById("filter").value,
+    function (dbIDs) {
+      var models = window.viewerInstance.impl.modelQueue().getModels();
+      // Loop through the models only once
+      models.forEach((model) => {
+        // Hide all objects first
+        window.viewerInstance.isolate([], model);
+
+        // Isolate the found objects
+        window.viewerInstance.isolate(dbIDs, model);
+      });
+
+      // Fit to view and highlight the found objects
+      window.viewerInstance.fitToView(dbIDs);
+
+      const color = new THREE.Vector4(1, 0, 0, 1); // Red color with full intensity (RGBA)
+      window.viewerInstance.setThemingColor(dbIDs, color); // Optionally highlight the objects
+
+      // window.viewerInstance.setSelectionColor(new THREE.Color(1, 0, 0));  // RGB: red, green, blue
+      // window.viewerInstance.select(dbIDs);  // Optionally highlight the objects
+
+      // Disable further selections after this point
+    },
+    function (error) {
+      console.error("Search error:", error); // Handle any potential search errors
+    }
+  );
+});
+
+document.getElementById("search").addEventListener("click", function first() {
+  // viewer.search(
+  //   document.getElementById("filter").value,
+  //   function (dbIDs) {
+  //     viewer.isolate(dbIDs);
+  //     viewer.fitToView(dbIDs);
+  // });
+
+  window.viewerInstance.search(
+    document.getElementById("filter").value,
+    function (dbIDs) {
+      var models = window.viewerInstance.impl.modelQueue().getModels();
+      // Loop through the models only once
+      models.forEach((model) => {
+        // Hide all objects first
+        window.viewerInstance.isolate([], model);
+
+        // Isolate the found objects
+        window.viewerInstance.isolate(dbIDs, model);
+      });
+
+      // Fit to view and highlight the found objects
+      window.viewerInstance.fitToView(dbIDs);
+
+      const color = new THREE.Vector4(1, 0, 0, 1); // Red color with full intensity (RGBA)
+      window.viewerInstance.setThemingColor(dbIDs, color); // Optionally highlight the objects
+
+      // window.viewerInstance.setSelectionColor(new THREE.Color(1, 0, 0));  // RGB: red, green, blue
+      // window.viewerInstance.select(dbIDs);  // Optionally highlight the objects
+
+      // Disable further selections after this point
+    },
+    function (error) {
+      console.error("Search error:", error); // Handle any potential search errors
+    }
+  );
+});
+
+
 // ***************************** model browser panel functionality **************************
 
 function modelBrowserPanel() {
   const levelPanel = document.getElementById("levels-panel");
-    if (levelPanel.style.visibility === "visible") {
-        levelPanel.style.visibility = "hidden";
-    }
+  const liveDataPanel = document.getElementById("live-data-panel");
+  levelPanel.style.visibility = "hidden";
+  liveDataPanel.style.visibility = "hidden";
+  
   const panel = document.getElementById("model-browser-panel");
   const isVisible = panel.style.visibility === "visible";
   panel.style.visibility = isVisible ? "hidden" : "visible";
-  document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
+  document.getElementById("preview").style.width = isVisible ? "97%" : "69%";
 
   setTimeout(() => {
     window.viewerInstance.resize();
-    window.viewerInstance.fitToView();
   }, 300);
 
   const viewer = window.viewerInstance;
@@ -219,14 +290,14 @@ async function button3D() {
 
 
 function levelsPanel() {
- const browserPanel = document.getElementById("model-browser-panel");
-    if (browserPanel.style.visibility === "visible") {
-        browserPanel.style.visibility = "hidden";
-    }
+  const browserPanel = document.getElementById("model-browser-panel");
+  const liveDataPanel = document.getElementById("live-data-panel");
+  browserPanel.style.visibility = "hidden";
+  liveDataPanel.style.visibility = "hidden";
   const panel = document.getElementById("levels-panel");
   const isVisible = panel.style.visibility === "visible";
   panel.style.visibility = isVisible ? "hidden" : "visible";
-  document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
+  document.getElementById("preview").style.width = isVisible ? "97%" : "69%";
 
   setTimeout(() => {
     window.viewerInstance.resize();
@@ -301,7 +372,7 @@ async function liveDataPanel() {
   browserPanel.style.visibility = "hidden";
   levelsPanel.style.visibility = "hidden";
   panel.style.visibility = isVisible ? "hidden" : "visible";
-  document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
+  document.getElementById("preview").style.width = isVisible ? "97%" : "69%";
 
   setTimeout(() => {
     viewer.resize();
