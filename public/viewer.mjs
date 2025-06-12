@@ -1,4 +1,4 @@
-// import './extensions/HistogramExtension.mjs';
+import * as functions from './viewerSidebar.mjs';
 import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from './Live_Data/LiveData.mjs';
 import { HardAssetSearch } from './Hemy_Functions/HardAssets.mjs';
 import { ServiceZoneSearch } from './Hemy_Functions/ServiceZone.mjs';
@@ -9,6 +9,7 @@ import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
 import { ToolbarButton2DFaro } from './panelFor2DFaro.mjs';
 import { button3D } from './button3D.mjs';
 import { AgreementFunctionalLocationSearch } from './Hemy_Functions/Agreement.mjs';
+import { rightToolbar } from './rightToolbar.mjs';
 
 
 
@@ -144,7 +145,7 @@ export function initViewer(container) {
 
 
 export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone, FunctionalLocation, model, RepeatingTask) {
-
+    window.LiveData = model; // Store LiveData globally for access in other modules
     let modelsToLoad = urns;
     let modelAbbreviation = model;
 
@@ -197,8 +198,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 const settingsTools = viewer.toolbar.getControl('settingsTools');
                 settingsTools.removeControl('toolbar-settingsTool');
-
-
                 
 
                 
@@ -345,7 +344,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 WOServiceTask(viewer);
 
-                ToolbarButton2DFaro(viewer, modelAbbreviation);
+                // ToolbarButton2DFaro(viewer, modelAbbreviation);
 
 
                 let urn, modelUrn, urns = [];

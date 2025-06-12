@@ -44,7 +44,7 @@ body, html {
 
 #preview {
     position: fixed;
-    width: 100%; 
+    width: 97%; 
     /* 96 */
     /* 71% if enable sidebar */
     left: 0;
@@ -156,6 +156,9 @@ body, html {
   }
   
 
+
+
+/* *************************** VIEWER SIDEBAR *************************** */
 #viewerSidebar {
   position: fixed;
   width: 3%;
@@ -344,4 +347,77 @@ body, html {
   background-image: url('./images/search.svg');
   background-size: cover;
   background-repeat: no-repeat;
+}
+
+
+
+
+
+/* *************************** LEVELS PANEEEEEEL *************************** */
+.levels {
+  font-family: ArtifaktElement;
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  right: 4%;
+  width: 25%;
+  height: 98vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 16px;
+  overflow-y: auto;  /* Prevent outer scrollbars */
+}
+
+.levels-list, .live-data-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+.levels-list li, .live-data-list li {
+  cursor: pointer;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.levels-list li:hover, .live-data-list li:hover {
+  background-color: #e0e0e0;
+  color: #0077c2;
+}
+
+.levels-list li.active, .live-data-list li.active {
+  background-color: #0077c2;
+  color: white;
+}
+
+
+
+
+
+
+/* *************************** LIVE DATA PANEEEEEEL *************************** */
+.live-data {
+  font-family: ArtifaktElement;
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  right: 4%;
+  width: 25%;
+  height: 100vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 16px;
+  overflow: hidden; /* Prevent outer scrollbars */
 }

@@ -45,3 +45,41 @@ async function modelBrowser(viewer) {
 
   return modelBrowser;
 }
+
+
+
+ export async function showFaro2DPanel(viewer) {
+  class ModelStructureExtension extends Autodesk.Viewing.Extension {
+    constructor(viewer, options) {
+      super(viewer, options);
+      this.panel = null;
+    }
+
+    load() {
+      this.panel = new Autodesk.Viewing.UI.ModelStructurePanel(
+        this.viewer.container,
+        'model-structure-panel',
+        'Model Structure'
+      );
+      this.panel.setVisible(false);
+      return true;
+    }
+
+    unload() {
+      if (this.panel) {
+        this.panel.setVisible(false);
+        this.panel.uninitialize();
+        this.panel = null;
+      }
+      return true;
+    }
+
+    togglePanel() {
+      if (this.panel) {
+        const isVisible = this.panel.isVisible();
+        this.panel.setVisible(!isVisible);
+      }
+    }
+  }
+  Autodesk.Viewing.theExtensionManager.registerExtension('ModelStructureExtension', ModelStructureExtension);
+ }

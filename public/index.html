@@ -20,20 +20,35 @@
     </div>
 
     <!----------------------------- VIEWER SIDEBAR ----------------------------->
-    <!-- <div id="viewerSidebar">
+    <div id="viewerSidebar">
       <div id="viewerControls">
-        <button class="control-btn" id="model-browser">
-          <img src="images/model-browser.svg" alt="Model Browser" />
-        </button>
-        <button class="control-btn" id="sheets">
-          <img src="images/3D-black.svg" alt="Sheets & Views" />
-        </button>
-        </button>
-        <button class="control-btn" id="model-browser">
-          <img src="images/model search.png" alt="Model Browser" />
-        </button>
+      <button class="control-btn" id="3D-button" title="3D">
+        <img src="images/3D-black.svg" alt="3D button" />
+      </button>
+
+      <button class="control-btn" id="2D-sheets" title="2D">
+        <img src="images/2D-black.svg" alt="Sheets & Views" />
+      </button>
+
+      <button class="control-btn" id="levels" title="Levels">
+        <img src="images/levels.svg" alt="Levels Button" />
+      </button>
+
+      <button class="control-btn" id="zones-button" title="Zones">
+        <img src="images/zones.svg" alt="Zones" />
+      </button>
+
+      <button class="control-btn" id="model-browser" title="Model Browser">
+        <img src="images/model-browser.svg" alt="Model Browser" />
+      </button>
+
+      <button class="control-btn" id="live-data" title="Live Data">
+        <img src="images/live-data-black.svg" alt="Live Data" />
+      </button>
+
+
       </div>
-    </div> -->
+    </div>
     <!----------------------------- VIEWER SIDEBAR ----------------------------->
 
 
@@ -47,53 +62,88 @@
 
 
     <!----------------------------- MODEL BROWSER ----------------------------->
-<!-- <div class="model-browser" id="model-browser-panel">
-  <h2>Model Browser</h2>
-  <div class="search-bar">
-    <div class="search-container">
-      <input id="filter" type="text" placeholder="Search" />
-      <button id="search" aria-label="Search"></button>
-    </div>
-  </div>
-  
-  <div class="filter-group">
-    <label for="categories">Categories</label>
-    <select id="categories">
-      <option>Select categories...</option>
-    </select>
-  </div>
-
-  <div class="filter-group">
-    <label for="disciplines">Disciplines</label>
-    <select id="disciplines">
-      <option>Select disciplines...</option>
-    </select>
-  </div>
-
-  <div class="filters-footer">
-    Show more &nbsp;|&nbsp; Edit filters
-  </div>
-
-  <div class="tree">
-    <div class="tree-item parent" data-id="walls">
-      <span class="expand">▾</span>
-      <span class="eye">👁️</span>
-      Walls
-    </div>
-    <div class="children" data-parent="walls">
-      <div class="tree-item">
-        <span class="expand"></span>
-        <span class="eye">👁️</span>
-        Basic Wall
+    <div class="model-browser" id="model-browser-panel">
+      <h2>Model Browser</h2>
+      <div class="search-bar">
+        <div class="search-container">
+          <input id="filter" type="text" placeholder="Search" />
+          <button id="search" aria-label="Search"></button>
+        </div>
       </div>
-      <div class="tree-item">
-        <span class="expand"></span>
-        <span class="eye">👁️</span>
-        Curtain Wall
+      
+      <!-- <div class="filter-group">
+        <label for="categories">Categories</label>
+        <select id="categories">
+          <option>Select categories...</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="disciplines">Disciplines</label>
+        <select id="disciplines">
+          <option>Select disciplines...</option>
+        </select>
+      </div> -->
+
+      <!-- <div class="filters-footer">
+        Show more &nbsp;|&nbsp; Edit filters
+      </div> -->
+
+      <div class="tree">
+        <div class="tree-item parent" data-id="walls">
+          <span class="expand">▾</span>
+          <span class="eye">👁️</span>
+          Walls
+        </div>
+        <div class="children" data-parent="walls">
+          <div class="tree-item">
+            <span class="expand"></span>
+            <span class="eye">👁️</span>
+            Basic Wall
+          </div>
+          <div class="tree-item">
+            <span class="expand"></span>
+            <span class="eye">👁️</span>
+            Curtain Wall
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div> -->
+
+
+
+
+    <!----------------------------- LEVELS PANEL ----------------------------->
+
+    <div class="levels" id="levels-panel">
+      <h2>Levels</h2>
+      <div class="list-container">
+        <ul class="levels-list">
+          <li>3</li>
+          <li>2</li>
+          <li>1</li>
+          <li>U1</li>
+        </ul>
+      </div>
+    </div>
+
+
+
+
+
+
+    <!----------------------------- LIVE DATA PANEL ----------------------------->
+    <div class="live-data" id="live-data-panel">
+      <h2>Live Data</h2>
+      <div class="list-container">
+        <ul class="live-data-list">
+          <li id="temperature">Temperature</li>
+          <li id="occupancy">Occupancy</li>
+          <li id="alarms">Alarms</li>
+          <li id="lights">Lights</li>
+        </ul>
+      </div>
+    </div>
 
 
 
