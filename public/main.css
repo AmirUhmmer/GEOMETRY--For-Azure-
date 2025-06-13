@@ -209,7 +209,7 @@ body, html {
 }
 
 .control-btn img {
-  width: 120%;
+  width: 110%;
   height: 120%;
   object-fit: contain;
   display: block;
@@ -451,7 +451,6 @@ body, html {
 
 
 
-
-#toolbar-levelsTool, #toolbar-documentModels, #toolbar-explodeTool, #toolbar-settingsTool, #showLiveDataListButton{
+#toolbar-levelsTool,  #toolbar-documentModels, #toolbar-explodeTool, #toolbar-settingsTool, #showLiveDataListButton{
  display: none;
 }
