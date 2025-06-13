@@ -354,6 +354,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     urns.push(modelUrn);
                 });
 
+                window.urns = urns; // Store the URNs globally for access in other modules
+
                 // button3D(viewer, urns);
 
                 // rightToolbar(viewer, modelAbbreviation);

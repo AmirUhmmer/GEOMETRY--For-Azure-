@@ -9,6 +9,7 @@ document.getElementById("model-browser").addEventListener("click", modelBrowserP
 document.getElementById("3D-button").addEventListener("click", button3D);
 document.getElementById("levels").addEventListener("click", levelsPanel);
 document.getElementById("live-data").addEventListener("click", liveDataPanel);
+document.getElementById("fire-plans").addEventListener("click", firePlansPanel);
 
 
 
@@ -226,13 +227,13 @@ function modelBrowserPanel() {
 
 
 
-async function button3D() {
+export async function button3D() {
     const viewer = window.viewerInstance;
-    const models = viewer.impl.modelQueue().getModels();
-    const urns = []
-    models.forEach(model => {
-        urns.push(model.getSeedUrn());
-    });
+    // const models = viewer.impl.modelQueue().getModels();
+    // const urns = []
+    // models.forEach(model => {
+    //     urns.push(model.getSeedUrn());
+    // });
 // Optional: unload current models before loading new ones
     viewer.getVisibleModels().forEach(model => {
       viewer.unloadModel(model);
@@ -242,7 +243,7 @@ async function button3D() {
     async function loadModels() {
       try {
         // Load each model sequentially
-        for (let modelUrn of urns) {
+        for (let modelUrn of window.urns) {
   
           await new Promise((resolve, reject) => {
             Autodesk.Viewing.Document.load(
@@ -293,6 +294,8 @@ async function button3D() {
 function levelsPanel() {
   const browserPanel = document.getElementById("model-browser-panel");
   const liveDataPanel = document.getElementById("live-data-panel");
+  const firePanel = document.getElementById("fire-plan-panel");
+  firePanel.style.visibility = "hidden";
   browserPanel.style.visibility = "hidden";
   liveDataPanel.style.visibility = "hidden";
   const panel = document.getElementById("levels-panel");
@@ -368,11 +371,13 @@ async function liveDataPanel() {
 
   const browserPanel = document.getElementById("model-browser-panel");
   const levelsPanel = document.getElementById("levels-panel");
+  const firePanel = document.getElementById("fire-plan-panel");
   const panel = document.getElementById("live-data-panel");
   const isVisible = panel.style.visibility === "visible";
 
   browserPanel.style.visibility = "hidden";
   levelsPanel.style.visibility = "hidden";
+  firePanel.style.visibility = "hidden";
   panel.style.visibility = isVisible ? "hidden" : "visible";
   document.getElementById("preview").style.width = isVisible ? "97%" : "69%";
 
@@ -448,3 +453,141 @@ async function liveDataPanel() {
 
 
 
+
+async function firePlansPanel() {
+  const viewer = window.viewerInstance;
+  const models = viewer.impl.modelQueue().getModels();
+  const browserPanel = document.getElementById("model-browser-panel");
+  const levelsPanel = document.getElementById("levels-panel");
+  const livedataPanel = document.getElementById("live-data-panel");
+  const panel = document.getElementById("fire-plan-panel");
+  const isVisible = panel.style.visibility === "visible";
+
+  browserPanel.style.visibility = "hidden";
+  levelsPanel.style.visibility = "hidden";
+  livedataPanel.style.visibility = "hidden";
+  panel.style.visibility = isVisible ? "hidden" : "visible";
+  document.getElementById("preview").style.width = isVisible ? "97%" : "69%";
+
+  setTimeout(() => {
+    viewer.resize();
+  }, 300);
+
+  const all2DFiles = await new Promise((resolve) => {
+    let promises = [];
+
+    models.forEach((model) => {
+      const docRoot = model.getDocumentNode();
+
+      const promise = new Promise((resolveInner) => {
+        setTimeout(() => {
+          const twoDFiles = find2DFilesDeep(docRoot);
+          resolveInner(twoDFiles);
+        }, 500); // Optional delay
+      });
+
+      promises.push(promise);
+    });
+
+    Promise.all(promises).then((results) => {
+      const merged = results.flat(); // Combine results
+      resolve(merged);
+    });
+  });
+
+  const listContainer = document.querySelector(".fire-plan-list");
+  listContainer.innerHTML = ""; // Clear old list
+
+
+  all2DFiles.forEach((sheetData, index) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = sheetData.name || `Sheet ${index + 1}`;
+    listItem.addEventListener("click", () => {
+      listContainer.querySelectorAll("li").forEach(el => el.classList.remove("active"));
+      listItem.classList.add("active");
+
+      let urn = models[0].getDocumentNode().getDefaultGeometry().children[1].data.urn; // Get the URN of the first model
+      const modelUrn = urn.split('fs.file:')[1].split('/')[0];
+
+      // const modelUrn = sheetData.urn; // e.g., full URN like 'dXJuOmFkc2sud2lwZW1lY...'
+      const viewableID = sheetData.viewableID; // this must exist on sheetData
+      const access_token = localStorage.getItem("authToken");
+
+      Autodesk.Viewing.Document.load(
+        "urn:" + modelUrn,
+        (doc) => onDocumentLoadSuccess(doc, viewableID),
+        onDocumentLoadFailure,
+        { accessToken: access_token }
+      );
+
+      async function onDocumentLoadSuccess(doc, viewableID) {
+        const geometryItems = doc.getRoot().search({ type: "geometry" });
+        const viewableNode = geometryItems.find(node => node.data.viewableID === viewableID);
+
+        if (!viewableNode) {
+          console.error("❌ Viewable not found for ID:", viewableID);
+          return;
+        }
+
+        // Unload existing models before loading
+        viewer.getVisibleModels().forEach(model => viewer.unloadModel(model));
+
+        const loadOptions = {
+          keepCurrentModels: true,
+          globalOffset: { x: 0, y: 0, z: 0 },
+          applyRefPoint: true
+        };
+
+        try {
+          const model = await viewer.loadDocumentNode(doc, viewableNode, loadOptions);
+          console.log("✅ Loaded 2D view:", model);
+        } catch (err) {
+          console.error("⚠️ Error loading model:", err);
+        }
+      }
+
+      function onDocumentLoadFailure(code, message) {
+        console.error("❌ Failed to load document:", message);
+        alert("Could not load model. See console for details.");
+      }
+    });
+
+    listContainer.appendChild(listItem);
+  });
+
+}
+
+
+
+function find2DFilesDeep(node, results = new Set(), visited = new Set()) {
+  if (!node || !node.data || visited.has(node.id)) return results;
+
+  visited.add(node.id);
+
+  // Check if it's a 2D sheet and name includes 'fire drawings'
+  if (
+    node.data.type === "geometry" &&
+    node.data.role === "2d" &&
+    node.data.name.toLowerCase().includes("fire drawing")
+  ) {
+    // Optional: get URN if available
+    const doc = node.getDocument && node.getDocument(); // works in some viewer versions
+    const urn = doc?.getRoot()?.data?.urn?.replace("urn:", "");
+
+    results.add({
+      name: node.data.name,
+      viewableID: node.data.viewableID,
+      urn: urn
+    });
+  }
+
+  if (Array.isArray(node.children)) {
+    node.children.forEach(child => find2DFilesDeep(child, results, visited));
+  }
+
+  if (node.parent && !visited.has(node.parent.id)) {
+    find2DFilesDeep(node.parent, results, visited);
+  }
+
+  return [...results];
+}

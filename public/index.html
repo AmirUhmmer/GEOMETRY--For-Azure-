@@ -22,6 +22,10 @@
     <!----------------------------- VIEWER SIDEBAR ----------------------------->
     <div id="viewerSidebar">
       <div id="viewerControls">
+      <button class="control-btn" id="fire-plans" title="Fire Plans">
+        <img src="images/fire-plan.svg" alt="Fire Plans" />
+      </button>
+
       <button class="control-btn" id="3D-button" title="3D">
         <img src="images/3D-black.svg" alt="3D button" />
       </button>
@@ -132,7 +136,28 @@
 
 
 
-    <!----------------------------- LIVE DATA PANEL ----------------------------->
+  <!----------------------------- LIVE DATA PANEL ----------------------------->
+  <div class="fire-plan" id="fire-plan-panel">
+    <h2>Fire Information & Plans</h2>
+
+    <div class="list-container">
+      <ul class="fire-plan-list">
+        <li id="temperature">Temperature</li>
+        <li id="occupancy">Occupancy</li>
+        <li id="alarms">Alarms</li>
+        <li id="lights">Lights</li>
+      </ul>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+  <!----------------------------- LIVE DATA PANEL ----------------------------->
   <div class="live-data" id="live-data-panel">
     <h2>Live Data</h2>
 
@@ -157,7 +182,6 @@
       <div><span class="color-box red"></span> 24°C above</div>
     </div>
   </div>
-
 
 
 
