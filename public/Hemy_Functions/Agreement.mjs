@@ -1,5 +1,5 @@
 export async function AgreementFunctionalLocationSearch(viewer, functionalLocations) {
-  await new Promise(resolve => setTimeout(resolve, 15000)); // 15 second delay
+  await new Promise(resolve => setTimeout(resolve, 10000)); // 15 second delay
   console.log(
     "AgreementFunctionalLocationSearch called with FunctionalLocations:",
     functionalLocations
@@ -59,7 +59,7 @@ export async function AgreementFunctionalLocationSearch(viewer, functionalLocati
     // Apply coloring and selection for each model
     Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
       console.log(`Highlighting ${dbIds.length} objects in model:`, dbIds);
-      viewer.setThemingColor(dbIds, color, model);
+      viewer.setThemingColor(dbIds, color);
       viewer.select(dbIds, model);
     });
   } else {
