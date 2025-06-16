@@ -506,8 +506,11 @@ async function firePlansPanel() {
       listContainer.querySelectorAll("li").forEach(el => el.classList.remove("active"));
       listItem.classList.add("active");
 
-      let urn = models[0].getDocumentNode().getDefaultGeometry().children[1].data.urn; // Get the URN of the first model
-      const modelUrn = urn.split('fs.file:')[1].split('/')[0];
+      let firstModel = viewer.impl.modelQueue().getModels();
+      // models[0].getDocumentNode().getDefaultGeometry().children[1].data.urn
+      let urn, modelUrn = window.urns[0]; // Get the URN of the first model
+      console.log("🔗 URN:", window.urns);
+      // const modelUrn = urn.split('fs.file:')[1].split('/')[0];
 
       // const modelUrn = sheetData.urn; // e.g., full URN like 'dXJuOmFkc2sud2lwZW1lY...'
       const viewableID = sheetData.viewableID; // this must exist on sheetData
