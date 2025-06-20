@@ -107,7 +107,8 @@ async function initApp() {
       
       if (userGuid) {
             // ✅ Create WebSocket
-            const socket = new WebSocket(`ws://localhost:8080/ws/${userGuid}`); // change URL accordingly
+            // const socket = new WebSocket(`ws://localhost:8080/ws/${userGuid}`); // localhost
+            const socket = new WebSocket(`wss://hemydigitaltwin-dra9gjbxbsaydxdz.northeurope-01.azurewebsites.net/ws/${userGuid}`); // localhost
             window.socket = socket; // Store the socket in the global window object
             socket.addEventListener("open", () => {
             console.log("🔌 WebSocket connected");
