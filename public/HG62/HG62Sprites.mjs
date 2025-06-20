@@ -122,7 +122,7 @@ async function onSpriteClicked(event, viewer) {
           let model = 'HG62';
           //Update the panel with the sprite info and show it
           viewer.LiveDataPanel.updateSpriteInfo(name, data, model);
-          viewer.LiveDataPanel.setVisible(true);  // Show the Live Data panel
+          viewer.LiveDataPanel.setVisible(false);  // Show the Live Data panel
       } else {
           console.log('No viewable found for this dbId.');
       }

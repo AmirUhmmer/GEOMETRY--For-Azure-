@@ -117,6 +117,11 @@ export function showLiveDataPanel(viewer) {
                 document.getElementById('spriteDbId').innerText = name;
                 document.getElementById('spriteTemp').innerText = data.value + '°C';  // Assuming randomData has a 'temp' property
                 document.getElementById('spriteSetPoint').innerText = data.setpoint;  // Assuming randomData has a 'setpoint' property
+
+                document.getElementById('selectedRoom').innerText = name;
+                document.getElementById('temperatureData').innerText = data.value + '°C';
+                document.getElementById('readingData').innerText = formattedObservationTime;
+
                 document.getElementById('spriteTime').innerText = formattedObservationTime;  // Assuming randomData has a 'time' property
                 const elementsToHide = ['MSFabricsURL', 'BIReports', 'SpecificReport'];
 

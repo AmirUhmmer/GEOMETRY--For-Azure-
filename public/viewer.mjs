@@ -158,7 +158,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
         // console.log("CHECK: " + modelsLoaded);
 
         if (modelsLoaded === modelsToLoad.length) {
-            console.log("All models have been loaded.");
+            // console.log(viewer.getAllModels(), "All models have been loaded.");
             const accessToken = localStorage.getItem('authToken'); // Retrieve the access token
             // console.log('Access Token:', accessToken);
             const models = viewer.impl.modelQueue().getModels();
@@ -345,6 +345,16 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 WOServiceTask(viewer);
 
                 // ToolbarButton2DFaro(viewer, modelAbbreviation);
+                if (window.socket) {
+                    window.socket.onmessage = async (event) => {
+                    const message = JSON.parse(event.data);
+                    console.log("Received message:", event.data);
+                    if (message.type === "showTask") {
+                        console.log("Received message:", event.data);
+                    }
+                };
+                }
+
 
 
                 let urn, modelUrn, urns = [];
@@ -363,6 +373,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 AgreementFunctionalLocationSearch(viewer, window.agreementFL);
 
                 const canvas = viewer.impl.canvas;
+
+
 
 
                 canvas.addEventListener('dblclick', function (event) {

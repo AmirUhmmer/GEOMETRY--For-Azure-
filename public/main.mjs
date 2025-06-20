@@ -1,17 +1,17 @@
 import { initViewer, loadModel } from "./viewer.mjs";
 import { initTree } from "./sidebar.mjs";
 
-window.agreementFL = window.agreementFL || [];
+// window.agreementFL = window.agreementFL || [];
 
-window.addEventListener("message", (event) => {
-  console.log("📨 Message received in iframe:", event.data);
+// window.addEventListener("message", (event) => {
+//   console.log("📨 Message received in iframe:", event.data);
 
-  if (event.data?.type === "functionallocations") {
-    console.log("✅ FL payload received:", event.data.payload);
-    window.agreementFL.push(...event.data.payload);
-    //AgreementFunctionalLocationSearch(viewer, event.data.payload);
-  }
-});
+//   if (event.data?.type === "functionallocations") {
+//     console.log("✅ FL payload received:", event.data.payload);
+//     window.agreementFL.push(...event.data.payload);
+//     //AgreementFunctionalLocationSearch(viewer, event.data.payload);
+//   }
+// });
 
 const login = document.getElementById("login");
 
@@ -102,23 +102,30 @@ async function initApp() {
       let RepeatingTask = params["RT"]; // The Repeating Task, if it exists
       let WOST = params["WOST"]; // The Work Order Service Task, if it exists
       let sessionId = params["sessionId"]; // The session id, if it exists
+      const userGuid = params["userGuid"];
+      window.userGuid = userGuid; // Store userGuid in the global window object
+      
+      if (userGuid) {
+            // ✅ Create WebSocket
+            const socket = new WebSocket(`ws://localhost:8080/ws/${userGuid}`); // change URL accordingly
+            window.socket = socket; // Store the socket in the global window object
+            socket.addEventListener("open", () => {
+            console.log("🔌 WebSocket connected");
+            socket.send(JSON.stringify({ type: "ping" }));
+            });
 
-      //testttttt
-      // Fetch data from the backend using the session ID
-      // function fetchLatestData() {
-      //     fetch(`https://hemydigitaltwin-dra9gjbxbsaydxdz.northeurope-01.azurewebsites.net/api/get-latest-data/${sessionId}`)
-      //     .then(response => response.json())
-      //     .then(data => {
-      //         console.log(`Data fetched for session ${sessionId}:`, data);
-      //         // If you need to process/display the data, you could do that here
-      //     })
-      //     .catch(error => console.error('Error fetching data:', error));
-      // }
+            socket.addEventListener("message", (event) => {
+            console.log("📩 WebSocket message received:", event.data);
+            });
 
-      // // Trigger data fetch once the iframe loads
-      // if (sessionId){
-      //     fetchLatestData();
-      // }
+            socket.addEventListener("close", () => {
+            console.log("❌ WebSocket closed");
+            });
+
+            socket.addEventListener("error", (error) => {
+            console.error("⚠️ WebSocket error:", error);
+            });
+      }
 
       if (RepeatingTask || WOST) {
         const abbreviationToRecordId = {
@@ -356,14 +363,14 @@ async function initApp() {
           hardAsset: "No Hard Asset",
           liveData: "DB8",
           model: "DB8",
-        }, // liveData: 'DB8',
+        },
         "2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca": {
           projectId: "b.bf8f603c-7e37-4367-9900-69e279377191",
           folderId: "urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw",
           hardAsset: "No Hard Asset",
           liveData: "DB8",
           model: "DB8",
-        }, // liveData: 'DB8',
+        },
         // HG62
         "766fb31a-a8b7-ef11-b8e8-7c1e5275e0ca": {
           projectId: "b.552de2d1-bc00-41a4-8d90-ec063d64a4c6",

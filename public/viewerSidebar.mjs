@@ -88,7 +88,7 @@ document.getElementById("search").addEventListener("click", function first() {
 
 // ***************************** model browser panel functionality **************************
 
-function modelBrowserPanel() {
+async function modelBrowserPanel() {
   const levelPanel = document.getElementById("levels-panel");
   const liveDataPanel = document.getElementById("live-data-panel");
   levelPanel.style.visibility = "hidden";
@@ -109,8 +109,8 @@ function modelBrowserPanel() {
   const treeContainer = document.querySelector(".tree");
   treeContainer.innerHTML = "";
 
-  models.forEach((model) => {
-    const instanceTree = model.getInstanceTree();
+  models.forEach(async (model) => {
+    const instanceTree = await waitForInstanceTree(model);
     const rootId = instanceTree.getRootId();
     const modelName = model?.name || `Model ${model.id}`;
 
@@ -139,6 +139,20 @@ function modelBrowserPanel() {
       });
     });
   });
+
+  function waitForInstanceTree(model) {
+    return new Promise((resolve) => {
+      const instanceTree = model.getInstanceTree();
+      if (instanceTree && instanceTree.getRootId() !== undefined) {
+        resolve(instanceTree);
+      } else {
+        model.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, () => {
+          resolve(model.getInstanceTree());
+        });
+      }
+    });
+  }
+
 
   function isWrapperName(name) {
     return ["Model", "Unnamed", "Document", "Default", "RootElement"].includes(name);
@@ -509,7 +523,6 @@ async function firePlansPanel() {
       let firstModel = viewer.impl.modelQueue().getModels();
       // models[0].getDocumentNode().getDefaultGeometry().children[1].data.urn
       let urn, modelUrn = window.urns[0]; // Get the URN of the first model
-      console.log("🔗 URN:", window.urns);
       // const modelUrn = urn.split('fs.file:')[1].split('/')[0];
 
       // const modelUrn = sheetData.urn; // e.g., full URN like 'dXJuOmFkc2sud2lwZW1lY...'
