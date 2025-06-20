@@ -61,6 +61,9 @@ const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
 const app = express();
 const server = http.createServer(app);
 
+// 📒 Store all WebSocket clients by user ID
+const clients = new Map();
+
 // Express session setup
 app.use(session({
   secret: SERVER_SESSION_SECRET,
@@ -80,6 +83,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(require('./routes/auth.js'));
 app.use(require('./routes/hubs.js'));
 
+// Inject WebSocket clients into your custom route (for Power Automate)
+const createWebSocketRoutes = require('./routes/endpoints/websocket.js');
+app.use(createWebSocketRoutes(clients)); // ✅ Pass the notebook
+
 // Root route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -91,15 +98,14 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something went wrong!');
 });
 
-// 🔌 Setup WebSocket server with dynamic userGuid
-const clients = new Map();
+// 🔌 Setup WebSocket server
 const wss = new WebSocket.Server({ noServer: true });
 
 wss.on('connection', (ws, request, userGuid) => {
   console.log(`🟢 WebSocket connected for user: ${userGuid}`);
-  clients.set(userGuid, ws);
+  clients.set(userGuid, ws); // 📝 Store in notebook
 
-  // Optional: keep-alive heartbeat
+  // 🫀 Optional: heartbeat
   const heartbeat = setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ type: 'heartbeat', message: 'keep-alive' }));
@@ -114,27 +120,25 @@ wss.on('connection', (ws, request, userGuid) => {
   ws.on('close', () => {
     console.log(`🔴 WebSocket closed for user: ${userGuid}`);
     clearInterval(heartbeat);
-    clients.delete(userGuid);
+    clients.delete(userGuid); // ❌ remove from notebook
   });
 });
 
-// 🔁 Handle WebSocket upgrade requests
+// 🔁 Handle WebSocket upgrade
 server.on('upgrade', (request, socket, head) => {
   const pathname = new URL(request.url, `http://${request.headers.host}`).pathname;
 
   if (pathname.startsWith('/ws/')) {
     const userGuid = pathname.split('/').pop();
-
-    request.clientId = userGuid;
     wss.handleUpgrade(request, socket, head, (ws) => {
       wss.emit('connection', ws, request, userGuid);
     });
   } else {
-    socket.destroy();
+    socket.destroy(); // Not a WebSocket path
   }
 });
 
-// Start the HTTP + WebSocket server
+// ✅ Start server
 server.listen(PORT, () => {
   console.log(`🚀 HTTP + WebSocket server running on port ${PORT}...`);
 });
