@@ -54,17 +54,14 @@
 const express = require('express');
 const session = require('cookie-session');
 const path = require('path');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
 const http = require('http');
 const WebSocket = require('ws');
-const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
 
 const app = express();
-const server = http.createServer(app);
+const server = http.createServer(app); // <-- Use raw HTTP server
 
-// 📒 Store all WebSocket clients by user ID
-const clients = new Map();
-
-// Express session setup
+// Setting cookies in Express
 app.use(session({
   secret: SERVER_SESSION_SECRET,
   resave: false,
@@ -76,70 +73,35 @@ app.use(session({
   }
 }));
 
-// Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
 app.use(require('./routes/auth.js'));
 app.use(require('./routes/hubs.js'));
 
-// Inject WebSocket clients into your custom route (for Power Automate)
-const createWebSocketRoutes = require('./routes/endpoints/websocket.js');
-app.use(createWebSocketRoutes(clients)); // ✅ Pass the notebook
-
-// Root route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something went wrong!');
 });
 
-// 🔌 Setup WebSocket server
-const wss = new WebSocket.Server({ noServer: true });
+// ✅ Setup WebSocket server
+const wss = new WebSocket.Server({ server, path: '/ws' });
 
-wss.on('connection', (ws, request, userGuid) => {
-  console.log(`🟢 WebSocket connected for user: ${userGuid}`);
-  clients.set(userGuid, ws); // 📝 Store in notebook
-
-  // 🫀 Optional: heartbeat
-  const heartbeat = setInterval(() => {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: 'heartbeat', message: 'keep-alive' }));
-    }
-  }, 30000);
+wss.on('connection', (ws, req) => {
+  console.log('🟢 WebSocket client connected');
 
   ws.on('message', (message) => {
-    console.log(`📩 [${userGuid}] Received:`, message.toString());
-    ws.send(`Echo from server to ${userGuid}: ` + message);
+    console.log('📩 Received:', message.toString());
+    ws.send('Echo: ' + message);
   });
 
   ws.on('close', () => {
-    console.log(`🔴 WebSocket closed for user: ${userGuid}`);
-    clearInterval(heartbeat);
-    clients.delete(userGuid); // ❌ remove from notebook
+    console.log('🔴 WebSocket client disconnected');
   });
 });
 
-// 🔁 Handle WebSocket upgrade
-server.on('upgrade', (request, socket, head) => {
-  const pathname = new URL(request.url, `http://${request.headers.host}`).pathname;
-
-  if (pathname.startsWith('/ws/')) {
-    const userGuid = pathname.split('/').pop();
-    wss.handleUpgrade(request, socket, head, (ws) => {
-      wss.emit('connection', ws, request, userGuid);
-    });
-  } else {
-    socket.destroy(); // Not a WebSocket path
-  }
-});
-
-// ✅ Start server
-server.listen(PORT, () => {
-  console.log(`🚀 HTTP + WebSocket server running on port ${PORT}...`);
-});
-
+// ✅ Start server (HTTP + WS)
+server.listen(PORT, () => console.log(`Server + WS listening on port ${PORT}...`));
