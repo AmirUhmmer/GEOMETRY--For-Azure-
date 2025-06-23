@@ -527,7 +527,7 @@ export function showTasks(viewer, RepeatingTask) {
   } else {
     selectionColor = new THREE.Vector4(0, 1, 0, 1); // Default green
   }
-
+  console.log("showTasks called with RepeatingTask:", taskName);
   console.log("showTasks called with HardAsset:", hardAssetID);
   console.log("showTasks called with FunctionalLocation:", funcLocID);
 
