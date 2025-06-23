@@ -495,6 +495,12 @@ export function showRepeatingTaskPanel(viewer, taskArray, colorMapping) {
 // "HardAsset":"64761da9-83d5-ee11-904d-0022489fdfca",
 // "FunctionalLocation":"21b06458-4161-ee11-8df0-0022489fdfca"}
 
+
+
+
+
+
+
 export function showTasks(viewer, RepeatingTask) {
   viewer.showAll(); // Show all objects first
   const models = viewer.impl.modelQueue().getModels();
@@ -502,29 +508,25 @@ export function showTasks(viewer, RepeatingTask) {
   header.style.top = "0em";
   viewer.resize();
 
-  // const selectionColor = new THREE.Vector4(0, 1, 0, 1);
-  viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB green
+  let selectionColor;
+  viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB green (selection highlight)
 
   const hardAssetID = RepeatingTask.HardAsset;
   const funcLocID = RepeatingTask.FunctionalLocation;
-
-  // Convert the name to lowercase once
   const taskName = RepeatingTask.Name.toLowerCase();
 
-  // Check if any term matches using arrays and some()
+  // ✅ Assign the right color based on task name
   if (["cleaning", "if needed"].some(term => taskName.includes(term))) {
-      const selectionColor = new THREE.Vector4(0.231, 0.773, 0.976, 1);
+    selectionColor = new THREE.Vector4(0.231, 0.773, 0.976, 1);
   } else if (["fix", "assess", "issue", "troubleshoot", "assessment"].some(term => taskName.includes(term))) {
-      const selectionColor = new THREE.Vector4(1, 1, 0.400, 1);
+    selectionColor = new THREE.Vector4(1, 1, 0.400, 1);
   } else if (["snow", "ice"].some(term => taskName.includes(term))) {
-      const selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1);
+    selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1);
   } else if (["green", "green areas", "maintain green areas"].some(term => taskName.includes(term))) {
-      const selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1);
+    selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1);
   } else {
-      const selectionColor = new THREE.Vector4(0, 1, 0, 1);
+    selectionColor = new THREE.Vector4(0, 1, 0, 1); // Default green
   }
-
-
 
   console.log("showTasks called with HardAsset:", hardAssetID);
   console.log("showTasks called with FunctionalLocation:", funcLocID);
@@ -533,8 +535,8 @@ export function showTasks(viewer, RepeatingTask) {
   let alldbidAsset = [];
   let alldbidFunctionalLocation = [];
 
-  // Helper: Process properties and check match
-  function processProps(props, dbID, model, expectedID, outputArray, type) {
+  // ✅ Helper: Process properties and check match
+  function processProps(props, dbID, model, expectedID, outputArray, type, selectionColor) {
     let assetIDValue = null;
     let assetLevel = null;
     let name = props.name;
@@ -572,14 +574,14 @@ export function showTasks(viewer, RepeatingTask) {
     }
   }
 
-  // Search and process function
-  function searchAndProcess(model, id, type, outputArray) {
+  // ✅ Helper: Search and process
+  function searchAndProcess(model, id, type, outputArray, selectionColor) {
     return new Promise((resolve) => {
       model.search(id, (dbIDs) => {
         const propPromises = dbIDs.map((dbID) => {
           return new Promise((propResolve) => {
             model.getProperties(dbID, (props) => {
-              processProps(props, dbID, model, id, outputArray, type);
+              processProps(props, dbID, model, id, outputArray, type, selectionColor);
               propResolve();
             });
           });
@@ -590,8 +592,8 @@ export function showTasks(viewer, RepeatingTask) {
     });
   }
 
-  const assetSearch = searchAndProcess(models[0], hardAssetID, "asset", alldbidAsset);
-  const funcLocSearch = searchAndProcess(models[0], funcLocID, "floc", alldbidFunctionalLocation);
+  const assetSearch = searchAndProcess(models[0], hardAssetID, "asset", alldbidAsset, selectionColor);
+  const funcLocSearch = searchAndProcess(models[0], funcLocID, "floc", alldbidFunctionalLocation, selectionColor);
 
   Promise.all([assetSearch, funcLocSearch]).then(() => {
     console.log("All dbIDs:", alldbid);
@@ -602,9 +604,7 @@ export function showTasks(viewer, RepeatingTask) {
       if (alldbidFunctionalLocation.length > 0) {
         viewer.fitToView(alldbidFunctionalLocation, models[0]);
         if (alldbidAsset.length === 0) {
-          models.forEach((model) =>
-            viewer.isolate(alldbidFunctionalLocation, model)
-          );
+          models.forEach((model) => viewer.isolate(alldbidFunctionalLocation, model));
         }
       }
 
@@ -653,4 +653,3 @@ export function showTasks(viewer, RepeatingTask) {
     fitAndSelect();
   });
 }
-
