@@ -507,6 +507,9 @@ export function showTasks(viewer, RepeatingTask) {
   const hardAssetID = RepeatingTask.HardAsset;
   const funcLocID = RepeatingTask.FunctionalLocation;
 
+  console.log("showTasks called with HardAsset:", hardAssetID);
+  console.log("showTasks called with FunctionalLocation:", funcLocID);
+
   let alldbid = [];
   let alldbidAsset = [];
   let alldbidFunctionalLocation = [];
