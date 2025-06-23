@@ -522,20 +522,20 @@ export function showTasks(viewer, RepeatingTask) {
 
 
   if (cleaningRegex.test(taskName)) {
-    selectionColor = new THREE.Vector4(0.231, 0.773, 0.976, 1); // blue
-    viewer.setSelectionColor(new THREE.Vector4(0.231, 0.773, 0.976, 1));
+    selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
+    viewer.setSelectionColor(new THREE.Vector4(0, 0, 1));
   } else if (repairRegex.test(taskName)) {
-    selectionColor = new THREE.Vector4(1, 1, 0.4, 1); // yellow
-    viewer.setSelectionColor(new THREE.Vector4(1, 1, 0.4, 1));
+    selectionColor = new THREE.Vector4(1, 1, 0, 1); // yellow
+    viewer.setSelectionColor(new THREE.Vector4(1, 1, 0));
   } else if (winterRegex.test(taskName)) {
     selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
-    viewer.setSelectionColor(new THREE.Vector4(0.231, 0.976, 0.965, 1));
+    viewer.setSelectionColor(new THREE.Vector4(0.231, 0.976, 0.965));
   } else if (greenRegex.test(taskName)) {
     selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
-    viewer.setSelectionColor(new THREE.Vector4(0.784, 0.976, 0.231, 1));
+    viewer.setSelectionColor(new THREE.Vector4(0.784, 0.976, 0.231));
   } else {
-    selectionColor = new THREE.Vector4(0.54, 0.17, 0.89, 1); // default green
-    viewer.setSelectionColor(new THREE.Vector4(0.54, 0.17, 0.89, 1));
+    selectionColor = new THREE.Vector4(0.54, 0.17, 0.89, 1); // default purple
+    viewer.setSelectionColor(new THREE.Vector4(0.54, 0.17, 0.89));
   }
 
   console.log("cleaning match:", cleaningRegex.test(taskName));
@@ -649,8 +649,8 @@ export function showTasks(viewer, RepeatingTask) {
               .then((levelsExt) => {
                 const levels = levelsExt.floorSelector?._floors || [];
                 const matched = levels.find((lvl) => lvl.name === assetLevel);
-
-                if (matched && alldbidAsset.length > 0) {
+                // && alldbidAsset.length > 0
+                if (matched) {
                   levelsExt.floorSelector.selectFloor(matched.index, true);
 
                   viewer.loadExtension("Autodesk.BimWalk").then((bimWalkExt) => {
