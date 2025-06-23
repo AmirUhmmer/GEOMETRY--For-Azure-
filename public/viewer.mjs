@@ -3,7 +3,7 @@ import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataLi
 import { HardAssetSearch } from './Hemy_Functions/HardAssets.mjs';
 import { ServiceZoneSearch } from './Hemy_Functions/ServiceZone.mjs';
 import { FunctionalLocationSearch } from './Hemy_Functions/FunctionalLocation.mjs';
-import { RepeatingTasks } from './Hemy_Functions/RepeatingTasks.mjs';
+import { RepeatingTasks, showTasks } from './Hemy_Functions/RepeatingTasks.mjs';
 import { WOServiceTask } from './Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
 import { ToolbarButton2DFaro } from './panelFor2DFaro.mjs';
@@ -349,10 +349,11 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     window.socket.onmessage = async (event) => {
                     const message = JSON.parse(event.data);
                     console.log("Received message:", event.data);
-                    if (message.type === "showTask") {
-                        console.log("Received message:", event.data);
-                    }
-                };
+                        if (message.type === "showTask") {
+                            console.log("Received message:", event.data);
+                            showTasks(viewer, event.data);
+                        }
+                    };
                 }
 
 
