@@ -513,20 +513,26 @@ export function showTasks(viewer, RepeatingTask) {
 
   const hardAssetID = RepeatingTask.HardAsset;
   const funcLocID = RepeatingTask.FunctionalLocation;
-  const taskName = RepeatingTask.Name.toLowerCase();
+  const taskName = RepeatingTask.Name.toLowerCase().trim();
 
-  // ✅ Assign the right color based on task name
-  if (["cleaning", "if needed", "clean"].some(term => taskName.includes(term))) {
-    selectionColor = new THREE.Vector4(0.231, 0.773, 0.976, 1);
-  } else if (["fix", "assess", "issue", "troubleshoot", "assessment", "control"].some(term => taskName.includes(term))) {
-    selectionColor = new THREE.Vector4(1, 1, 0.400, 1);
-  } else if (["snow", "ice"].some(term => taskName.includes(term))) {
-    selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1);
-  } else if (["green", "green areas", "maintain green areas"].some(term => taskName.includes(term))) {
-    selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1);
+  // Define your keyword groups as regex patterns
+  const cleaningRegex = /\b(clean|cleaning|mop|wipe|cloth)\b/i;
+  const repairRegex = /\b(fix|assess|issue|troubleshoot|assessment|control)\b/i;
+  const winterRegex = /\b(snow|ice)\b/i;
+  const greenRegex = /\b(green|green areas|maintain green areas)\b/i;
+
+  if (cleaningRegex.test(taskName)) {
+    selectionColor = new THREE.Vector4(0.231, 0.773, 0.976, 1); // blue
+  } else if (repairRegex.test(taskName)) {
+    selectionColor = new THREE.Vector4(1, 1, 0.4, 1); // yellow
+  } else if (winterRegex.test(taskName)) {
+    selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
+  } else if (greenRegex.test(taskName)) {
+    selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
   } else {
-    selectionColor = new THREE.Vector4(0, 1, 0, 1); // Default green
+    selectionColor = new THREE.Vector4(0.54, 0.17, 0.89, 1); // default green
   }
+
   console.log("showTasks called with RepeatingTask:", taskName);
   console.log("showTasks called with HardAsset:", hardAssetID);
   console.log("showTasks called with FunctionalLocation:", funcLocID);
