@@ -516,9 +516,9 @@ export function showTasks(viewer, RepeatingTask) {
   const taskName = RepeatingTask.Name.toLowerCase();
 
   // ✅ Assign the right color based on task name
-  if (["cleaning", "if needed"].some(term => taskName.includes(term))) {
+  if (["cleaning", "if needed", "clean"].some(term => taskName.includes(term))) {
     selectionColor = new THREE.Vector4(0.231, 0.773, 0.976, 1);
-  } else if (["fix", "assess", "issue", "troubleshoot", "assessment"].some(term => taskName.includes(term))) {
+  } else if (["fix", "assess", "issue", "troubleshoot", "assessment", "control"].some(term => taskName.includes(term))) {
     selectionColor = new THREE.Vector4(1, 1, 0.400, 1);
   } else if (["snow", "ice"].some(term => taskName.includes(term))) {
     selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1);
