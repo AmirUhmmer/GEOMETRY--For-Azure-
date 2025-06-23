@@ -496,16 +496,35 @@ export function showRepeatingTaskPanel(viewer, taskArray, colorMapping) {
 // "FunctionalLocation":"21b06458-4161-ee11-8df0-0022489fdfca"}
 
 export function showTasks(viewer, RepeatingTask) {
+  viewer.showAll(); // Show all objects first
   const models = viewer.impl.modelQueue().getModels();
   const header = document.getElementById("preview");
   header.style.top = "0em";
   viewer.resize();
 
-  const selectionColor = new THREE.Vector4(0, 1, 0, 1);
+  // const selectionColor = new THREE.Vector4(0, 1, 0, 1);
   viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB green
 
   const hardAssetID = RepeatingTask.HardAsset;
   const funcLocID = RepeatingTask.FunctionalLocation;
+
+  // Convert the name to lowercase once
+  const taskName = RepeatingTask.Name.toLowerCase();
+
+  // Check if any term matches using arrays and some()
+  if (["cleaning", "if needed"].some(term => taskName.includes(term))) {
+      const selectionColor = new THREE.Vector4(0.231, 0.773, 0.976, 1);
+  } else if (["fix", "assess", "issue", "troubleshoot", "assessment"].some(term => taskName.includes(term))) {
+      const selectionColor = new THREE.Vector4(1, 1, 0.400, 1);
+  } else if (["snow", "ice"].some(term => taskName.includes(term))) {
+      const selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1);
+  } else if (["green", "green areas", "maintain green areas"].some(term => taskName.includes(term))) {
+      const selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1);
+  } else {
+      const selectionColor = new THREE.Vector4(0, 1, 0, 1);
+  }
+
+
 
   console.log("showTasks called with HardAsset:", hardAssetID);
   console.log("showTasks called with FunctionalLocation:", funcLocID);
