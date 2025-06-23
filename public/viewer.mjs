@@ -351,7 +351,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     console.log("Received message:", event.data);
                         if (message.type === "showTask") {
                             console.log("Received message:", event.data);
-                            showTasks(viewer, event.data);
+                            
+
+                            showTasks(viewer, message);
                         }
                     };
                 }
