@@ -648,7 +648,7 @@ export function showTasks(viewer, RepeatingTask) {
       });
     };
 
-    viewer.setSelectionColor(new THREE.Color(0x892be3));
+    viewer.setSelectionColor(selectionColor);
     setLevelAndStartWalk();
     fitAndSelect();
   });
