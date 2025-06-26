@@ -501,6 +501,13 @@ export function showRepeatingTaskPanel(viewer, taskArray, colorMapping) {
 
 
 
+
+
+
+
+
+
+
 export function showTasks(viewer, RepeatingTask) {
   viewer.showAll(); // Show all objects first
   const models = viewer.impl.modelQueue().getModels();
@@ -592,22 +599,24 @@ export function showTasks(viewer, RepeatingTask) {
   }
 
   // ✅ Helper: Search and process
-  function searchAndProcess(model, id, type, outputArray, selectionColor) {
-    return new Promise((resolve) => {
-      model.search(id, (dbIDs) => {
-        const propPromises = dbIDs.map((dbID) => {
-          return new Promise((propResolve) => {
-            model.getProperties(dbID, (props) => {
-              processProps(props, dbID, model, id, outputArray, type, selectionColor);
-              propResolve();
-            });
+function searchAndProcess(model, id, type, outputArray, selectionColor) {
+  return new Promise((resolve) => {
+    model.search(id, (dbIDs) => {
+      const propPromises = dbIDs.map((dbID) => {
+        return new Promise((propResolve) => {
+          model.getProperties(dbID, (props) => {
+            console.log('Searched item properties:', props);
+            processProps(props, dbID, model, id, outputArray, type, selectionColor);
+            propResolve();
           });
         });
-
-        Promise.all(propPromises).then(resolve);
       });
+
+      Promise.all(propPromises).then(resolve);
     });
-  }
+  });
+}
+
 
   const assetSearch = searchAndProcess(models[0], hardAssetID, "asset", alldbidAsset, selectionColor);
   const funcLocSearch = searchAndProcess(models[0], funcLocID, "floc", alldbidFunctionalLocation, selectionColor);

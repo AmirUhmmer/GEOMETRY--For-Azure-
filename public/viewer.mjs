@@ -609,8 +609,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 URN: latestVersionUrn
               };              
             // Your override logic
-            if (latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=163') {
-                latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.UwhmTaE5RQ21--nmCQd2pA?version=161';
+            if (latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=97') {
+                latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.xdXReqV0T1azoWueEiSnzg?version=96';
             }
     
             console.log('Latest Version URN:', latestVersionUrn);
