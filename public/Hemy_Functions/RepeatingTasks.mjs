@@ -85,7 +85,7 @@ export function RepeatingTasks(viewer, RepeatingTask) {
                         }
                       }
                       if (prop.displayName === "Category") {
-                        if (prop.displayValue != "Revit Room") {
+                        if (prop.displayValue != "Revit Rooms" || prop.displayValue != "Revit Room") {
                           FLCategory = prop.displayValue; // Save the Functional Location name
                           console.log("Functional Location Name:", FLCategory);
                         }
@@ -98,7 +98,8 @@ export function RepeatingTasks(viewer, RepeatingTask) {
                       assetIDValue === funcLocID &&
                       assetIDValue != null &&
                       FLname != null &&
-                      FLCategory != "Revit Rooms"
+                      FLCategory != "Revit Rooms" ||
+                      FLCategory != "Revit Room"
                     ) {
                       alldbidFunctionalLocation =
                         alldbidFunctionalLocation.concat(dbID);
@@ -580,7 +581,7 @@ export function showTasks(viewer, RepeatingTask) {
         assetLevel = displayValue;
       }
 
-      if (displayName === "Category" && displayValue !== "Revit Room") {
+      if (displayName === "Category" && displayValue !== "Revit Room" && displayValue !== "Revit Rooms") {
         category = displayValue;
       }
     });
@@ -589,7 +590,7 @@ export function showTasks(viewer, RepeatingTask) {
       assetIDValue === expectedID &&
       assetIDValue != null &&
       name != null &&
-      (type === "asset" || category !== "Revit Room");
+      (type === "asset" || category !== "Revit Room" && category !== "Revit Rooms");
 
     if (match) {
       outputArray.push(dbID);
