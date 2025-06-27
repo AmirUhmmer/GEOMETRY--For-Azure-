@@ -561,12 +561,21 @@ export function showTasks(viewer, RepeatingTask) {
   let alldbidFunctionalLocation = [];
 
   // ✅ Helper: Process properties and check match
-  function processProps(props, dbID, model, expectedID, outputArray, type, selectionColor) {
+  function processProps(
+    props,
+    dbID,
+    model,
+    expectedID,
+    outputArray,
+    type,
+    selectionColor
+  ) {
     let assetIDValue = null;
     let assetLevel = null;
     let name = props.name;
     let category = props.Category;
 
+    // Find values inside properties array
     props.properties.forEach((prop) => {
       const { displayName, displayValue, displayCategory } = prop;
 
@@ -581,16 +590,19 @@ export function showTasks(viewer, RepeatingTask) {
         assetLevel = displayValue;
       }
 
-      if (displayName === "Category" && displayValue !== "Revit Room" && displayValue !== "Revit Rooms") {
+      if (displayName === "Category") {
         category = displayValue;
       }
     });
+
+    // If category is Revit Room(s), skip early
+    if (category === "Revit Room" || category === "Revit Rooms") return;
 
     const match =
       assetIDValue === expectedID &&
       assetIDValue != null &&
       name != null &&
-      (type === "asset" || category !== "Revit Room" && category !== "Revit Rooms");
+      (type === "asset" || true); // category check already handled
 
     if (match) {
       outputArray.push(dbID);

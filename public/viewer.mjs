@@ -532,10 +532,14 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
     // Success handler for loading individual models
     async function onDocumentLoadSuccess(doc) {
+        // const geometry = doc.getRoot().getDefaultGeometry();
+        // const offset = geometry?.globalOffset || { x: 0, y: 0, z: 0 };
+        // console.log("Model global offset:", offset);
         const loadOptions = {
             keepCurrentModels: true, // Keeps existing models in the viewer
             globalOffset: { x: 0, y: 0, z: 0 },  // Force all models to origin
             applyRefPoint: true, // Apply reference point for 3D shared coordinates
+            // placementTransform: new THREE.Matrix4().setPosition(offset),
         };
         // console.log("Model loaded successfully:", doc);
         
@@ -555,6 +559,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
             console.error("Error loading model into viewer:", error);
             alert("Error loading model into viewer. See console for details.");
         }
+
     }
 
     // Failure handler for loading models
