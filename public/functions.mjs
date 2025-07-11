@@ -20,3 +20,17 @@ window.addEventListener("message", (event) => {
     //AgreementFunctionalLocationSearch(viewer, event.data.payload);
   }
 });
+
+
+window.addEventListener("message", function (event) {
+  if (event.data?.type === "ready-for-data") {
+    // Send confirmation back to the CRM form
+    window.parent.postMessage({ type: "ready" }, "*");
+  }
+
+  if (event.data?.type === "QBSfunctionallocations") {
+    const payload = event.data.payload;
+    console.log("Got functional locations data:", payload);
+    // Do something with it
+  }
+});
