@@ -270,6 +270,10 @@ async function initApp() {
           "urn:adsk.wipemea:dm.lineage:o9HaviQfQeimUj369y5d2Q", //ARCHI
           // 'urn:adsk.wipemea:dm.lineage:7kP7byFxQhmsKJm7CrQUyw', //MEP
         ],
+
+        "test": [
+          "urn:adsk.wipemea:dm.lineage:4IgkioXcR0iOVcS9QPdQUw" //rcp files
+        ],
       };
 
       // HARD ASSET CONDITIONS
@@ -347,9 +351,9 @@ async function initApp() {
       // Default geometry if no match is found
       const defaultGeometry = [
         //  DB8
-        "urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg", // archi
-        "urn:adsk.wipemea:dm.lineage:cuy9_KQiSyadqUu2aI_Bsg", // mep
-        "urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww", // site
+          "urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg", // archi
+          "urn:adsk.wipemea:dm.lineage:cuy9_KQiSyadqUu2aI_Bsg", // mep
+          "urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww", // site
       ];
 
       // Attempt to find geometry based on recordId
@@ -450,6 +454,11 @@ async function initApp() {
           hardAsset: "No Hard Asset",
           model: "TI135",
         },
+        "test": {
+          projectId: "b.3bc132ce-feb3-463a-850e-397e66d38aea",
+          hardAsset: "No Hard Asset",
+          model: "test",
+        }
       };
 
       const propertyMap = {

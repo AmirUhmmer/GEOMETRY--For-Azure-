@@ -153,7 +153,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
     // console.log(modelsToLoad);
 
-    function checkAllModelsLoaded() {
+    async function checkAllModelsLoaded() {
 
         // console.log("CHECK: " + modelsLoaded);
 
@@ -163,6 +163,13 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
             // console.log('Access Token:', accessToken);
             const models = viewer.impl.modelQueue().getModels();
             // Perform actions only when all models are loaded
+
+            // let model = viewer.getAllModels()[0]; //!<< Check the first model just for demo
+            // let fragList = model.getFragmentList();
+            // let hiddenDbIds = Object.keys( fragList.vizflags ).filter(fragId => !fragList.isFragVisible( fragId )).map(fragId => fragList.getDbIds( fragId ) );
+
+            // // hiddenDbIds.forEach(dbId => viewer.getProperties(dbId, console.log))
+
 
             if (viewer.model) {
                 viewer.loadExtension('Autodesk.DataVisualization').then(() => {
@@ -212,7 +219,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     Sol11PicsSPRITES(viewer);
                 }
 
-
                 function hideGenericModels(viewer, model) {
                     model.getObjectTree(function (instanceTree) {
                         const dbIdsToHide = [];
@@ -253,7 +259,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     });
                 }
                 
-
+                // viewer.anyLayerHidden();
+                // console.log("Aggregate Hidden Nodes:", viewer.anyLayerHidden());
 
                 
                 // Call surface shading setup or any other actions here
@@ -539,6 +546,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
             keepCurrentModels: true, // Keeps existing models in the viewer
             globalOffset: { x: 0, y: 0, z: 0 },  // Force all models to origin
             applyRefPoint: true, // Apply reference point for 3D shared coordinates
+            skipHiddenFragments: true
             // placementTransform: new THREE.Matrix4().setPosition(offset),
         };
         // console.log("Model loaded successfully:", doc);

@@ -351,7 +351,9 @@ function levelsPanel() {
             li.classList.add("active");
             const tempLiveData = document.getElementById("temperature");
             if (tempLiveData.classList.contains("active")) {
+              console.log("active")
               if (window.LiveData === 'DB8') {
+                console.log("DB8 HEATMAP");
                 HEATMAP(viewer, index);
               }
             }

@@ -24,7 +24,7 @@ export async function AgreementFunctionalLocationSearch(viewer, functionalLocati
       const searchPromise = new Promise((resolve) => {
         model.search(location.id, (dbIDs) => {
           if (dbIDs && dbIDs.length > 0) {
-            console.log(`Found dbIDs for ${location.id}:`, dbIDs);
+            // console.log(`Found dbIDs for ${location.id}:`, dbIDs);
             // Add dbIDs with their model reference
             dbIDs.forEach(id => {
               allDbIds.push({ dbId: id, model: model });
@@ -44,7 +44,7 @@ export async function AgreementFunctionalLocationSearch(viewer, functionalLocati
 
   // Now apply coloring and selection to all collected dbIDs
   if (allDbIds.length > 0) {
-    console.log(`Total dbIDs found: ${allDbIds.length}`);
+    // console.log(`Total dbIDs found: ${allDbIds.length}`);
     
     // Group dbIDs by model for efficient processing
     const dbIdsByModel = {};
@@ -59,7 +59,7 @@ export async function AgreementFunctionalLocationSearch(viewer, functionalLocati
     // Apply coloring and selection for each model
     Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
       console.log(`Highlighting ${dbIds.length} objects in model:`, dbIds);
-      viewer.setThemingColor(dbIds, color, models[0]);
+      viewer.setThemingColor(dbIds, color, models[1]);
       viewer.select(dbIds, model);
     });
   } else {
