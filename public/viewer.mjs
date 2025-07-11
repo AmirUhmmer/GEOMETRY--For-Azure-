@@ -366,6 +366,17 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 }
 
 
+                window.addEventListener("message", (event) => {
+                    console.log("📨 Message received in iframe:", event.data);
+
+                    if (event.data?.type === "functionallocations") {
+                        console.log("✅[VIEWER LISTENER] FL payload received:", event.data.payload);
+                        window.agreementFL.push(...event.data.payload);
+                        AgreementFunctionalLocationSearch(viewer, event.data.payload);
+                    }
+                });
+
+
 
                 let urn, modelUrn, urns = [];
                 models.forEach(model => {
