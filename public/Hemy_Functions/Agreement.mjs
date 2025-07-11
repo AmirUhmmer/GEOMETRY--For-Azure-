@@ -60,7 +60,7 @@ export async function AgreementFunctionalLocationSearch(viewer, functionalLocati
     Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
       console.log(`Highlighting ${dbIds.length} objects in model:`, dbIds);
       for (const id of dbIds) {
-        viewer.setThemingColor(id, color, models[0]);
+        viewer.setThemingColor(id, color, models[1]);
       }
       viewer.select(dbIds, model);
     });
