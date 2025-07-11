@@ -59,7 +59,9 @@ export async function AgreementFunctionalLocationSearch(viewer, functionalLocati
     // Apply coloring and selection for each model
     Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
       console.log(`Highlighting ${dbIds.length} objects in model:`, dbIds);
-      viewer.setThemingColor(dbIds, color, models[1]);
+      for (const id of dbIds) {
+        viewer.setThemingColor(id, color, models[0]);
+      }
       viewer.select(dbIds, model);
     });
   } else {
