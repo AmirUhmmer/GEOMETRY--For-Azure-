@@ -641,14 +641,14 @@ function searchAndProcess(model, id, type, outputArray, selectionColor) {
 
     const fitAndSelect = () => {
       if (alldbidFunctionalLocation.length > 0) {
-        viewer.fitToView(alldbidFunctionalLocation, models[0]);
+        viewer.fitToView(alldbidFunctionalLocation[0], models[0]);
         if (alldbidAsset.length === 0) {
           models.forEach((model) => viewer.isolate(alldbidFunctionalLocation, model));
         }
       }
 
       if (alldbidAsset.length > 0) {
-        models.forEach((model) => viewer.fitToView(alldbidAsset, model));
+        models.forEach((model) => viewer.fitToView(alldbidAsset[0], model));
       }
 
       models.forEach((model) => viewer.select(alldbid, model));
