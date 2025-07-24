@@ -729,16 +729,116 @@ function searchAndProcess(model, id, type, outputArray, selectionColor) {
 
 
 export function showAllTasks(viewer, RepeatingTask) {
-  viewer.showAll(); // Show all objects first
+  viewer.showAll();
   const models = viewer.impl.modelQueue().getModels();
   const header = document.getElementById("preview");
   header.style.top = "0em";
   viewer.resize();
 
-  let selectionColor;
-  // viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB green (selection highlight)
+  const JSONPayload = JSON.parse(RepeatingTask.JSONPayload); // parse the string
 
-  const JSONPayload = RepeatingTask.JSONPayload;
+  const cleaningRegex = /(clean|cleaning|mop|wipe|cloth)/i;
+  const repairRegex = /(fix|assess|issue|troubleshoot|assessment|control|report)/i;
+  const winterRegex = /(snow|ice)/i;
+  const greenRegex = /(green|green areas|maintain green areas)/i;
 
-  console.log(JSONPayload);
+  let alldbid = [];
+
+  // Helper: process props and apply theming
+  function processProps(props, dbID, model, expectedID, outputArray, type, color) {
+    let assetIDValue = null;
+    let assetLevel = null;
+    let name = props.name;
+    let category = props.Category;
+
+    props.properties.forEach((prop) => {
+      const { displayName, displayValue, displayCategory } = prop;
+
+      if (displayName === "Asset ID" || displayName === "Asset ID (GUID)") {
+        assetIDValue = displayValue;
+      }
+
+      if (
+        (displayName === "Level" || displayName === "Schedule Level") &&
+        displayCategory === "Constraints"
+      ) {
+        assetLevel = displayValue;
+      }
+
+      if (displayName === "Category") {
+        category = displayValue;
+      }
+    });
+
+    if (category === "Revit Room" || category === "Revit Rooms") return;
+
+    const match = assetIDValue === expectedID && assetIDValue != null && name != null;
+
+    if (match) {
+      outputArray.push(dbID);
+      alldbid.push(dbID);
+      viewer.setThemingColor(dbID, color, model);
+    }
+  }
+
+  // Helper: search by ID and process props
+  function searchAndProcess(model, id, type, outputArray, color) {
+    return new Promise((resolve) => {
+      model.search(id, (dbIDs) => {
+        const propPromises = dbIDs.map((dbID) => {
+          return new Promise((propResolve) => {
+            model.getProperties(dbID, (props) => {
+              processProps(props, dbID, model, id, outputArray, type, color);
+              propResolve();
+            });
+          });
+        });
+
+        Promise.all(propPromises).then(resolve);
+      });
+    });
+  }
+
+  const promises = [];
+
+  // 🔁 Loop through each task
+  JSONPayload.forEach((task) => {
+    const { TaskTypeName, TaskName, FunctionalLocation, HardAssetID } = task;
+
+    const STBase = TaskTypeName.toLowerCase().trim();
+    const taskName = TaskName.toLowerCase().trim();
+
+    // 🎨 Determine color based on task type or name
+    let selectionColor;
+    if (cleaningRegex.test(STBase) || cleaningRegex.test(taskName)) {
+      selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
+    } else if (repairRegex.test(STBase) || repairRegex.test(taskName)) {
+      selectionColor = new THREE.Vector4(1, 1, 0, 1); // yellow
+    } else if (winterRegex.test(STBase) || winterRegex.test(taskName)) {
+      selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
+    } else if (greenRegex.test(STBase) || greenRegex.test(taskName)) {
+      selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
+    } else {
+      selectionColor = new THREE.Vector4(0.54, 0.17, 0.89, 1); // purple
+    }
+
+    // Apply color
+    viewer.setSelectionColor(new THREE.Color(selectionColor.x, selectionColor.y, selectionColor.z));
+
+    // Process both Functional Location and Hard Asset
+    if (FunctionalLocation && FunctionalLocation !== "N") {
+      promises.push(searchAndProcess(models[0], FunctionalLocation, "floc", [], selectionColor));
+    }
+    if (HardAssetID && HardAssetID !== "N") {
+      promises.push(searchAndProcess(models[0], HardAssetID, "asset", [], selectionColor));
+    }
+  });
+
+  // 🔚 After all tasks processed, do camera + walk
+  Promise.all(promises).then(() => {
+    models.forEach((model) => viewer.select(alldbid, model));
+    if (alldbid.length > 0) {
+      viewer.fitToView(alldbid, models[0]);
+    }
+  });
 }
