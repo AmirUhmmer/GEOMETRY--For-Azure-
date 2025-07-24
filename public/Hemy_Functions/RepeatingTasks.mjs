@@ -521,6 +521,7 @@ export function showTasks(viewer, RepeatingTask) {
 
   const hardAssetID = RepeatingTask.HardAsset;
   const funcLocID = RepeatingTask.FunctionalLocation;
+  const STBase = RepeatingTask.STBase.toLowerCase().trim();
   const taskName = RepeatingTask.Name.toLowerCase().trim();
 
   const cleaningRegex = /(clean|cleaning|mop|wipe|cloth)/i;
@@ -529,16 +530,39 @@ export function showTasks(viewer, RepeatingTask) {
   const greenRegex = /(green|green areas|maintain green areas)/i;
 
 
-  if (cleaningRegex.test(taskName)) {
+  // if (cleaningRegex.test(taskName)) {
+  //   selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
+  //   viewer.setSelectionColor(new THREE.Color(0, 0, 1));
+  // } else if (repairRegex.test(taskName)) {
+  //   selectionColor = new THREE.Vector4(1, 1, 0, 1); // yellow
+  //   viewer.setSelectionColor(new THREE.Color(1, 1, 0));
+  // } else if (winterRegex.test(taskName)) {
+  //   selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
+  //   viewer.setSelectionColor(new THREE.Color(0.231, 0.976, 0.965));
+  // } else if (greenRegex.test(taskName)) {
+  //   selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
+  //   viewer.setSelectionColor(new THREE.Color(0.784, 0.976, 0.231));
+  // } else {
+  //   selectionColor = new THREE.Vector4(0.54, 0.17, 0.89, 1); // default purple
+  //   viewer.setSelectionColor(new THREE.Color(0.54, 0.17, 0.89));
+  // }
+
+  // console.log("cleaning match:", cleaningRegex.test(taskName));
+  // console.log("repair match:", repairRegex.test(taskName));
+  // console.log("winter match:", winterRegex.test(taskName));
+  // console.log("green match:", greenRegex.test(taskName));
+
+
+  if (cleaningRegex.test(STBase)) {
     selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
     viewer.setSelectionColor(new THREE.Color(0, 0, 1));
-  } else if (repairRegex.test(taskName)) {
+  } else if (repairRegex.test(STBase)) {
     selectionColor = new THREE.Vector4(1, 1, 0, 1); // yellow
     viewer.setSelectionColor(new THREE.Color(1, 1, 0));
-  } else if (winterRegex.test(taskName)) {
+  } else if (winterRegex.test(STBase)) {
     selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
     viewer.setSelectionColor(new THREE.Color(0.231, 0.976, 0.965));
-  } else if (greenRegex.test(taskName)) {
+  } else if (greenRegex.test(STBase)) {
     selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
     viewer.setSelectionColor(new THREE.Color(0.784, 0.976, 0.231));
   } else {
@@ -546,13 +570,9 @@ export function showTasks(viewer, RepeatingTask) {
     viewer.setSelectionColor(new THREE.Color(0.54, 0.17, 0.89));
   }
 
-  console.log("cleaning match:", cleaningRegex.test(taskName));
-  console.log("repair match:", repairRegex.test(taskName));
-  console.log("winter match:", winterRegex.test(taskName));
-  console.log("green match:", greenRegex.test(taskName));
 
-
-  console.log("showTasks called with RepeatingTask:", taskName);
+  console.log("showTasks called with task name:", taskName);
+  console.log("showTasks called with st base:", STBase);
   console.log("showTasks called with HardAsset:", hardAssetID);
   console.log("showTasks called with FunctionalLocation:", funcLocID);
 

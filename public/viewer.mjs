@@ -339,7 +339,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 let HardAsset = localStorage.getItem('HardAssetChecker');
 
-                //console.log(HardAsset);
+    //-------------------------------------------------FUNCTIONS----------------------------------------------
 
                 HardAssetSearch(viewer, HardAsset);
 
@@ -351,7 +351,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 WOServiceTask(viewer);
 
-                // ToolbarButton2DFaro(viewer, modelAbbreviation);
+                // TASK colors highlight websocket
                 if (window.socket) {
                     window.socket.onmessage = async (event) => {
                     const message = JSON.parse(event.data);
