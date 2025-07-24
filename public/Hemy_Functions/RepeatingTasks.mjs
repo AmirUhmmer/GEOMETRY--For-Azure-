@@ -734,7 +734,7 @@ export function showAllTasks(viewer, RepeatingTask) {
   const header = document.getElementById("preview");
   header.style.top = "0em";
   viewer.resize();
-
+  console.log("SHOWING ALL TASK");
   const JSONPayload = JSON.parse(RepeatingTask.JSONPayload); // parse the string
 
   const cleaningRegex = /(clean|cleaning|mop|wipe|cloth)/i;
