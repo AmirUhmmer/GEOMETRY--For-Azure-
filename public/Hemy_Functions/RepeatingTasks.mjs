@@ -711,3 +711,34 @@ function searchAndProcess(model, id, type, outputArray, selectionColor) {
     fitAndSelect();
   });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export function showAllTasks(viewer, RepeatingTask) {
+  viewer.showAll(); // Show all objects first
+  const models = viewer.impl.modelQueue().getModels();
+  const header = document.getElementById("preview");
+  header.style.top = "0em";
+  viewer.resize();
+
+  let selectionColor;
+  // viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB green (selection highlight)
+
+  const JSONPayload = RepeatingTask.JSONPayload;
+
+  console.log(JSONPayload);
+}
