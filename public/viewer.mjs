@@ -355,12 +355,12 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 if (window.socket) {
                     window.socket.onmessage = async (event) => {
                     const message = JSON.parse(event.data);
-                    console.log("Received message:", event.data);
+                    // console.log("Received message:", event.data);
                         if (message.type === "showTask") {
                             console.log("Received message:", event.data);
                             showTasks(viewer, message);
                         } else if(message.type === "showAllTask"){ 
-                            console.log("Received message:", event.data);
+                            console.log("Received message [show all task]:", event.data);
                             showAllTasks(viewer, message);
                         }
                     };
