@@ -61,5 +61,6 @@ jobs:
         with:
           app-name: 'HemyDigitalTwin'
           slot-name: 'Production'
-          package: .
+          # package: .
+          package: ./build 
           
