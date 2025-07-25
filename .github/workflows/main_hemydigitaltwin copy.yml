@@ -1,0 +1,37 @@
+name: Build and deploy Node.js app to Azure Web App - HemyDigitalTwin
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+      - name: npm install and build
+        run: |
+          npm install
+          npm run build
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_DBC1B735D2D64F348F68D638BD14ACEB }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_98E3526A1CE545E7B1FEB75E64628DCE }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_91AC71590A314780AE0B23753F7FA4A9 }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'HemyDigitalTwin'
+          slot-name: 'Production'
+          package: ./build
