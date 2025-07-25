@@ -1,4 +1,4 @@
-name: Build and deploy Node.js app to Azure Web App - HemyDigitalTwin
+name: Deploy Node.js app to Azure Web App - HemyDigitalTwin
 
 on:
   push:
@@ -7,20 +7,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_and_deploy:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
-      - name: npm install and build
-        run: |
-          npm install
-          npm run build
+      - name: Install dependencies
+        run: npm ci
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -34,4 +34,4 @@ jobs:
         with:
           app-name: 'HemyDigitalTwin'
           slot-name: 'Production'
-          package: ./build
+          package: .
