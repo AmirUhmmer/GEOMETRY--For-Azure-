@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  id-token: write  # ✅ Required for OIDC federated auth
+  contents: read   # ✅ Needed to checkout code
+
 jobs:
   deploy:
     runs-on: windows-latest
