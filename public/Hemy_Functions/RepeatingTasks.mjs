@@ -563,8 +563,8 @@ export function showTasks(viewer, RepeatingTask) {
     selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
     viewer.setSelectionColor(new THREE.Color(0.231, 0.976, 0.965));
   } else if (greenRegex.test(STBase)) {
-    selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
-    viewer.setSelectionColor(new THREE.Color(0.784, 0.976, 0.231));
+    selectionColor = new THREE.Vector4(0, 1, 0, 1); // greenish
+    viewer.setSelectionColor(new THREE.Color(0, 1, 0)); 
   } else {
     selectionColor = new THREE.Vector4(0.54, 0.17, 0.89, 1); // default purple
     viewer.setSelectionColor(new THREE.Color(0.54, 0.17, 0.89));
