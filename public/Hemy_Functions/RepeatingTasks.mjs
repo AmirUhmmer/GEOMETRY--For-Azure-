@@ -627,6 +627,7 @@ export function showTasks(viewer, RepeatingTask) {
     if (match) {
       outputArray.push(dbID);
       alldbid.push(dbID);
+      viewer.setThemingColor(dbID, null, model);
       viewer.setThemingColor(dbID, selectionColor, model);
     }
   }
