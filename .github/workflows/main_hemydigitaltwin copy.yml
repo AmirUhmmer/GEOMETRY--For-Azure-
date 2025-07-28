@@ -42,3 +42,4 @@ jobs:
           app-name: 'HemyDigitalTwin'
           slot-name: 'Production'
           package: .
+# test
