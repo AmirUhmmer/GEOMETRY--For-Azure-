@@ -566,8 +566,8 @@ export function showTasks(viewer, RepeatingTask) {
     selectionColor = new THREE.Vector4(0, 1, 0, 1); // greenish
     viewer.setSelectionColor(new THREE.Color(0, 1, 0)); 
   } else {
-    selectionColor = new THREE.Vector4(0.54, 0.17, 0.89, 1); // default purple
-    viewer.setSelectionColor(new THREE.Color(0.54, 0.17, 0.89));
+    selectionColor = new THREE.Vector4(1.0, 0.349, 0.804, 1); // default pink
+    viewer.setSelectionColor(new THREE.Color(1.0, 0.349, 0.804,));
   }
 
 
