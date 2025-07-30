@@ -820,7 +820,7 @@ export function showAllTasks(viewer, RepeatingTask) {
     } else if (greenRegex.test(STBase) || greenRegex.test(taskName)) {
       selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
     } else {
-      selectionColor = new THREE.Vector4(0.54, 0.17, 0.89, 1); // purple
+      selectionColor = new THREE.Vector4(1.0, 0.349, 0.804, 1); // default pink
     }
 
     // Apply color
