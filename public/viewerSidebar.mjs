@@ -13,6 +13,23 @@ document.getElementById("fire-plans").addEventListener("click", firePlansPanel);
 
 
 
+const toggleBtn = document.getElementById('toggleSidebar');
+const sidebar = document.getElementById('viewerSidebar');
+toggleBtn.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+  if(!sidebar.classList.contains('open')){
+    sidebar.style.visibility = 'hidden';
+    document.getElementById('preview').style.width = '100%';
+    setTimeout(() => {
+      window.viewerInstance.resize();
+    }, 300);
+  } else {
+    sidebar.style.visibility = 'visible';
+  }
+});
+
+
+
 
 
 document.getElementById("filter").addEventListener("keydown", function (event) {
@@ -97,7 +114,7 @@ async function modelBrowserPanel() {
   const panel = document.getElementById("model-browser-panel");
   const isVisible = panel.style.visibility === "visible";
   panel.style.visibility = isVisible ? "hidden" : "visible";
-  document.getElementById("preview").style.width = isVisible ? "97%" : "69%";
+  document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
 
   setTimeout(() => {
     window.viewerInstance.resize();
@@ -315,7 +332,7 @@ function levelsPanel() {
   const panel = document.getElementById("levels-panel");
   const isVisible = panel.style.visibility === "visible";
   panel.style.visibility = isVisible ? "hidden" : "visible";
-  document.getElementById("preview").style.width = isVisible ? "97%" : "69%";
+  document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
 
   setTimeout(() => {
     window.viewerInstance.resize();
@@ -395,7 +412,7 @@ async function liveDataPanel() {
   levelsPanel.style.visibility = "hidden";
   firePanel.style.visibility = "hidden";
   panel.style.visibility = isVisible ? "hidden" : "visible";
-  document.getElementById("preview").style.width = isVisible ? "97%" : "69%";
+  document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
 
   setTimeout(() => {
     viewer.resize();
@@ -483,7 +500,7 @@ async function firePlansPanel() {
   levelsPanel.style.visibility = "hidden";
   livedataPanel.style.visibility = "hidden";
   panel.style.visibility = isVisible ? "hidden" : "visible";
-  document.getElementById("preview").style.width = isVisible ? "97%" : "69%";
+  document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
 
   setTimeout(() => {
     viewer.resize();
