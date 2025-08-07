@@ -36,7 +36,7 @@ export async function fetchAccessToken() {
 }
 
 // Function to check if the token is still valid
-function isTokenExpired() {
+export function isTokenExpired() {
   const expires_at = localStorage.getItem("expires_at");
   return !expires_at || Date.now() >= parseInt(expires_at, 10);
 }
