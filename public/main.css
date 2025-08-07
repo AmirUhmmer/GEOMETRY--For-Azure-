@@ -28,6 +28,7 @@ body, html {
     align-items: center;
     max-width: 100%; /* Ensure it does not overflow */
     box-sizing: border-box;
+    background-color: #fff;
 }
 
 
