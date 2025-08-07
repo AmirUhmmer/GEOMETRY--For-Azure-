@@ -96,7 +96,6 @@ body, html {
   }
 
   #viewerSidebar {
-    right: -60px; /* Hide sidebar initially */
     transition: right 0.3s ease;
   }
 
@@ -105,22 +104,12 @@ body, html {
   }
 
   #preview {
-    width: 100% !important;
+    width: 100%;
   }
 }
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
-  /* #viewerSidebar {
-    width: 60px;
-    height: 100%;
-    top: 0;
-    right: -60px;
-    position: fixed;
-    background-color: white;
-    box-shadow: -2px 0 8px rgba(0,0,0,0.1);
-    z-index: 1001;
-  } */
 
   #viewerSidebar.open {
     right: 0;

@@ -25,6 +25,10 @@ toggleBtn.addEventListener('click', () => {
     }, 300);
   } else {
     sidebar.style.visibility = 'visible';
+    document.getElementById('preview').style.width = '95%';
+    setTimeout(() => {
+      window.viewerInstance.resize();
+    }, 300);
   }
 });
 
