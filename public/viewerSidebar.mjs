@@ -2,7 +2,7 @@
 import * as mainFunction from './main.mjs'
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("HELLOOO WORLD");
+  // console.log("HELLOOO WORLD");
   if (!localStorage.getItem("authToken") || mainFunction.isTokenExpired()) {
     mainFunction.fetchAccessToken(); // Starts fetching early, before user clicks anything
   }

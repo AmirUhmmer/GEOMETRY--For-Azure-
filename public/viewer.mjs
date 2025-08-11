@@ -221,7 +221,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 function hideGenericModels(viewer, model) {
                     model.getObjectTree(function (instanceTree) {
-                        const dbIdsToHide = [];
+                        // const dbIdsToHide = [];
                         console.log(dbIdsToHide);
                         instanceTree.enumNodeChildren(instanceTree.getRootId(), function (dbId) {
                             model.getProperties(dbId, function (props) {
