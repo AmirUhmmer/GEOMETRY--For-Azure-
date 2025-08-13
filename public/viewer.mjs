@@ -219,44 +219,53 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     Sol11PicsSPRITES(viewer);
                 }
 
-                function hideGenericModels(viewer, model) {
-                    model.getObjectTree(function (instanceTree) {
-                        // const dbIdsToHide = [];
-                        console.log(dbIdsToHide);
-                        instanceTree.enumNodeChildren(instanceTree.getRootId(), function (dbId) {
-                            model.getProperties(dbId, function (props) {
+                async function hideGenericModels(viewer, model) {
+                    // Wrap getObjectTree in a promise
+                    const instanceTree = await new Promise((resolve, reject) => {
+                        model.getObjectTree(function(tree) {
+                            resolve(tree);
+                        }, reject);
+                    });
+
+                    const dbIdsToHide = [];
+
+                    // Collect all dbIds
+                    const rootId = instanceTree.getRootId();
+                    const allDbIds = [];
+                    instanceTree.enumNodeChildren(rootId, function(dbId) {
+                        allDbIds.push(dbId);
+                    }, true);
+
+                    // For each dbId, get properties as a promise
+                    const propertyPromises = allDbIds.map(dbId => {
+                        return new Promise(resolve => {
+                            model.getProperties(dbId, function(props) {
                                 if (props && props.properties) {
                                     const categoryProp = props.properties.find(p => p.displayName === 'Category');
-                                    if (categoryProp && categoryProp.displayValue === 'Revit Generic Models') {
-                                        const zoneNameProp = props.properties.find(p => p.displayName === 'NV3DZoneName');
-                                        if (zoneNameProp) {
-                                            if (zoneNameProp.displayValue.includes("Parking Area")) {
-                                                // Do nothing
-                                            } else {
-                                                dbIdsToHide.push(dbId);
-                                            }
-                                        }
+                                    const zoneNameProp = props.properties.find(p => p.displayName === 'NV3DZoneName');
+
+                                    if (
+                                        categoryProp &&
+                                        categoryProp.displayValue === 'Revit Generic Models' &&
+                                        zoneNameProp &&
+                                        !zoneNameProp.displayValue.includes('Parking Area')
+                                    ) {
+                                        dbIdsToHide.push(dbId);
                                     }
                                 }
+                                resolve();
                             }, true);
-                        }, true);
-                
-                        // Wait a short delay to allow getProperties to complete for multiple dbIds
-                        setTimeout(() => {
-                            if (dbIdsToHide.length > 0) {
-                                //console.log("Hiding Generic Models:", dbIdsToHide);
-                                viewer.hide(dbIdsToHide);
-
-                                // const frags = model.getFragmentList();
-                                // dbIdsToHide.forEach(dbId => {
-                                //     model.getData().instanceTree.enumNodeFragments(dbId, fragId => {
-                                //         frags.setVisibility(fragId, false);
-                                //     });
-                                // });
-                                // viewer.impl.sceneUpdated(true);
-                            }
-                        }, 2000);
+                        });
                     });
+
+                    // Wait for all property checks to finish
+                    await Promise.all(propertyPromises);
+
+                    // Hide the collected nodes
+                    if (dbIdsToHide.length > 0) {
+                        viewer.hide(dbIdsToHide);
+                        console.log('Hiding Generic Models:', dbIdsToHide);
+                    }
                 }
                 
                 // viewer.anyLayerHidden();
