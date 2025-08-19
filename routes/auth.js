@@ -73,6 +73,9 @@ router.get('/api/auth/callback', authCallbackMiddleware, (req, res) => {
 //     res.json(req.publicOAuthToken);
 // });
 
+
+// 'Authorization': `Basic SERuVXlvcDFCcjZoS2dGa1BGTWZka3JOY1k4MTFpTTc1OUJFQ2hwWWtmZVVaM3JyOkJoRzdNaG1FMjdka1RuY3ZiRjFGOFlMd09wRllxT3I0aTN2ak9zUWpwVVplUGkzdnBhMW1VcTNHNlgwdjdLUHA=`,
+
 // ENABLE TOP CODE TO VIEW THE SIDEBAR MAIN.MJS, AUTH/TOKEN, AUTH/PROFILE
 
 router.get('/api/auth/token', async (req, res) => {
@@ -83,7 +86,6 @@ router.get('/api/auth/token', async (req, res) => {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded',
                 // 'Accept': 'application/json',
-                // 'Authorization': `Basic SERuVXlvcDFCcjZoS2dGa1BGTWZka3JOY1k4MTFpTTc1OUJFQ2hwWWtmZVVaM3JyOkJoRzdNaG1FMjdka1RuY3ZiRjFGOFlMd09wRllxT3I0aTN2ak9zUWpwVVplUGkzdnBhMW1VcTNHNlgwdjdLUHA=`,
                 'x-user-id': '3a15881a-370e-4d72-80f7-8701c4b1806c'
             },
             data: querystring.stringify({
@@ -345,7 +347,98 @@ router.post('/api/data', (req, res) => {
 });
 
 
-// test
+
+
+
+
+
+
+
+
+// ASSET AUTOMATION CALLS
+//   const authToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IlZiakZvUzhQU3lYODQyMV95dndvRUdRdFJEa19SUzI1NiIsInBpLmF0bSI6ImFzc2MifQ.eyJzY29wZSI6WyJkYXRhOnJlYWQiLCJkYXRhOndyaXRlIiwiYWNjb3VudDpyZWFkIiwidmlld2FibGVzOnJlYWQiXSwiY2xpZW50X2lkIjoiSERuVXlvcDFCcjZoS2dGa1BGTWZka3JOY1k4MTFpTTc1OUJFQ2hwWWtmZVVaM3JyIiwiaXNzIjoiaHR0cHM6Ly9kZXZlbG9wZXIuYXBpLmF1dG9kZXNrLmNvbSIsImF1ZCI6Imh0dHBzOi8vYXV0b2Rlc2suY29tIiwianRpIjoiRWN6TWhlS0hRUTYyZTMzMVQ1M1Qwc1pKZHA4c3RjQjhOSllIMmUyQmZRNzFNdDYwbGlQV2xjTmJIeXhkd215ZCIsImV4cCI6MTc1NTYwODAzOX0.mV4xZIIWyxqIuO0CzJzEsU0EJL6fUJg6Xc9XO20a_YgattCclAGqfmrovR1OO-aSOePq3pCJ5tXyoPkzgvUelh6j1OsSPXIpnzyyINniyg-xnY8jbqAOFhF0w-czppeLXhIvqlRiHG1YeTiv7QcxKrs4hDwUFdtSPwERX51Wz3vFjV4RufpF83l0o8BMp_wjkHEV8XwR_yiv3omIoakbd6F82y8Qm2ZmKF0-Okhpr4lcozn1nGjl-jK_UTQ321Jw3DRVCcL9Y1-rW1krc4KtkXIKAvXrS1LYpUKTPWYMsI0Ivf_kooW5lJf9rkLN5f9w7RmR_jmD4Yrkn27xSYoeww";
+
+
+router.get("/api/acc/getWalls", async (req, res) => {
+  const EXCHANGE_ID = "ZXhjfm9wenNYd0J1UUd4VFdwME9maFVXWDNfTDJDfmIyYmRlMDA4LTQyNTAtMzRhNS1hMjFiLTg2OTMxMTI1ZTYyOA";
+
+  const authToken = "";
+
+  if (!authToken) {
+    return res.status(400).json({ error: "Missing Authorization token" });
+  }
+
+  try {
+    const query = `
+      query GetAllElements($exchangeId: ID!, $elementPagination: PaginationInput) {
+        exchange(exchangeId: $exchangeId) {
+          elements(pagination: $elementPagination) {
+            pagination {
+              cursor
+              pageSize
+            }
+            results {
+              id
+              name
+              properties {
+                results {
+                  name
+                  value
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    let allResults = [];
+    let cursor = "";
+    let hasMore = true;
+
+    while (hasMore) {
+      const gqlResponse = await fetch(
+        "https://developer.api.autodesk.com/dataexchange/2023-05/graphql",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+            "Region": "EMEA"
+          },
+          body: JSON.stringify({
+            query,
+            variables: {
+              exchangeId: EXCHANGE_ID,
+              elementPagination: { limit: 100, cursor }
+            },
+            operationName: "GetAllElements"
+          })
+        }
+      );
+
+      const data = await gqlResponse.json();
+
+      const elements = data.data.exchange.elements;
+      allResults.push(...elements.results);
+
+      if (elements.pagination.cursor) {
+        cursor = elements.pagination.cursor;
+      } else {
+        hasMore = false;
+      }
+    }
+
+    res.status(200).json({ count: allResults.length, results: allResults });
+
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({ error: "Unexpected error", details: err.message });
+  }
+});
+
+
+
 
 
 module.exports = router;
