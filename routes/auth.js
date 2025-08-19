@@ -362,7 +362,7 @@ router.post('/api/data', (req, res) => {
 router.get("/api/acc/getWalls", async (req, res) => {
   const EXCHANGE_ID = "ZXhjfm9wenNYd0J1UUd4VFdwME9maFVXWDNfTDJDfmIyYmRlMDA4LTQyNTAtMzRhNS1hMjFiLTg2OTMxMTI1ZTYyOA";
 
-  const authToken = "";
+  const authToken = req.headers["authtoken"];
 
   if (!authToken) {
     return res.status(400).json({ error: "Missing Authorization token" });
