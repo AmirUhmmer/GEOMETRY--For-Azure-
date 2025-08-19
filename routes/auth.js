@@ -360,7 +360,7 @@ router.post('/api/data', (req, res) => {
 
 
 router.get("/api/acc/getWalls", async (req, res) => {
-  const EXCHANGE_ID = "ZXhjfm9wenNYd0J1UUd4VFdwME9maFVXWDNfTDJDfmIyYmRlMDA4LTQyNTAtMzRhNS1hMjFiLTg2OTMxMTI1ZTYyOA";
+  const EXCHANGE_ID = "ZXhjfm5YNXNGbDB0bmRqeXBYTzhOV2VqQktfTDJDfmRjMWUxNDE4LTJjYTAtMzlhNS1hZTc3LTkyZGQzNDU3MTg2Mw";
 
   const authToken = req.headers["authtoken"];
 
