@@ -48,7 +48,7 @@ async function initApp() {
     let expires_at = localStorage.getItem("expires_at");
     let internal_token = localStorage.getItem("internal_token");
 
-    console.log(authToken);
+    // console.log(authToken);
     // console.log(refreshToken);
     // console.log(expires_at);
     // console.log(internal_token);
@@ -215,6 +215,7 @@ async function initApp() {
         "10ff2730-d365-ef11-bfe3-6045bddd062a": [
           "urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA", //archi
           "urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A", //mep
+          "urn:adsk.wipemea:dm.lineage:9RzMYc2xRfu3IQ8Kzf3Cpg" //site
         ],
 
         // SOL 11-23 for Production
@@ -297,6 +298,7 @@ async function initApp() {
         "Solbråveien 10 AS": [
           "urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A", //mep
           "urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA", //archi
+          "urn:adsk.wipemea:dm.lineage:9RzMYc2xRfu3IQ8Kzf3Cpg" //site
         ],
 
         // SOL11
