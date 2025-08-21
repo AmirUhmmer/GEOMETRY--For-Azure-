@@ -228,6 +228,7 @@ async function initApp() {
         "85b61843-c1c8-ef11-b8e9-000d3ab86138": [
           "urn:adsk.wipemea:dm.lineage:k9jCDybIRKK0DqORUNDnrA", //archi
           "urn:adsk.wipemea:dm.lineage:F5rNrMwxSOaRGKtW8iwl1g", //mep
+          "urn:adsk.wipemea:dm.lineage:-fTOj3LuQzCme6_NYIjoHA" //SITE
         ],
 
         // JV3 for Production
@@ -311,6 +312,7 @@ async function initApp() {
         "Solbråveien 20 AS": [
           "urn:adsk.wipemea:dm.lineage:F5rNrMwxSOaRGKtW8iwl1g", //mep
           "urn:adsk.wipemea:dm.lineage:k9jCDybIRKK0DqORUNDnrA", //archi
+          "urn:adsk.wipemea:dm.lineage:-fTOj3LuQzCme6_NYIjoHA" //SITE
         ],
 
         // JV3
