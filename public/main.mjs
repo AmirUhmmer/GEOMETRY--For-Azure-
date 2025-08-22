@@ -222,6 +222,7 @@ async function initApp() {
         "8e334357-c3cc-ef11-b8e9-000d3a674a78": [
           "urn:adsk.wipemea:dm.lineage:fdosriHoSSq4NPIIkiyvVw", //archi
           "urn:adsk.wipemea:dm.lineage:1a6uXwpuRXykLPeEX-YFpg", //mep
+          "urn:adsk.wipemea:dm.lineage:D_5hWX3yQ2mpS2kI8C-axQ" //site
         ],
 
         // SOL20 for Production
