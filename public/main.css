@@ -478,9 +478,9 @@ body, html {
   display: none;
 }
 
+/* #toolbar-settingsTool, */
 
 
-
-#toolbar-levelsTool,   #toolbar-explodeTool, #toolbar-settingsTool, #showLiveDataListButton{
+#toolbar-levelsTool,   #toolbar-explodeTool,  #showLiveDataListButton{
  display: none;
 }
