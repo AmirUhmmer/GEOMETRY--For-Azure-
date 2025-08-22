@@ -203,8 +203,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 
 
 
-                const settingsTools = viewer.toolbar.getControl('settingsTools');
-                settingsTools.removeControl('toolbar-settingsTool');
+                // const settingsTools = viewer.toolbar.getControl('settingsTools');
+                // settingsTools.removeControl('toolbar-settingsTool');
                 
 
                 
