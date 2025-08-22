@@ -397,7 +397,9 @@ router.get("/api/acc/getElementsByCategory", async (req, res) => {
     do {
       const variables = {
         exchangeId,
-        elementFilter: { category },
+        elementFilter: {
+          query: `property.name.Category==${category}` // 🔑 proper filter
+        },
         elementPagination: { pageSize: 200, cursor }
       };
 
