@@ -411,7 +411,7 @@ router.get("/api/acc/getElementsByCategory", async (req, res) => {
             query,
             variables: {
               exchangeId: EXCHANGE_ID,
-              elementFilter: { query: `property.name.category==${category}` },
+              elementFilter: { query: `property.name.category=="${category}"` },
               elementPagination: { limit: 100, cursor }
             },
             operationName: "GetElements"
