@@ -353,26 +353,27 @@ router.post('/api/data', (req, res) => {
 
 
 
+//const token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IlZiakZvUzhQU3lYODQyMV95dndvRUdRdFJEa19SUzI1NiIsInBpLmF0bSI6ImFzc2MifQ.eyJzY29wZSI6WyJkYXRhOnJlYWQiLCJkYXRhOndyaXRlIiwiYWNjb3VudDpyZWFkIiwidmlld2FibGVzOnJlYWQiXSwiY2xpZW50X2lkIjoiSERuVXlvcDFCcjZoS2dGa1BGTWZka3JOY1k4MTFpTTc1OUJFQ2hwWWtmZVVaM3JyIiwiaXNzIjoiaHR0cHM6Ly9kZXZlbG9wZXIuYXBpLmF1dG9kZXNrLmNvbSIsImF1ZCI6Imh0dHBzOi8vYXV0b2Rlc2suY29tIiwianRpIjoiSElTQmJyUlVxYmdSS0MxMjZXUVkyZzlROWlKaUZIQTdYazBxMWM2MUZ3MlZoU3FJSG5LcHlHNTNEYU42YmVLeSIsImV4cCI6MTc1NTg1NTcwOX0.dENGUQWHEnbmIUcRxmz22rFe7xV0guYVL-Mo7_VqIi7tngI8fNZxHOUAmWsSBMdiLvQX_ySW0sjJMZzAtgYQ1oBzTTX9l9G9RgxoiVvGBgaswIGmumOC84F1YiN5O4RnHSoXohAiHgOx03hA_3PWNxLvwrnE4s0zzPrx5_ouGYAPd_aawz8vyFiBDi3Yj1tNNsGY5Q_11eAJ4yxsGkM7V4sAOZAfUkWgFYEDrGb2PJ-JW9tx8It4srV_SDbsIW_ZeZnRfLM3x_oQgH7b9IMxba8u8t15f8c56NrNhLvIXjRUuI2sEWCke2yS03SuF73kNJbJIesg_mqbhGVc5puHdg";
 
 
 // ASSET AUTOMATION CALLS
-
-router.get("/api/acc/getWalls", async (req, res) => {
-  const EXCHANGE_ID = "ZXhjfm5YNXNGbDB0bmRqeXBYTzhOV2VqQktfTDJDfmRjMWUxNDE4LTJjYTAtMzlhNS1hZTc3LTkyZGQzNDU3MTg2Mw";
-  const authToken = req.headers["authtoken"];
-
-  if (!authToken) {
-    return res.status(400).json({ error: "Missing Authorization token" });
-  }
-
+router.get("/api/acc/getElementsByCategory", async (req, res) => {
   try {
+    const category = req.headers["category"];
+    const token = req.headers.authtoken;
+    const exchangeId = req.headers["exchangeId"];
+    
     const query = `
-      query GetAllElements($exchangeId: ID!, $elementPagination: PaginationInput) {
+      query GetElementsByCategory(
+        $exchangeId: ID!, 
+        $elementFilter: ElementFilterInput, 
+        $elementPagination: PaginationInput
+      ) {
         exchange(exchangeId: $exchangeId) {
-          elements(pagination: $elementPagination) {
+          elements(filter: $elementFilter, pagination: $elementPagination) {
             pagination {
-              cursor
               pageSize
+              cursor
             }
             results {
               id
@@ -390,62 +391,137 @@ router.get("/api/acc/getWalls", async (req, res) => {
     `;
 
     let allResults = [];
-    let cursor = "";
-    let hasMore = true;
+    let cursor = null;
 
-    while (hasMore) {
-      const gqlResponse = await fetch(
-        "https://developer.api.autodesk.com/dataexchange/2023-05/graphql",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-            "Region": "EMEA"
-          },
-          body: JSON.stringify({
-            query,
-            variables: {
-              exchangeId: EXCHANGE_ID,
-              elementPagination: { limit: 100, cursor }
-            },
-            operationName: "GetAllElements"
-          })
-        }
-      );
-
-      const data = await gqlResponse.json();
-
-      const elements = data.data.exchange.elements;
-      allResults.push(...elements.results);
-
-      if (elements.pagination.cursor) {
-        cursor = elements.pagination.cursor;
-      } else {
-        hasMore = false;
-      }
-    }
-
-    // 🔑 Flatten properties into key/value
-    const cleanedResults = allResults.map(el => {
-      const props = {};
-      el.properties.results.forEach(p => {
-        props[p.name] = p.value;
-      });
-      return {
-        id: el.id,
-        name: el.name,
-        ...props
+    do {
+      const variables = {
+        exchangeId,
+        elementFilter: { category },
+        elementPagination: { pageSize: 200, cursor }
       };
-    });
 
-    res.status(200).json({ count: cleanedResults.length, results: cleanedResults });
+      const response = await fetch("https://developer.api.autodesk.com/data/v1/graphql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ query, variables }),
+      });
 
+      const data = await response.json();
+      const elements = data?.data?.exchange?.elements;
+
+      if (elements?.results) {
+        allResults = allResults.concat(elements.results);
+      }
+
+      cursor = elements?.pagination?.cursor || null; // next page
+    } while (cursor);
+
+    res.json(allResults);
   } catch (err) {
-    console.error("Error:", err);
-    res.status(500).json({ error: "Unexpected error", details: err.message });
+    console.error(err);
+    res.status(500).send("Error fetching elements");
   }
 });
+
+
+
+
+
+
+//get all objects without category [DB8]
+
+// router.get("/api/acc/getWalls", async (req, res) => {
+//   const EXCHANGE_ID = "ZXhjfm5YNXNGbDB0bmRqeXBYTzhOV2VqQktfTDJDfmRjMWUxNDE4LTJjYTAtMzlhNS1hZTc3LTkyZGQzNDU3MTg2Mw";
+//   const authToken = req.headers["authtoken"];
+
+//   if (!authToken) {
+//     return res.status(400).json({ error: "Missing Authorization token" });
+//   }
+
+//   try {
+//     const query = `
+//       query GetAllElements($exchangeId: ID!, $elementPagination: PaginationInput) {
+//         exchange(exchangeId: $exchangeId) {
+//           elements(pagination: $elementPagination) {
+//             pagination {
+//               cursor
+//               pageSize
+//             }
+//             results {
+//               id
+//               name
+//               properties {
+//                 results {
+//                   name
+//                   value
+//                 }
+//               }
+//             }
+//           }
+//         }
+//       }
+//     `;
+
+//     let allResults = [];
+//     let cursor = "";
+//     let hasMore = true;
+
+//     while (hasMore) {
+//       const gqlResponse = await fetch(
+//         "https://developer.api.autodesk.com/dataexchange/2023-05/graphql",
+//         {
+//           method: "POST",
+//           headers: {
+//             Authorization: `Bearer ${authToken}`,
+//             "Content-Type": "application/json",
+//             "Region": "EMEA"
+//           },
+//           body: JSON.stringify({
+//             query,
+//             variables: {
+//               exchangeId: EXCHANGE_ID,
+//               elementPagination: { limit: 100, cursor }
+//             },
+//             operationName: "GetAllElements"
+//           })
+//         }
+//       );
+
+//       const data = await gqlResponse.json();
+
+//       const elements = data.data.exchange.elements;
+//       allResults.push(...elements.results);
+
+//       if (elements.pagination.cursor) {
+//         cursor = elements.pagination.cursor;
+//       } else {
+//         hasMore = false;
+//       }
+//     }
+
+//     // 🔑 Flatten properties into key/value
+//     const cleanedResults = allResults.map(el => {
+//       const props = {};
+//       el.properties.results.forEach(p => {
+//         props[p.name] = p.value;
+//       });
+//       return {
+//         id: el.id,
+//         name: el.name,
+//         ...props
+//       };
+//     });
+
+//     res.status(200).json({ count: cleanedResults.length, results: cleanedResults });
+
+//   } catch (err) {
+//     console.error("Error:", err);
+//     res.status(500).json({ error: "Unexpected error", details: err.message });
+//   }
+// });
 
 
 
