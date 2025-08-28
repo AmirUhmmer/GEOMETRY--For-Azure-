@@ -48,7 +48,7 @@ async function initApp() {
     let expires_at = localStorage.getItem("expires_at");
     let internal_token = localStorage.getItem("internal_token");
 
-    console.log(authToken);
+    // console.log(authToken);
     // console.log(refreshToken);
     // console.log(expires_at);
     // console.log(internal_token);
