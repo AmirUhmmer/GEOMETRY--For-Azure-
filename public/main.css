@@ -393,7 +393,10 @@ body, html {
 
 
 /* *************************** LEVELS & Live Data PANEEEEEEL *************************** */
-.levels, .live-data, .fire-plan {
+.levels, 
+.live-data, 
+.fire-plan,
+.sheets-2d {
   font-family: ArtifaktElement;
   visibility: hidden;
   position: fixed;
@@ -411,14 +414,20 @@ body, html {
   overflow-y: auto;  /* Prevent outer scrollbars */
 }
 
-.levels-list, .live-data-list, .fire-plan-list {
+.levels-list, 
+.live-data-list, 
+.fire-plan-list,
+.sheets-2d-list {
   list-style: none;
   padding: 0;
   margin: 0;
   overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
-.levels-list li, .live-data-list li, .fire-plan-list li {
+.levels-list li, 
+.live-data-list li, 
+.fire-plan-list li,
+.sheets-2d-list li {
   cursor: pointer;
   padding: 10px 12px;
   margin-bottom: 8px;
@@ -427,12 +436,18 @@ body, html {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.levels-list li:hover, .live-data-list li:hover, .fire-plan-list li:hover {
+.levels-list li:hover, 
+.live-data-list li:hover, 
+.fire-plan-list li:hover,
+.sheets-2d-list li:hover {
   background-color: #e0e0e0;
   color: #0077c2;
 }
 
-.levels-list li.active, .live-data-list li.active, .fire-plan-list li.active {
+.levels-list li.active, 
+.live-data-list li.active, 
+.fire-plan-list li.active,
+.sheets-2d-list li.active {
   background-color: #0077c2;
   color: white;
 }
