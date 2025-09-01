@@ -766,7 +766,7 @@ function findSheetsFilesDeep(node, results = new Set(), visited = new Set()) {
     node.parent.data.name.toLowerCase().includes("sheets")
   ) {
     // Optional: get URN if available
-    console.log("2D SHEET:", node);
+    // console.log("2D SHEET:", node);
     const doc = node.getDocument && node.getDocument(); // works in some viewer versions
     const urn = doc?.getRoot()?.data?.urn?.replace("urn:", "");
 
