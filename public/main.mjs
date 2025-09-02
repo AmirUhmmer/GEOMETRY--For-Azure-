@@ -1,6 +1,13 @@
 import { initViewer, loadModel } from "./viewer.mjs";
 import { initTree } from "./sidebar.mjs";
 
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("HELLOOO WORLD");
+  if (!localStorage.getItem("authToken") || isTokenExpired()) {
+    fetchAccessToken(); // Starts fetching early, before user clicks anything
+  }
+});
+
 // window.agreementFL = window.agreementFL || [];
 
 // window.addEventListener("message", (event) => {
@@ -102,6 +109,7 @@ async function initApp() {
       let RepeatingTask = params["RT"]; // The Repeating Task, if it exists
       let WOST = params["WOST"]; // The Work Order Service Task, if it exists
       let sessionId = params["sessionId"]; // The session id, if it exists
+      let userType = params["user"]; // The user, if it exists
       const userGuid = params["userGuid"];
       window.userGuid = userGuid; // Store userGuid in the global window object
       
@@ -126,6 +134,23 @@ async function initApp() {
             socket.addEventListener("error", (error) => {
             console.error("⚠️ WebSocket error:", error);
             });
+      }
+
+
+      if (userType == "tenant") {
+        // document.getElementById("3D-button").style.display = "none";
+        document.getElementById("2D-sheets").style.display = "none";
+        document.getElementById("live-data").style.display = "none";
+        document.getElementById("zones-button").style.display = "none";
+        document.getElementById("model-browser").style.display = "none";
+        document.getElementById("levels").style.display = "none";
+      } else if (userType == "supplier") {
+        // document.getElementById("3D-button").style.display = "none";
+        document.getElementById("2D-sheets").style.display = "none";
+        document.getElementById("live-data").style.display = "none";
+        document.getElementById("zones-button").style.display = "none";
+        document.getElementById("model-browser").style.display = "none";
+        document.getElementById("levels").style.display = "none";
       }
 
       if (RepeatingTask || WOST) {

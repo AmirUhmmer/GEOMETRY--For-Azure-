@@ -12,7 +12,6 @@ import { AgreementFunctionalLocationSearch } from './Hemy_Functions/Agreement.mj
 import { rightToolbar } from './rightToolbar.mjs';
 
 
-
 async function getAccessToken(callback) {
     try {
         // const resp = await fetch('/api/auth/token');

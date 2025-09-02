@@ -1,13 +1,6 @@
 
 import * as mainFunction from './main.mjs'
 
-document.addEventListener("DOMContentLoaded", () => {
-  // console.log("HELLOOO WORLD");
-  if (!localStorage.getItem("authToken") || mainFunction.isTokenExpired()) {
-    mainFunction.fetchAccessToken(); // Starts fetching early, before user clicks anything
-  }
-});
-
 import { SPRITES } from '../DB8/DB8Sprites.mjs';
 import { HEATMAP } from '../DB8/DB8SurfaceShading.mjs';
 import { LightSPRITES } from '../DB8/DB8LightsSprites.mjs';

@@ -452,7 +452,6 @@ body, html {
   color: white;
 }
 
-
 .live-data-details,
 .live-data-legend {
   margin-top: 12px;
@@ -494,8 +493,19 @@ body, html {
 }
 
 /* #toolbar-settingsTool, */
+/* #toolbar-levelsTool,  */
 
 
-#toolbar-levelsTool,   #toolbar-explodeTool,  #showLiveDataListButton{
+
+
+
+
+
+
+/* ------------------------------------- TOOLBARS INSIDE 3D MODEL ------------------------------------- */
+#toolbar-documentModels,
+#toolbar-explodeTool, 
+#showLiveDataListButton
+{
  display: none;
 }

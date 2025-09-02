@@ -118,10 +118,10 @@ function performSearchAndIsolate(viewer, models, serviceTaskList) {
       // Loop through the models only once
       models.forEach((model) => {
         // Hide all objects first
-        viewer.isolate([], model);
+        // viewer.isolate([], model);
 
-        // Isolate the found objects
-        viewer.isolate(alldbid, model);
+        // // Isolate the found objects
+        // viewer.isolate(alldbid, model);
       });
       viewer.fitToView(alldbid, models[1]);
     })
