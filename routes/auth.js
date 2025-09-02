@@ -353,7 +353,7 @@ router.post('/api/data', (req, res) => {
 
 
 
-//const authToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IlZiakZvUzhQU3lYODQyMV95dndvRUdRdFJEa19SUzI1NiIsInBpLmF0bSI6ImFzc2MifQ.eyJzY29wZSI6WyJkYXRhOnJlYWQiLCJkYXRhOndyaXRlIiwiYWNjb3VudDpyZWFkIiwidmlld2FibGVzOnJlYWQiXSwiY2xpZW50X2lkIjoiSERuVXlvcDFCcjZoS2dGa1BGTWZka3JOY1k4MTFpTTc1OUJFQ2hwWWtmZVVaM3JyIiwiaXNzIjoiaHR0cHM6Ly9kZXZlbG9wZXIuYXBpLmF1dG9kZXNrLmNvbSIsImF1ZCI6Imh0dHBzOi8vYXV0b2Rlc2suY29tIiwianRpIjoiT3pnZDZJc2Q3SHVTSHJEa2xlY0I1YlQ5UldVQVBSOU1rQ0RHVW8zVmlUaWlkWEMxeFI0eDBxallqZ0xOb1MwayIsImV4cCI6MTc1NTg2NDU2M30.PbjTQ6zWuBNIW8_D5Q94S2Sl1ITormTVaAfR9UP3aSWZutrmkINALR11tAeCgnIK18vZh8lqg83hu3sv1i0dcmhqKK3m6mQB3R18TEFaSSnp4iaOnGBwxSSkZjSpe58GtWWQkSbeRQmu0bo-5wJyUpmMxR15v4R6PdO1xDlSchN42lizY--Hm-sUWq9s_6FG_jk7p9t5Nyo6CuD_Z-v4J09-6YFHy6wqHdvrcvl1ErBLIENftzHZ6aLgYCZfuRk91PRGpEe6MqtsY2Q-OyBcOF_tJuHleC8rEjxtWwX2z_rTZ5qA9Um-CwTniIz0_O7UnOKJsttL-xp5cEjO7yT7GA";
+//const authToken = 
   // const exchangeId = req.headers["exchangeId"];
 
  
@@ -364,6 +364,7 @@ router.get("/api/acc/getElementsByCategory", async (req, res) => {
   const authToken = req.headers.authtoken;
   const EXCHANGE_ID = req.headers["exchangeid"];
   const category = req.headers["category"];
+
 
   if (!authToken || !EXCHANGE_ID || !category) {
     return res.status(400).json({ error: "Missing required headers (authtoken, exchangeid, category)" });
@@ -380,6 +381,9 @@ router.get("/api/acc/getElementsByCategory", async (req, res) => {
           results {
             id
             name
+            alternativeIdentifiers {
+                externalElementId
+            }
             properties {
               results {
                 name
@@ -437,15 +441,17 @@ router.get("/api/acc/getElementsByCategory", async (req, res) => {
 
     // 🔑 Clean properties into key/value pairs
     const cleanedResults = allResults.map(el => {
-      const props = {};
-      el.properties.results.forEach(p => {
+    const props = {};
+    el.properties.results.forEach(p => {
         props[p.name] = p.value;
-      });
-      return {
+    });
+    return {
         id: el.id,
         name: el.name,
+        revitGuid: el.alternativeIdentifiers?.externalElementId || null,
+        elementId: el.alternativeIdentifiers?.originalSystemId || null,
         ...props
-      };
+    };
     });
 
     res.status(200).json({ count: cleanedResults.length, results: cleanedResults });
