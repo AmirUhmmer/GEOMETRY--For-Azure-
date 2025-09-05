@@ -137,7 +137,7 @@ async function initApp() {
       }
 
 
-      if (userType == "tenant") {
+      if (userType == "tenant" || userType == "supplier") {
         // document.getElementById("3D-button").style.display = "none";
         document.getElementById("2D-sheets").style.display = "none";
         document.getElementById("live-data").style.display = "none";

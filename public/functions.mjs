@@ -1,3 +1,4 @@
+// import { AgreementFunctionalLocationSearch } from "./functions/agreementFunctionalLocationSearch.mjs";
 window.agreementFL = window.agreementFL || [];
 
 window.addEventListener("message", (event) => {
@@ -17,7 +18,7 @@ window.addEventListener("message", (event) => {
   if (event.data?.type === "quoteFunctionalLocations") {
     console.log("✅ FL payload received:", event.data.payload);
     window.agreementFL.push(...event.data.payload);
-    //AgreementFunctionalLocationSearch(viewer, event.data.payload);
+    // AgreementFunctionalLocationSearch(viewer, event.data.payload);
   }
 });
 

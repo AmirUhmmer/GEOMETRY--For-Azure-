@@ -509,6 +509,15 @@ export function showRepeatingTaskPanel(viewer, taskArray, colorMapping) {
 
 
 
+
+
+
+
+
+
+// ************************************************** HEMY TASK HIGHLIGHTING FUNCTION **************************************************
+
+
 export function showTasks(viewer, RepeatingTask) {
   viewer.showAll(); // Show all objects first
   const models = viewer.impl.modelQueue().getModels();

@@ -407,11 +407,14 @@ export async function showLiveDataListPanel(viewer, model) {
 
         // Method to handle changes in the selected floor
         changedfloor(viewer, selectedFloor, LiveData) {
-            const temperatureCheckbox = document.getElementById('temperatureView').checked;
+            // const temperatureCheckbox = document.getElementById('temperatureView').checked;
+            const temperatureCheckbox = document.getElementById('temperature');
+
             console.log('Changed floor to:', selectedFloor, 'Live Data: ', LiveData);
-            if (temperatureCheckbox && LiveData === 'DB8') {
+            if (temperatureCheckbox.classList.contains('active') && LiveData === 'DB8') {
                 HEATMAP(viewer, selectedFloor);
-            } else if (temperatureCheckbox && LiveData === 'HG62') {
+                console.log("debug check");
+            } else if (temperatureCheckbox.classList.contains('active') && LiveData === 'HG62') {
                 HG62HEATMAP(viewer, selectedFloor);
             }
         }
