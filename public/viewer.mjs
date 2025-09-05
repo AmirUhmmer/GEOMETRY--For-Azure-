@@ -157,6 +157,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
         // console.log("CHECK: " + modelsLoaded);
 
         if (modelsLoaded === modelsToLoad.length) {
+            window.parent.postMessage({ type: "ready-for-data" }, "*");
             // console.log(viewer.getAllModels(), "All models have been loaded.");
             const accessToken = localStorage.getItem('authToken'); // Retrieve the access token
             // console.log('Access Token:', accessToken);
