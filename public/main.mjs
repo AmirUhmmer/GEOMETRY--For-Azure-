@@ -2,7 +2,7 @@ import { initViewer, loadModel } from "./viewer.mjs";
 import { initTree } from "./sidebar.mjs";
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("HELLOOO WORLD");
+  // console.log("HELLOOO WORLD");
   if (!localStorage.getItem("authToken") || isTokenExpired()) {
     fetchAccessToken(); // Starts fetching early, before user clicks anything
   }
@@ -293,10 +293,11 @@ async function initApp() {
           "urn:adsk.wipemea:dm.lineage:WNYKT1wuRgGtn_HVS_4HwQ", //IFC???
         ],
 
-        //TI135
+        //T135
         "cc023922-5405-f011-bae2-6045bde167c3": [
-          "urn:adsk.wipemea:dm.lineage:o9HaviQfQeimUj369y5d2Q", //ARCHI
-          // 'urn:adsk.wipemea:dm.lineage:7kP7byFxQhmsKJm7CrQUyw', //MEP
+          // "urn:adsk.wipemea:dm.lineage:o9HaviQfQeimUj369y5d2Q", // old ARCHI
+          'urn:adsk.wipemea:dm.lineage:M5roTczIQUOnle1X26vdUg', //ARCHI 
+          'urn:adsk.wipemea:dm.lineage:RQ0A1TdvSf-KNJ-WZ2b3Tw' //MEP
         ],
 
         "test": [
@@ -371,10 +372,14 @@ async function initApp() {
           "urn:adsk.wipemea:dm.lineage:WNYKT1wuRgGtn_HVS_4HwQ", //IFC??
         ],
 
-        // TI135
+        // T135
         "Trondheimsveien 135 AS": [
           //'urn:adsk.wipemea:dm.lineage:7kP7byFxQhmsKJm7CrQUyw', //MEP
-          "urn:adsk.wipemea:dm.lineage:o9HaviQfQeimUj369y5d2Q", //ARCHI
+          // "urn:adsk.wipemea:dm.lineage:o9HaviQfQeimUj369y5d2Q", //ARCHI
+          'urn:adsk.wipemea:dm.lineage:RQ0A1TdvSf-KNJ-WZ2b3Tw', //MEP
+          'urn:adsk.wipemea:dm.lineage:M5roTczIQUOnle1X26vdUg' //ARCHI 
+          
+          
         ],
       };
 
