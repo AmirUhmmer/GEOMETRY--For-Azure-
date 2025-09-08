@@ -49,8 +49,13 @@ export function initViewer(container) {
 
             viewer.start();
             viewer.setTheme('dark-theme');
-            viewer.setQualityLevel(true, true);
+            // viewer.setQualityLevel(true, true);
             // console.log(accessToken);
+            viewer.setOptimizeNavigation(true)
+            viewer.setQualityLevel(false, false);
+            viewer.setGroundShadow(false);
+            viewer.setGroundReflection(false);
+            viewer.setProgressiveRendering(true);
 
 
 
@@ -560,37 +565,48 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
     }
 
     // Success handler for loading individual models
-    async function onDocumentLoadSuccess(doc) {
-        // const geometry = doc.getRoot().getDefaultGeometry();
-        // const offset = geometry?.globalOffset || { x: 0, y: 0, z: 0 };
-        // console.log("Model global offset:", offset);
-        const loadOptions = {
-            keepCurrentModels: true, // Keeps existing models in the viewer
-            globalOffset: { x: 0, y: 0, z: 0 },  // Force all models to origin
-            applyRefPoint: true, // Apply reference point for 3D shared coordinates
+// keep it outside so it's remembered across calls
+let offset = null;
+
+async function onDocumentLoadSuccess(doc) {
+    let viewables = doc.getRoot().getDefaultGeometry();
+
+    let loadOptions;
+    if (modelsLoaded === 0) {
+        loadOptions = {
+            keepCurrentModels: true,
+            applyRefPoint: true,
             skipHiddenFragments: true
-            // placementTransform: new THREE.Matrix4().setPosition(offset),
         };
-        // console.log("Model loaded successfully:", doc);
-        
-        let viewables = doc.getRoot().getDefaultGeometry();
+    } else {
+        loadOptions = {
+            keepCurrentModels: true,
+            globalOffset: offset, // now it has the first model’s value
+            applyRefPoint: true,
+            skipHiddenFragments: true
+        };
+    }
 
-        try {
-            // Load the document node and aggregate models in the viewer
-            const node = await viewer.loadDocumentNode(doc, viewables, loadOptions);
-            // console.log("Model node loaded into viewer:", node);
+    try {
+        console.log("Loading model with options:", loadOptions);
+        const model = await viewer.loadDocumentNode(doc, viewables, loadOptions);
 
-            // const offset = viewer.model.getData().globalOffset //= { x: 0, y: 0, z: 0 }; Set the global offset for all models
-            // console.log(offset);
-
-            modelsLoaded++;  // Increment after successful load
-            checkAllModelsLoaded();  // Check if all models are loaded
-        } catch (error) {
-            console.error("Error loading model into viewer:", error);
-            alert("Error loading model into viewer. See console for details.");
+        // save offset from the *first* model
+        if (modelsLoaded === 0) {
+            offset = model.getData().globalOffset || { x: 0, y: 0, z: 0 };
+            console.log("Saved offset from first model:", offset);
         }
 
+        modelsLoaded++;
+        checkAllModelsLoaded();
+
+    } catch (error) {
+        console.error("Error loading model into viewer:", error);
+        alert("Error loading model into viewer. See console for details.");
     }
+}
+
+
 
     // Failure handler for loading models
     function onDocumentLoadFailure(code, message) {
@@ -644,10 +660,13 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 URN: latestVersionUrn
               };              
             // Your override logic
-            if (latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.cuy9_KQiSyadqUu2aI_Bsg?version=41') {
-                latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.cuy9_KQiSyadqUu2aI_Bsg?version=39';
+            if (latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.q8g1LE0vQ2WO5AHJ9Kd55A?version=3asda0') {
+                latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.q8g1LE0vQ2WO5AHJ9Kd55A?version=20';
             }
-    
+            // Latest Version URN: urn:adsk.wipemea:fs.file:vf.9RzMYc2xRfu3IQ8Kzf3Cpg?version=9
+            // Latest Version URN: urn:adsk.wipemea:fs.file:vf.q8g1LE0vQ2WO5AHJ9Kd55A?version=30
+            // Latest Version URN: urn:adsk.wipemea:fs.file:vf.gs0PRB3eRUS6ANLK09vDYA?version=47
+
             console.log('Latest Version URN:', latestVersionUrn);
             return btoa(latestVersionUrn); // Base64 encode
         } else {
