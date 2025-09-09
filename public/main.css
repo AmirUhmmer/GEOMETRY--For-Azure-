@@ -503,9 +503,20 @@ body, html {
 
 
 /* ------------------------------------- TOOLBARS INSIDE 3D MODEL ------------------------------------- */
+#levels,
+#model-browser{
+ display: none;
+}
+
+
 #toolbar-documentModels,
 #toolbar-explodeTool, 
-#showLiveDataListButton
+#showLiveDataListButton,
+#toolbar-zoomTool,
+#toolbar-pdf-text-selection,
+#toolbar-orbitTools,
+#toolbar-panTool,
+#toolbar-cameraSubmenuTool
 {
  display: none;
 }
