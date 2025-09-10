@@ -1,5 +1,5 @@
 export async function AgreementFunctionalLocationSearch(viewer, functionalLocations) {
-  await new Promise(resolve => setTimeout(resolve, 15000)); // 15 second delay
+  await new Promise(resolve => setTimeout(resolve, 2000)); // 15 second delay
   console.log(
     "AgreementFunctionalLocationSearch called with FunctionalLocations:",
     functionalLocations
