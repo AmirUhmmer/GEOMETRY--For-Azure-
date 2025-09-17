@@ -136,7 +136,6 @@ async function initApp() {
             });
       }
 
-
       if (userType == "tenant" || userType == "supplier") {
         // document.getElementById("3D-button").style.display = "none";
         document.getElementById("2D-sheets").style.display = "none";
@@ -196,6 +195,8 @@ async function initApp() {
 
       // initTree('#tree', (id) => loadModel(viewer, window.btoa(id).replace(/=/g, '')));
 
+
+      // #region: LIST OF PROPERTIES
       // Mapping of recordId to geometry URN values
       const geometryMapById = {
         // DB8
@@ -306,8 +307,10 @@ async function initApp() {
         ],
       };
 
+
       // HARD ASSET CONDITIONS
       // Mapping of property value to geometry URN values
+      // #region: PROPERTIES NAME
       const geometryMapByProperty = {
         // DB8
         "Drengsrudbekken 8 AS": [
@@ -356,9 +359,10 @@ async function initApp() {
           "urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw", //ARCHI
         ],
 
+
         // BS19
-        "Billingstadsletta 19 AS": [
-          "urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA", //MEP
+        "Billingstadsletta 19 AS": [          
+          "urn:adsk.wipemea:dm.lineage:NsE81iHwS6inclXR2YMw_g", //MEP
           "urn:adsk.wipemea:dm.lineage:cH693J46Riyi-_ccyuHx4g", //ARCHI
         ],
 
@@ -383,7 +387,7 @@ async function initApp() {
           
         ],
       };
-
+      
       // Default geometry if no match is found
       const defaultGeometry = [
         //  DB8
@@ -395,6 +399,7 @@ async function initApp() {
       // Attempt to find geometry based on recordId
       let geometry = geometryMapById[recordId];
 
+      // #region: PROPERTIES IDS
       // Project and folder IDs based on recordId or property
       const projectMap = {
         // DB8
