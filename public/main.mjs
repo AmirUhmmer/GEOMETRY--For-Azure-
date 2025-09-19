@@ -138,11 +138,11 @@ async function initApp() {
 
       if (userType == "tenant" || userType == "supplier") {
         // document.getElementById("3D-button").style.display = "none";
-        document.getElementById("2D-sheets").style.display = "none";
-        document.getElementById("live-data").style.display = "none";
-        document.getElementById("zones-button").style.display = "none";
-        document.getElementById("model-browser").style.display = "none";
-        document.getElementById("levels").style.display = "none";
+        document.getElementById("2D-sheets-item").style.display = "none";
+        document.getElementById("live-data-button-item").style.display = "none";
+        document.getElementById("zones-button-item").style.display = "none";
+        document.getElementById("model-browser-button-item").style.display = "none";
+        document.getElementById("levels-item").style.display = "none";
       } else if (userType == "supplier") {
         // document.getElementById("3D-button").style.display = "none";
         document.getElementById("2D-sheets").style.display = "none";

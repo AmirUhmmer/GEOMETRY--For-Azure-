@@ -203,9 +203,9 @@ body, html {
   top: 0;
   right: 0;
   height: 100%;
-  width: 60px;
+  width: 70px;
   background-color: #fff;
-  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.05);
   z-index: 1000;
   display: flex;
   justify-content: center;
@@ -215,34 +215,56 @@ body, html {
 #viewerControls {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
+  align-items: center;
 }
 
-
 .control-btn {
-  width: 95%; /* Fit within the sidebar */
-  max-width: 40px; /* Prevent growing too big */
+  width: 40px;
+  height: 40px;
   display: flex;
-  align-items: center; /* vertical centering */
-  justify-content: center; /* horizontal centering */
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
-  padding: 8px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 10px;
   transition: background 0.2s;
 }
 
-.control-btn:hover {
+.sidebar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;             /* extra padding for hitbox */
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.sidebar-item:hover {
   background-color: #e0e0e0;
 }
 
+
 .control-btn img {
-  width: 120%;
+  width: 24px;
   height: 24px;
   object-fit: contain;
   display: block;
 }
+
+.sidebar-labels {
+  font-family: ArtifaktElement, sans-serif;
+  font-weight: bold;
+  font-size: 11px;
+  text-align: center;
+  color: #333;
+  line-height: 1;
+}
+
 
 
 
@@ -502,8 +524,8 @@ body, html {
 
 
 /* ------------------------------------- TOOLBARS INSIDE 3D MODEL ------------------------------------- */
-#levels,
-#model-browser{
+#levels-item,
+#model-browser-button-item{
  display: none;
 }
 
