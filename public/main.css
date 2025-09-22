@@ -205,7 +205,6 @@ body, html {
   height: 100%;
   width: 70px;
   background-color: #fff;
-  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.05);
   z-index: 1000;
   display: flex;
   justify-content: center;
