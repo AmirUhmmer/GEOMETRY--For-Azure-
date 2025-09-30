@@ -908,6 +908,126 @@ export function showTasks(viewer, RepeatingTask) {
 
 
 
+// export function showAllTasks(viewer, RepeatingTask) {
+//   viewer.showAll();
+//   const models = viewer.impl.modelQueue().getModels();
+//   const header = document.getElementById("preview");
+//   header.style.top = "0em";
+//   viewer.resize();
+//   console.log("SHOWING ALL TASK");
+
+//   const JSONPayload = JSON.parse(RepeatingTask.JSONPayload);
+
+//   const cleaningRegex = /(clean|cleaning|mop|wipe|cloth)/i;
+//   const repairRegex = /(fix|assess|issue|troubleshoot|assessment|control|report)/i;
+//   const winterRegex = /(snow|ice)/i;
+//   const greenRegex = /(green|green areas|maintain green areas)/i;
+
+//   let alldbid = [];
+
+//   function processProps(props, dbID, model, expectedID, outputArray, type, color) {
+//     let assetIDValue = null;
+//     let assetLevel = null;
+//     let name = props.name;
+//     let category = props.Category;
+
+//     props.properties.forEach((prop) => {
+//       const { displayName, displayValue, displayCategory } = prop;
+
+//       if (displayName === "Asset ID" || displayName === "Asset ID (GUID)") {
+//         assetIDValue = displayValue;
+//       }
+
+//       if (
+//         (displayName === "Level" || displayName === "Schedule Level") &&
+//         displayCategory === "Constraints"
+//       ) {
+//         assetLevel = displayValue;
+//       }
+
+//       if (displayName === "Category") {
+//         category = displayValue;
+//       }
+//     });
+
+//     if (category === "Revit Room" || category === "Revit Rooms") return;
+
+//     const match = assetIDValue === expectedID && assetIDValue != null && name != null;
+
+//     if (match) {
+//       outputArray.push(dbID);
+//       alldbid.push(dbID);
+//       viewer.setThemingColor(dbID, color, model);
+//     }
+//   }
+
+//   function searchAndProcess(model, id, type, outputArray, color) {
+//     return new Promise((resolve) => {
+//       model.search(id, (dbIDs) => {
+//         if (!dbIDs || dbIDs.length === 0) {
+//           return resolve();
+//         }
+
+//         const propPromises = dbIDs.map(
+//           (dbID) =>
+//             new Promise((propResolve) => {
+//               model.getProperties(dbID, (props) => {
+//                 processProps(props, dbID, model, id, outputArray, type, color);
+//                 propResolve();
+//               });
+//             })
+//         );
+
+//         Promise.all(propPromises).then(resolve);
+//       });
+//     });
+//   }
+
+//   const promises = [];
+
+//   JSONPayload.forEach((task) => {
+//     const { TaskTypeName, TaskName, FunctionalLocation, HardAssetID } = task;
+
+//     const STBase = TaskTypeName.toLowerCase().trim();
+//     const taskName = TaskName.toLowerCase().trim();
+
+//     let selectionColor;
+//     if (cleaningRegex.test(STBase) || cleaningRegex.test(taskName)) {
+//       selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
+//     } else if (repairRegex.test(STBase) || repairRegex.test(taskName)) {
+//       selectionColor = new THREE.Vector4(1, 1, 0, 1); // yellow
+//     } else if (winterRegex.test(STBase) || winterRegex.test(taskName)) {
+//       selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
+//     } else if (greenRegex.test(STBase) || greenRegex.test(taskName)) {
+//       selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
+//     } else {
+//       selectionColor = new THREE.Vector4(1.0, 0.349, 0.804, 1); // pink
+//     }
+
+//     viewer.setSelectionColor(
+//       new THREE.Color(selectionColor.x, selectionColor.y, selectionColor.z)
+//     );
+
+//     // ✅ Search in ALL models instead of only models[0]
+//     if (FunctionalLocation && FunctionalLocation !== "N") {
+//       models.forEach((m) =>
+//         promises.push(searchAndProcess(m, FunctionalLocation, "floc", [], selectionColor))
+//       );
+//     }
+//     if (HardAssetID && HardAssetID !== "N") {
+//       models.forEach((m) =>
+//         promises.push(searchAndProcess(m, HardAssetID, "asset", [], selectionColor))
+//       );
+//     }
+//   });
+
+//   Promise.all(promises).then(() => {
+//     models.forEach((model) => viewer.select(alldbid, model));
+//     if (alldbid.length > 0) {
+//       models.forEach((model) => viewer.fitToView(alldbid, model));
+//     }
+//   });
+// }
 export function showAllTasks(viewer, RepeatingTask) {
   viewer.showAll();
   const models = viewer.impl.modelQueue().getModels();
@@ -915,7 +1035,8 @@ export function showAllTasks(viewer, RepeatingTask) {
   header.style.top = "0em";
   viewer.resize();
   console.log("SHOWING ALL TASK");
-  const JSONPayload = JSON.parse(RepeatingTask.JSONPayload); // parse the string
+
+  const JSONPayload = JSON.parse(RepeatingTask.JSONPayload);
 
   const cleaningRegex = /(clean|cleaning|mop|wipe|cloth)/i;
   const repairRegex = /(fix|assess|issue|troubleshoot|assessment|control|report)/i;
@@ -924,7 +1045,6 @@ export function showAllTasks(viewer, RepeatingTask) {
 
   let alldbid = [];
 
-  // Helper: process props and apply theming
   function processProps(props, dbID, model, expectedID, outputArray, type, color) {
     let assetIDValue = null;
     let assetLevel = null;
@@ -961,18 +1081,22 @@ export function showAllTasks(viewer, RepeatingTask) {
     }
   }
 
-  // Helper: search by ID and process props
   function searchAndProcess(model, id, type, outputArray, color) {
     return new Promise((resolve) => {
       model.search(id, (dbIDs) => {
-        const propPromises = dbIDs.map((dbID) => {
-          return new Promise((propResolve) => {
-            model.getProperties(dbID, (props) => {
-              processProps(props, dbID, model, id, outputArray, type, color);
-              propResolve();
-            });
-          });
-        });
+        if (!dbIDs || dbIDs.length === 0) {
+          return resolve();
+        }
+
+        const propPromises = dbIDs.map(
+          (dbID) =>
+            new Promise((propResolve) => {
+              model.getProperties(dbID, (props) => {
+                processProps(props, dbID, model, id, outputArray, type, color);
+                propResolve();
+              });
+            })
+        );
 
         Promise.all(propPromises).then(resolve);
       });
@@ -981,14 +1105,12 @@ export function showAllTasks(viewer, RepeatingTask) {
 
   const promises = [];
 
-  // 🔁 Loop through each task
   JSONPayload.forEach((task) => {
     const { TaskTypeName, TaskName, FunctionalLocation, HardAssetID } = task;
 
     const STBase = TaskTypeName.toLowerCase().trim();
     const taskName = TaskName.toLowerCase().trim();
 
-    // 🎨 Determine color based on task type or name
     let selectionColor;
     if (cleaningRegex.test(STBase) || cleaningRegex.test(taskName)) {
       selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
@@ -999,26 +1121,30 @@ export function showAllTasks(viewer, RepeatingTask) {
     } else if (greenRegex.test(STBase) || greenRegex.test(taskName)) {
       selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
     } else {
-      selectionColor = new THREE.Vector4(1.0, 0.349, 0.804, 1); // default pink
+      selectionColor = new THREE.Vector4(1.0, 0.349, 0.804, 1); // pink
     }
 
-    // Apply color
-    viewer.setSelectionColor(new THREE.Color(selectionColor.x, selectionColor.y, selectionColor.z));
+    viewer.setSelectionColor(
+      new THREE.Color(selectionColor.x, selectionColor.y, selectionColor.z)
+    );
 
-    // Process both Functional Location and Hard Asset
+    // ✅ Search in ALL models instead of only models[0]
     if (FunctionalLocation && FunctionalLocation !== "N") {
-      promises.push(searchAndProcess(models[0], FunctionalLocation, "floc", [], selectionColor));
+      models.forEach((m) =>
+        promises.push(searchAndProcess(m, FunctionalLocation, "floc", [], selectionColor))
+      );
     }
     if (HardAssetID && HardAssetID !== "N") {
-      promises.push(searchAndProcess(models[0], HardAssetID, "asset", [], selectionColor));
+      models.forEach((m) =>
+        promises.push(searchAndProcess(m, HardAssetID, "asset", [], selectionColor))
+      );
     }
   });
 
-  // 🔚 After all tasks processed, do camera + walk
   Promise.all(promises).then(() => {
     models.forEach((model) => viewer.select(alldbid, model));
     if (alldbid.length > 0) {
-      viewer.fitToView(alldbid, models[0]);
+      models.forEach((model) => viewer.fitToView(alldbid, model));
     }
   });
 }
