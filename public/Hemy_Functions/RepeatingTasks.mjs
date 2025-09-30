@@ -518,15 +518,219 @@ export function showRepeatingTaskPanel(viewer, taskArray, colorMapping) {
 // ************************************************** HEMY TASK HIGHLIGHTING FUNCTION **************************************************
 
 
+// export function showTasks(viewer, RepeatingTask) {
+//   viewer.showAll(); // Show all objects first
+//   const models = viewer.impl.modelQueue().getModels();
+//   const header = document.getElementById("preview");
+//   header.style.top = "0em";
+//   viewer.resize();
+
+//   let selectionColor;
+//   // viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB green (selection highlight)
+
+//   const hardAssetID = RepeatingTask.HardAsset;
+//   const funcLocID = RepeatingTask.FunctionalLocation;
+//   const STBase = RepeatingTask.STBase.toLowerCase().trim();
+//   const taskName = RepeatingTask.Name.toLowerCase().trim();
+
+//   const cleaningRegex = /(clean|cleaning|mop|wipe|cloth)/i;
+//   const repairRegex = /(fix|assess|issue|troubleshoot|assessment|control)/i;
+//   const winterRegex = /(snow|ice)/i;
+//   const greenRegex = /(green|green areas|maintain green areas)/i;
+
+
+//   // if (cleaningRegex.test(taskName)) {
+//   //   selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
+//   //   viewer.setSelectionColor(new THREE.Color(0, 0, 1));
+//   // } else if (repairRegex.test(taskName)) {
+//   //   selectionColor = new THREE.Vector4(1, 1, 0, 1); // yellow
+//   //   viewer.setSelectionColor(new THREE.Color(1, 1, 0));
+//   // } else if (winterRegex.test(taskName)) {
+//   //   selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
+//   //   viewer.setSelectionColor(new THREE.Color(0.231, 0.976, 0.965));
+//   // } else if (greenRegex.test(taskName)) {
+//   //   selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
+//   //   viewer.setSelectionColor(new THREE.Color(0.784, 0.976, 0.231));
+//   // } else {
+//   //   selectionColor = new THREE.Vector4(0.54, 0.17, 0.89, 1); // default purple
+//   //   viewer.setSelectionColor(new THREE.Color(0.54, 0.17, 0.89));
+//   // }
+
+//   // console.log("cleaning match:", cleaningRegex.test(taskName));
+//   // console.log("repair match:", repairRegex.test(taskName));
+//   // console.log("winter match:", winterRegex.test(taskName));
+//   // console.log("green match:", greenRegex.test(taskName));
+
+
+//   if (cleaningRegex.test(STBase)) {
+//     selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
+//     viewer.setSelectionColor(new THREE.Color(0, 0, 1));
+//   } else if (repairRegex.test(STBase)) {
+//     selectionColor = new THREE.Vector4(1, 1, 0, 1); // yellow
+//     viewer.setSelectionColor(new THREE.Color(1, 1, 0));
+//   } else if (winterRegex.test(STBase)) {
+//     selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
+//     viewer.setSelectionColor(new THREE.Color(0.231, 0.976, 0.965));
+//   } else if (greenRegex.test(STBase)) {
+//     selectionColor = new THREE.Vector4(0, 1, 0, 1); // greenish
+//     viewer.setSelectionColor(new THREE.Color(0, 1, 0)); 
+//   } else {
+//     selectionColor = new THREE.Vector4(1.0, 0.349, 0.804, 1); // default pink
+//     viewer.setSelectionColor(new THREE.Color(1.0, 0.349, 0.804,));
+//   }
+
+
+//   console.log("showTasks called with task name:", taskName);
+//   console.log("showTasks called with st base:", STBase);
+//   console.log("showTasks called with HardAsset [Actually a FL]:", hardAssetID); //
+//   console.log("showTasks called with FunctionalLocation [Actually a HA]:", funcLocID);
+
+//   let alldbid = [];
+//   let alldbidAsset = [];
+//   let alldbidFunctionalLocation = [];
+
+//   // ✅ Helper: Process properties and check match
+//   function processProps(
+//     props,
+//     dbID,
+//     model,
+//     expectedID,
+//     outputArray,
+//     type,
+//     selectionColor
+//   ) {
+//     let assetIDValue = null;
+//     let assetLevel = null;
+//     let name = props.name;
+//     let category = props.Category;
+
+//     // Find values inside properties array
+//     props.properties.forEach((prop) => {
+//       const { displayName, displayValue, displayCategory } = prop;
+
+//       if (displayName === "Asset ID" || displayName === "Asset ID (GUID)") {
+//         assetIDValue = displayValue;
+//       }
+
+//       if (
+//         (displayName === "Level" || displayName === "Schedule Level") &&
+//         displayCategory === "Constraints"
+//       ) {
+//         assetLevel = displayValue;
+//       }
+
+//       if (displayName === "Category") {
+//         category = displayValue;
+//       }
+//     });
+
+//     // If category is Revit Room(s), skip early
+//     if (category === "Revit Room" || category === "Revit Rooms") return;
+
+//     const match =
+//       assetIDValue === expectedID &&
+//       assetIDValue != null &&
+//       name != null &&
+//       (type === "asset" || true); // category check already handled
+
+//     if (match) {
+//       outputArray.push(dbID);
+//       alldbid.push(dbID);
+//       viewer.setThemingColor(dbID, null, model);
+//       viewer.setThemingColor(dbID, selectionColor, model);
+//     }
+//   }
+
+//   // ✅ Helper: Search and process
+// function searchAndProcess(model, id, type, outputArray, selectionColor) {
+//   return new Promise((resolve) => {
+//     model.search(id, (dbIDs) => {
+//       const propPromises = dbIDs.map((dbID) => {
+//         return new Promise((propResolve) => {
+//           model.getProperties(dbID, (props) => {
+//             console.log('Searched item properties:', props);
+//             processProps(props, dbID, model, id, outputArray, type, selectionColor);
+//             propResolve();
+//           });
+//         });
+//       });
+
+//       Promise.all(propPromises).then(resolve);
+//     });
+//   });
+// }
+
+
+//   const assetSearch = searchAndProcess(models[0], hardAssetID, "asset", alldbidAsset, selectionColor);
+//   const funcLocSearch = searchAndProcess(models[0], funcLocID, "floc", alldbidFunctionalLocation, selectionColor);
+
+//   Promise.all([assetSearch, funcLocSearch]).then(() => {
+//     console.log("All dbIDs:", alldbid);
+//     console.log("Asset dbIDs:", alldbidAsset);
+//     console.log("Functional Location dbIDs:", alldbidFunctionalLocation);
+
+//     const fitAndSelect = () => {
+//       if (alldbidFunctionalLocation.length > 0) {
+//         viewer.fitToView(alldbidFunctionalLocation, models[0]);
+//         if (alldbidAsset.length === 0) {
+//           models.forEach((model) => viewer.isolate(alldbidFunctionalLocation, model));
+//         }
+//       }
+
+//       if (alldbidAsset.length > 0) {
+//         models.forEach((model) => viewer.fitToView(alldbidAsset, model));
+//       }
+
+//       models.forEach((model) => viewer.select(alldbid, model));
+//     };
+
+//     const setLevelAndStartWalk = () => {
+//       models.forEach((model) => {
+//         alldbid.forEach((dbId) => {
+//           model.getProperties(dbId, (props) => {
+//             let assetLevel = null;
+
+//             props.properties.forEach((prop) => {
+//               if (["Level", "Schedule Level"].includes(prop.displayName)) {
+//                 assetLevel = prop.displayValue;
+//               }
+//             });
+
+//             viewer
+//               .loadExtension("Autodesk.AEC.LevelsExtension")
+//               .then((levelsExt) => {
+//                 const levels = levelsExt.floorSelector?._floors || [];
+//                 const matched = levels.find((lvl) => lvl.name === assetLevel);
+//                 // && alldbidAsset.length > 0
+//                 if (matched) {
+//                   levelsExt.floorSelector.selectFloor(matched.index, true);
+
+//                   viewer.loadExtension("Autodesk.BimWalk").then((bimWalkExt) => {
+//                     if (bimWalkExt) {
+//                       viewer.select(alldbid, model);
+//                     }
+//                   });
+//                 }
+//               });
+//           });
+//         });
+//       });
+//     };
+
+//     setLevelAndStartWalk();
+//     fitAndSelect();
+//   });
+// }
+
+
 export function showTasks(viewer, RepeatingTask) {
-  viewer.showAll(); // Show all objects first
+  viewer.showAll(); 
   const models = viewer.impl.modelQueue().getModels();
   const header = document.getElementById("preview");
   header.style.top = "0em";
   viewer.resize();
 
   let selectionColor;
-  // viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB green (selection highlight)
 
   const hardAssetID = RepeatingTask.HardAsset;
   const funcLocID = RepeatingTask.FunctionalLocation;
@@ -538,73 +742,38 @@ export function showTasks(viewer, RepeatingTask) {
   const winterRegex = /(snow|ice)/i;
   const greenRegex = /(green|green areas|maintain green areas)/i;
 
-
-  // if (cleaningRegex.test(taskName)) {
-  //   selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
-  //   viewer.setSelectionColor(new THREE.Color(0, 0, 1));
-  // } else if (repairRegex.test(taskName)) {
-  //   selectionColor = new THREE.Vector4(1, 1, 0, 1); // yellow
-  //   viewer.setSelectionColor(new THREE.Color(1, 1, 0));
-  // } else if (winterRegex.test(taskName)) {
-  //   selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
-  //   viewer.setSelectionColor(new THREE.Color(0.231, 0.976, 0.965));
-  // } else if (greenRegex.test(taskName)) {
-  //   selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
-  //   viewer.setSelectionColor(new THREE.Color(0.784, 0.976, 0.231));
-  // } else {
-  //   selectionColor = new THREE.Vector4(0.54, 0.17, 0.89, 1); // default purple
-  //   viewer.setSelectionColor(new THREE.Color(0.54, 0.17, 0.89));
-  // }
-
-  // console.log("cleaning match:", cleaningRegex.test(taskName));
-  // console.log("repair match:", repairRegex.test(taskName));
-  // console.log("winter match:", winterRegex.test(taskName));
-  // console.log("green match:", greenRegex.test(taskName));
-
-
   if (cleaningRegex.test(STBase)) {
-    selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
+    selectionColor = new THREE.Vector4(0, 0, 1, 1);
     viewer.setSelectionColor(new THREE.Color(0, 0, 1));
   } else if (repairRegex.test(STBase)) {
-    selectionColor = new THREE.Vector4(1, 1, 0, 1); // yellow
+    selectionColor = new THREE.Vector4(1, 1, 0, 1);
     viewer.setSelectionColor(new THREE.Color(1, 1, 0));
   } else if (winterRegex.test(STBase)) {
-    selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
+    selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1);
     viewer.setSelectionColor(new THREE.Color(0.231, 0.976, 0.965));
   } else if (greenRegex.test(STBase)) {
-    selectionColor = new THREE.Vector4(0, 1, 0, 1); // greenish
+    selectionColor = new THREE.Vector4(0, 1, 0, 1);
     viewer.setSelectionColor(new THREE.Color(0, 1, 0)); 
   } else {
-    selectionColor = new THREE.Vector4(1.0, 0.349, 0.804, 1); // default pink
-    viewer.setSelectionColor(new THREE.Color(1.0, 0.349, 0.804,));
+    selectionColor = new THREE.Vector4(1.0, 0.349, 0.804, 1);
+    viewer.setSelectionColor(new THREE.Color(1.0, 0.349, 0.804));
   }
-
 
   console.log("showTasks called with task name:", taskName);
   console.log("showTasks called with st base:", STBase);
-  console.log("showTasks called with HardAsset:", hardAssetID);
-  console.log("showTasks called with FunctionalLocation:", funcLocID);
+  console.log("showTasks called with HardAsset [Actually a FL]:", hardAssetID);
+  console.log("showTasks called with FunctionalLocation [Actually a HA]:", funcLocID);
 
   let alldbid = [];
   let alldbidAsset = [];
   let alldbidFunctionalLocation = [];
 
-  // ✅ Helper: Process properties and check match
-  function processProps(
-    props,
-    dbID,
-    model,
-    expectedID,
-    outputArray,
-    type,
-    selectionColor
-  ) {
+  function processProps(props, dbID, model, expectedID, outputArray, type, selectionColor) {
     let assetIDValue = null;
     let assetLevel = null;
     let name = props.name;
     let category = props.Category;
 
-    // Find values inside properties array
     props.properties.forEach((prop) => {
       const { displayName, displayValue, displayCategory } = prop;
 
@@ -624,14 +793,12 @@ export function showTasks(viewer, RepeatingTask) {
       }
     });
 
-    // If category is Revit Room(s), skip early
     if (category === "Revit Room" || category === "Revit Rooms") return;
 
     const match =
       assetIDValue === expectedID &&
       assetIDValue != null &&
-      name != null &&
-      (type === "asset" || true); // category check already handled
+      name != null;
 
     if (match) {
       outputArray.push(dbID);
@@ -641,40 +808,48 @@ export function showTasks(viewer, RepeatingTask) {
     }
   }
 
-  // ✅ Helper: Search and process
-function searchAndProcess(model, id, type, outputArray, selectionColor) {
-  return new Promise((resolve) => {
-    model.search(id, (dbIDs) => {
-      const propPromises = dbIDs.map((dbID) => {
-        return new Promise((propResolve) => {
-          model.getProperties(dbID, (props) => {
-            console.log('Searched item properties:', props);
-            processProps(props, dbID, model, id, outputArray, type, selectionColor);
-            propResolve();
+  function searchAndProcess(model, id, type, outputArray, selectionColor) {
+    return new Promise((resolve) => {
+      model.search(id, (dbIDs) => {
+        if (!dbIDs || dbIDs.length === 0) {
+          return resolve();
+        }
+
+        const propPromises = dbIDs.map((dbID) => {
+          return new Promise((propResolve) => {
+            model.getProperties(dbID, (props) => {
+              processProps(props, dbID, model, id, outputArray, type, selectionColor);
+              propResolve();
+            });
           });
         });
+
+        Promise.all(propPromises).then(resolve);
       });
-
-      Promise.all(propPromises).then(resolve);
     });
-  });
-}
+  }
 
+  // 🔄 Search in ALL models
+  const assetSearches = models.map((m) =>
+    searchAndProcess(m, hardAssetID, "asset", alldbidAsset, selectionColor)
+  );
+  const funcLocSearches = models.map((m) =>
+    searchAndProcess(m, funcLocID, "floc", alldbidFunctionalLocation, selectionColor)
+  );
 
-  const assetSearch = searchAndProcess(models[0], hardAssetID, "asset", alldbidAsset, selectionColor);
-  const funcLocSearch = searchAndProcess(models[0], funcLocID, "floc", alldbidFunctionalLocation, selectionColor);
-
-  Promise.all([assetSearch, funcLocSearch]).then(() => {
+  Promise.all([...assetSearches, ...funcLocSearches]).then(() => {
     console.log("All dbIDs:", alldbid);
     console.log("Asset dbIDs:", alldbidAsset);
     console.log("Functional Location dbIDs:", alldbidFunctionalLocation);
 
     const fitAndSelect = () => {
       if (alldbidFunctionalLocation.length > 0) {
-        viewer.fitToView(alldbidFunctionalLocation, models[0]);
-        if (alldbidAsset.length === 0) {
-          models.forEach((model) => viewer.isolate(alldbidFunctionalLocation, model));
-        }
+        models.forEach((model) => {
+          viewer.fitToView(alldbidFunctionalLocation, model);
+          if (alldbidAsset.length === 0) {
+            viewer.isolate(alldbidFunctionalLocation, model);
+          }
+        });
       }
 
       if (alldbidAsset.length > 0) {
@@ -696,22 +871,19 @@ function searchAndProcess(model, id, type, outputArray, selectionColor) {
               }
             });
 
-            viewer
-              .loadExtension("Autodesk.AEC.LevelsExtension")
-              .then((levelsExt) => {
-                const levels = levelsExt.floorSelector?._floors || [];
-                const matched = levels.find((lvl) => lvl.name === assetLevel);
-                // && alldbidAsset.length > 0
-                if (matched) {
-                  levelsExt.floorSelector.selectFloor(matched.index, true);
+            viewer.loadExtension("Autodesk.AEC.LevelsExtension").then((levelsExt) => {
+              const levels = levelsExt.floorSelector?._floors || [];
+              const matched = levels.find((lvl) => lvl.name === assetLevel);
+              if (matched) {
+                levelsExt.floorSelector.selectFloor(matched.index, true);
 
-                  viewer.loadExtension("Autodesk.BimWalk").then((bimWalkExt) => {
-                    if (bimWalkExt) {
-                      viewer.select(alldbid, model);
-                    }
-                  });
-                }
-              });
+                viewer.loadExtension("Autodesk.BimWalk").then((bimWalkExt) => {
+                  if (bimWalkExt) {
+                    viewer.select(alldbid, model);
+                  }
+                });
+              }
+            });
           });
         });
       });
@@ -721,8 +893,6 @@ function searchAndProcess(model, id, type, outputArray, selectionColor) {
     fitAndSelect();
   });
 }
-
-
 
 
 
