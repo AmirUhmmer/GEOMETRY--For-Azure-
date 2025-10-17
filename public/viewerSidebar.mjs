@@ -756,6 +756,7 @@ function findSheetsFilesDeep(node, results = new Set(), visited = new Set()) {
   if (
     node.data.type === "geometry" &&
     node.data.role === "2d" &&
+    !node.data.name.toLowerCase().includes("fire drawing") &&
     node.parent.data.name.toLowerCase().includes("sheets")
   ) {
     // Optional: get URN if available

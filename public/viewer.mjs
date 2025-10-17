@@ -25,7 +25,8 @@ async function getAccessToken(callback) {
         // if (!resp.ok)
         //     throw new Error(await resp.text());
         // const { access_token, expires_in } = await resp.json();
-        
+        // console.log('Access Token Retrieved:', access_token);
+        // console.log('Token Expires In:', expires_in);
         callback(access_token, expires_in);
     } catch (err) {
         alert('Could not obtain access token. See the console for more details.');
