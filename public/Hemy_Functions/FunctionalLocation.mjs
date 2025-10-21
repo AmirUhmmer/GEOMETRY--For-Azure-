@@ -57,9 +57,8 @@ export function FunctionalLocationSearch(viewer, FunctionalLocation){
 
 
 // #region Zone FL
-export async function ZoneFunctionalLocation(viewer, functionalLocations){
-
-  const zoneData = JSON.parse(functionalLocations.JSONPayload);
+export async function zoneFunctionalLocation(viewer, message) {
+  const zoneData = JSON.parse(message.JSONPayload);
   console.log("Parsed zone data:", zoneData);
 
   const models = viewer.impl.modelQueue().getModels();
@@ -72,18 +71,18 @@ export async function ZoneFunctionalLocation(viewer, functionalLocations){
   const allDbIds = [];
   const searchPromises = [];
 
-  functionalLocations.forEach((location) => {
+  // ✅ Fix: use zoneData (not functionalLocations.FunctionalLocation)
+  zoneData.forEach((location) => {
     models.forEach((model) => {
       const searchPromise = new Promise((resolve) => {
-        model.search(location.id, (dbIDs) => {
+        // ✅ You were using location.id, but your data uses FunctionalLocationName
+        model.search(location.FunctionalLocationName, (dbIDs) => {
           if (dbIDs && dbIDs.length > 0) {
-            // console.log(`Found dbIDs for ${location.id}:`, dbIDs);
-            // Add dbIDs with their model reference
-            dbIDs.forEach(id => {
-              allDbIds.push({ dbId: id, model: model });
+            dbIDs.forEach((id) => {
+              allDbIds.push({ dbId: id, model });
             });
           } else {
-            console.log("No matching objects found for:", location.id);
+            console.log("No matching objects found for:", location.FunctionalLocationName);
           }
           resolve();
         });
@@ -92,29 +91,23 @@ export async function ZoneFunctionalLocation(viewer, functionalLocations){
     });
   });
 
-  // Wait for all searches to complete
   await Promise.all(searchPromises);
 
-  // Now apply coloring and selection to all collected dbIDs
+  // Apply coloring and selection
   if (allDbIds.length > 0) {
-    // console.log(`Total dbIDs found: ${allDbIds.length}`);
-    
-    // Group dbIDs by model for efficient processing
     const dbIdsByModel = {};
+
     allDbIds.forEach(({ dbId, model }) => {
       const modelId = model.id || model.getData().instanceTree.nodeAccess.dbIdToIndex.length;
       if (!dbIdsByModel[modelId]) {
-        dbIdsByModel[modelId] = { model: model, dbIds: [] };
+        dbIdsByModel[modelId] = { model, dbIds: [] };
       }
       dbIdsByModel[modelId].dbIds.push(dbId);
     });
 
-    // Apply coloring and selection for each model
     Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
-      console.log(`Highlighting ${dbIds.length} objects in model:`, dbIds);
-      for (const id of dbIds) {
-        viewer.setThemingColor(id, color, models[1]);
-      }
+      console.log(`Highlighting ${dbIds.length} objects in model ${model.id}:`, dbIds);
+      dbIds.forEach((id) => viewer.setThemingColor(id, color, model));
       viewer.select(dbIds, model);
     });
   } else {

@@ -2,7 +2,7 @@ import * as functions from './viewerSidebar.mjs';
 import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from './Live_Data/LiveData.mjs';
 import { HardAssetSearch } from './Hemy_Functions/HardAssets.mjs';
 import { ServiceZoneSearch } from './Hemy_Functions/ServiceZone.mjs';
-import { FunctionalLocationSearch } from './Hemy_Functions/FunctionalLocation.mjs';
+import { FunctionalLocationSearch, zoneFunctionalLocation } from './Hemy_Functions/FunctionalLocation.mjs';
 import { RepeatingTasks, showTasks, showAllTasks } from './Hemy_Functions/RepeatingTasks.mjs';
 import { WOServiceTask } from './Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
@@ -379,8 +379,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             console.log("Received message [show all task]:", event.data);
                             showAllTasks(viewer, message);
                         } else if(message.type === "showZone"){ 
-                            console.log("Received message [show all task]:", event.data);
-                            showAllTasks(viewer, message);
+                            console.log("Received message [show all zones]:", event.data);
+                            zoneFunctionalLocation(viewer, message);
                         }
                     };
                 }
