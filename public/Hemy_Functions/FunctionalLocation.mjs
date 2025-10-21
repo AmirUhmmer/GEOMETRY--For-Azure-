@@ -64,6 +64,8 @@ export async function zoneFunctionalLocation(viewer, message) {
   const models = viewer.impl.modelQueue().getModels();
   if (!models || models.length === 0) return;
 
+  models.forEach(model => viewer.clearThemingColors(model));
+
   const color = new THREE.Vector4(0, 1, 0, 1); // RGBA green
   viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB green
 
@@ -107,7 +109,7 @@ export async function zoneFunctionalLocation(viewer, message) {
 
     Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
       console.log(`Highlighting ${dbIds.length} objects in model ${model.id}:`, dbIds);
-      dbIds.forEach((id) => viewer.setThemingColor(id, color, model));
+      dbIds.forEach((id) => viewer.setThemingColor(id, color, models[1]));
       viewer.select(dbIds, model);
     });
   } else {
