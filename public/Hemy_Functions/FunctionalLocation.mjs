@@ -78,7 +78,7 @@ export async function zoneFunctionalLocation(viewer, message) {
     models.forEach((model) => {
       const searchPromise = new Promise((resolve) => {
         // ✅ You were using location.id, but your data uses FunctionalLocationName
-        model.search(location.FunctionalLocationName, (dbIDs) => {
+        model.search(location.FunctionalLocation, (dbIDs) => {
           if (dbIDs && dbIDs.length > 0) {
             dbIDs.forEach((id) => {
               allDbIds.push({ dbId: id, model });
@@ -106,6 +106,8 @@ export async function zoneFunctionalLocation(viewer, message) {
       }
       dbIdsByModel[modelId].dbIds.push(dbId);
     });
+
+    const models = viewer.impl.modelQueue().getModels();
 
     Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
       console.log(`Highlighting ${dbIds.length} objects in model ${model.id}:`, dbIds);
