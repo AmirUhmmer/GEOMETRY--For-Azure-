@@ -84,7 +84,7 @@ export async function zoneFunctionalLocation(viewer, message) {
               allDbIds.push({ dbId: id, model });
             });
           } else {
-            console.log("No matching objects found for:", location.FunctionalLocationName);
+            // console.log("No matching objects found for:", location.FunctionalLocationName);
           }
           resolve();
         });
@@ -108,7 +108,7 @@ export async function zoneFunctionalLocation(viewer, message) {
     });
 
     Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
-    //   console.log(`Highlighting ${dbIds.length} objects in model ${model.id}:`, dbIds);
+      console.log(`Highlighting ${dbIds.length} objects in model ${model.id}:`, dbIds);
       dbIds.forEach((id) => viewer.setThemingColor(id, color, models[0]));
       viewer.select(dbIds, model);
     });
