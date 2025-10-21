@@ -123,9 +123,9 @@ async function initApp() {
             socket.send(JSON.stringify({ type: "ping" }));
             });
 
-            // socket.addEventListener("message", (event) => {
-            // console.log("📩 WebSocket message received:", event.data);
-            // });
+            socket.addEventListener("message", (event) => {
+            console.log("📩 WebSocket message received:", event.data);
+            });
 
             socket.addEventListener("close", () => {
             console.log("❌ WebSocket closed");
