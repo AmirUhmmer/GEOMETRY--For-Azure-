@@ -378,6 +378,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                         } else if(message.type === "showAllTask"){ 
                             console.log("Received message [show all task]:", event.data);
                             showAllTasks(viewer, message);
+                        } else if(message.type === "showZone"){ 
+                            console.log("Received message [show all task]:", event.data);
+                            showAllTasks(viewer, message);
                         }
                     };
                 }
@@ -663,6 +666,8 @@ async function onDocumentLoadSuccess(doc) {
             // Your override logic
             if (latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.q8g1LE0vQ2WO5AHJ9Kd55A?version=3asda0') {
                 latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.q8g1LE0vQ2WO5AHJ9Kd55A?version=20';
+            } else if (latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.Oiuj-KZlQGWHcvIe4nDKKQ?version=73') {
+                latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.Oiuj-KZlQGWHcvIe4nDKKQ?version=70';
             }
             // Latest Version URN: urn:adsk.wipemea:fs.file:vf.9RzMYc2xRfu3IQ8Kzf3Cpg?version=9
             // Latest Version URN: urn:adsk.wipemea:fs.file:vf.q8g1LE0vQ2WO5AHJ9Kd55A?version=30
