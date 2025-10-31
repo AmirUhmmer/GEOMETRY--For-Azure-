@@ -156,8 +156,8 @@ async function getPool() {
 
 
 // --------------------------------------------------------------------------- LIVE DATA ---------------------------------------------------------------------------
-
-// TEMPERATURE SENSOR
+//* TEMP SENSOR
+//#region TEMP SENSOR
 // Route to retrieve sensor value
 router.get('/api/sensor/:location', async (req, res) => {
     const location = req.params.location;
@@ -180,10 +180,10 @@ router.get('/api/sensor/:location', async (req, res) => {
         res.status(500).send('Error retrieving sensor value');
     }
 });
+// #endregion
 
-// TEMPERATURE SENSOR V2 [HG62]
-//Room Thermostat-1.92.HG62_Setpoint
-//Panel Heater-1.89.HG62_Status
+//! TEMPERATURE SENSOR V2 [HG62]
+// #region TEMPERATURE SENSOR V2 [HG62]
 router.get('/api/sensorv2/:location', async (req, res) => {
     const location = req.params.location;
     try {
@@ -205,7 +205,10 @@ router.get('/api/sensorv2/:location', async (req, res) => {
         res.status(500).send('Error retrieving sensor value');
     }
 });
+// #endregion
 
+//* LIGHT SENSOR
+//#region LIGHT SENSOR
 router.get('/api/LightSensor/:location', async (req, res) => {
     const location = req.params.location;
     try {
@@ -227,8 +230,11 @@ router.get('/api/LightSensor/:location', async (req, res) => {
         res.status(500).send('Error retrieving sensor value');
     }
 });
+// #endregion
 
-// Route to fetch graph data
+
+//! fetch graph data
+//#region fetch graph data
 router.get('/api/graphdata/:location', async (req, res) => {
     const location = req.params.location;
     try {
@@ -260,9 +266,12 @@ router.get('/api/graphdata/:location', async (req, res) => {
         res.status(500).send('Error retrieving graph data');
     }
 });
+//#endregion
 
 
 
+//! TEMP SETPOINT HG62
+// #region TEMP SETPOINT HG62
 router.get('/api/TempSetpoint/:location', async (req, res) => {
     const location = req.params.location;
     try {
@@ -319,12 +328,11 @@ router.get('/api/TempSetpoint/:location', async (req, res) => {
         res.status(500).send('Error retrieving sensor value');
     }
 });
+// #endregion
 
 
 
 // --------------------------------------------------------------------------- LIVE DATA ---------------------------------------------------------------------------
-
-
 
 
 
@@ -348,18 +356,9 @@ router.post('/api/data', (req, res) => {
 
 
 
-
-
-
-
-
-//const authToken = 
-  // const exchangeId = req.headers["exchangeId"];
-
  
-
-// ASSET AUTOMATION CALLS
-// GET /api/acc/getElementsByCategory
+//*ASSET AUTOMATION
+//#region ASSET AUTOMATION
 router.get("/api/acc/getElementsByCategory", async (req, res) => {
   const authToken = req.headers.authtoken;
   const EXCHANGE_ID = req.headers["exchangeid"];
@@ -461,6 +460,7 @@ router.get("/api/acc/getElementsByCategory", async (req, res) => {
     res.status(500).json({ error: "Unexpected error", details: err.message });
   }
 });
+// #endregion
 
 
 

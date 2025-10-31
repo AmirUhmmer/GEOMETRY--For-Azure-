@@ -722,7 +722,7 @@ export function showRepeatingTaskPanel(viewer, taskArray, colorMapping) {
 //   });
 // }
 
-
+// #region ONE TASK
 export function showTasks(viewer, RepeatingTask) {
   viewer.showAll(); 
   const models = viewer.impl.modelQueue().getModels();
@@ -731,9 +731,10 @@ export function showTasks(viewer, RepeatingTask) {
   viewer.resize();
 
   let selectionColor;
-
-  const hardAssetID = RepeatingTask.HardAsset;
-  const funcLocID = RepeatingTask.FunctionalLocation;
+  // ! HA and FL got mixed up in the data source
+  // ! HA actually contains FL IDs and vice versa
+  const hardAssetID = RepeatingTask.FunctionalLocation;
+  const funcLocID = RepeatingTask.HardAsset;
   const STBase = RepeatingTask.STBase.toLowerCase().trim();
   const taskName = RepeatingTask.Name.toLowerCase().trim();
 
@@ -773,6 +774,7 @@ export function showTasks(viewer, RepeatingTask) {
     let assetLevel = null;
     let name = props.name;
     let category = props.Category;
+    // console.log('Processing properties for dbID:', dbID, props);
 
     props.properties.forEach((prop) => {
       const { displayName, displayValue, displayCategory } = prop;
@@ -845,16 +847,53 @@ export function showTasks(viewer, RepeatingTask) {
     const fitAndSelect = () => {
       if (alldbidFunctionalLocation.length > 0) {
         models.forEach((model) => {
-          viewer.fitToView(alldbidFunctionalLocation, model);
+          // viewer.fitToView(alldbidFunctionalLocation, model);
           if (alldbidAsset.length === 0) {
-            viewer.isolate(alldbidFunctionalLocation, model);
+            // viewer.isolate(alldbidFunctionalLocation, model);
           }
         });
       }
 
       if (alldbidAsset.length > 0) {
-        models.forEach((model) => viewer.fitToView(alldbidAsset, model));
+        console.log("Fitting to Asset IDs");
+        
+        // Load the extension once, wait for it to finish
+        viewer.loadExtension('Autodesk.ViewCubeUi').then((viewCube) => {
+
+          models.forEach((model, index) => {
+            // *clear colors for functional location IDs
+            alldbidFunctionalLocation.forEach(dbId => viewer.setThemingColor(dbId, null, model));
+            if (index === 2) {
+              console.log("Skipping site model...");
+              return;
+            }
+
+
+            // Start fit animation
+            viewer.fitToView(alldbidAsset, model);
+
+            // Wait until the fitToView camera animation completes
+            const onCameraTransitionComplete = () => {
+              console.log("Fit to view completed. Setting view cube...");
+              // viewCube.setViewCube('front top');
+              viewCube.setViewCube('top');
+              const nav = viewer.navigation;
+              
+              // Remove listener so it doesn't trigger again
+              viewer.removeEventListener(
+                Autodesk.Viewing.CAMERA_TRANSITION_COMPLETED,
+                onCameraTransitionComplete
+              );
+            };
+
+            viewer.addEventListener(
+              Autodesk.Viewing.CAMERA_TRANSITION_COMPLETED,
+              onCameraTransitionComplete
+            );
+          });
+        });
       }
+
 
       models.forEach((model) => viewer.select(alldbid, model));
     };
@@ -893,6 +932,8 @@ export function showTasks(viewer, RepeatingTask) {
     fitAndSelect();
   });
 }
+// #endregion
+
 
 
 

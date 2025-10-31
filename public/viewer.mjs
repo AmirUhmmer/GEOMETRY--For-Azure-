@@ -354,7 +354,20 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 let HardAsset = localStorage.getItem('HardAssetChecker');
 
+                // #region FUNCTIONS
     //-------------------------------------------------FUNCTIONS----------------------------------------------
+
+                // const onetaskSample = {
+                // type: "showTask",
+                // Name: "Conduct - Fire Fighting System - Maintenance Inspection. Use Inspection Template",
+                // STBase: "Annual maintenance service control",
+                // HardAsset: "935b161e-86fe-ef11-bae2-0022489c0ebb", //SOL20
+                // FunctionalLocation: "d78f140d-211d-f011-998b-7c1e527687d8" //SOL20
+                // // FunctionalLocation: "ccd12779-0ced-ee11-a203-0022489fd44c",
+                // // HardAsset: "77ccbb96-62ca-ee11-907a-0022489fd3f3",
+                // };
+
+
 
                 HardAssetSearch(viewer, HardAsset);
 
@@ -365,6 +378,10 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 RepeatingTasks(viewer, RepeatingTask);
 
                 WOServiceTask(viewer);
+
+                // showTasks(viewer, onetaskSample);
+
+                // #endregion
 
                 // TASK colors highlight websocket
                 if (window.socket) {
