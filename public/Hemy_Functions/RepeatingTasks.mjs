@@ -947,8 +947,7 @@ export function showTasks(viewer, RepeatingTask) {
 
 
 
-
-
+// #region ALL TASKS
 // export function showAllTasks(viewer, RepeatingTask) {
 //   viewer.showAll();
 //   const models = viewer.impl.modelQueue().getModels();
@@ -965,6 +964,7 @@ export function showTasks(viewer, RepeatingTask) {
 //   const greenRegex = /(green|green areas|maintain green areas)/i;
 
 //   let alldbid = [];
+  
 
 //   function processProps(props, dbID, model, expectedID, outputArray, type, color) {
 //     let assetIDValue = null;
@@ -1049,7 +1049,7 @@ export function showTasks(viewer, RepeatingTask) {
 //       new THREE.Color(selectionColor.x, selectionColor.y, selectionColor.z)
 //     );
 
-//     // ✅ Search in ALL models instead of only models[0]
+//     // Search in ALL models
 //     if (FunctionalLocation && FunctionalLocation !== "N") {
 //       models.forEach((m) =>
 //         promises.push(searchAndProcess(m, FunctionalLocation, "floc", [], selectionColor))
@@ -1069,123 +1069,570 @@ export function showTasks(viewer, RepeatingTask) {
 //     }
 //   });
 // }
-export function showAllTasks(viewer, RepeatingTask) {
+
+
+
+
+
+
+// helper: wait for camera transition event (with fallback)
+function waitForCameraTransition(viewer, timeoutMs = 1200) {
+  return new Promise((resolve) => {
+    let done = false;
+    const onComplete = () => {
+      if (done) return;
+      done = true;
+      viewer.removeEventListener(Autodesk.Viewing.CAMERA_TRANSITION_COMPLETED, onComplete);
+      resolve(true);
+    };
+    viewer.addEventListener(Autodesk.Viewing.CAMERA_TRANSITION_COMPLETED, onComplete);
+    setTimeout(() => {
+      if (done) return;
+      done = true;
+      viewer.removeEventListener(Autodesk.Viewing.CAMERA_TRANSITION_COMPLETED, onComplete);
+      resolve(false);
+    }, timeoutMs);
+  });
+}
+
+// helper: get a representative world position for a dbId (uses fragment matrix)
+function getWorldPositionForDbId(model, dbId) {
+  if (!model) return null;
+  const it = model.getInstanceTree();
+  const fragList = model.getFragmentList();
+  if (!it || !fragList) return null;
+
+  let pos = null;
+  it.enumNodeFragments(dbId, (fragId) => {
+    // take first fragment's world matrix -> position
+    const mtx = new THREE.Matrix4();
+    fragList.getWorldMatrix(fragId, mtx);
+    pos = new THREE.Vector3().setFromMatrixPosition(mtx);
+    // note: we don't break enumNodeFragments; but using first frag is fine
+  });
+  return pos; // THREE.Vector3 or null
+}
+
+export async function showAllTasks(viewer, RepeatingTask) {
   viewer.showAll();
   const models = viewer.impl.modelQueue().getModels();
-  const header = document.getElementById("preview");
-  header.style.top = "0em";
+  const preview = document.getElementById("preview");
+  if (preview) preview.style.top = "0em";
   viewer.resize();
-  console.log("SHOWING ALL TASK");
+  console.log("SHOWING ALL TASK (grouped)");
 
-  const JSONPayload = JSON.parse(RepeatingTask.JSONPayload);
+  const JSONPayload = JSON.parse(RepeatingTask.JSONPayload || "[]");
 
   const cleaningRegex = /(clean|cleaning|mop|wipe|cloth)/i;
   const repairRegex = /(fix|assess|issue|troubleshoot|assessment|control|report)/i;
   const winterRegex = /(snow|ice)/i;
   const greenRegex = /(green|green areas|maintain green areas)/i;
 
-  let alldbid = [];
+  const alldbid = [];
+  const alldbidAsset = []; // only HardAsset dbIds
+  const uniqueIDs = new Map();
+  const assetTaskMap = new Map();
 
-  function processProps(props, dbID, model, expectedID, outputArray, type, color) {
-    let assetIDValue = null;
-    let assetLevel = null;
-    let name = props.name;
-    let category = props.Category;
+  // Group tasks & assign colors
+  for (const { FunctionalLocation, HardAssetID, TaskTypeName, TaskName } of JSONPayload) {
+    const STBase = (TaskTypeName || "").toLowerCase().trim();
+    const taskName = (TaskName || "").toLowerCase().trim();
 
-    props.properties.forEach((prop) => {
-      const { displayName, displayValue, displayCategory } = prop;
+    let color;
+    if (cleaningRegex.test(STBase) || cleaningRegex.test(taskName)) color = new THREE.Vector4(0, 0, 1, 1);
+    else if (repairRegex.test(STBase) || repairRegex.test(taskName)) color = new THREE.Vector4(1, 1, 0, 1);
+    else if (winterRegex.test(STBase) || winterRegex.test(taskName)) color = new THREE.Vector4(0.231, 0.976, 0.965, 1);
+    else if (greenRegex.test(STBase) || greenRegex.test(taskName)) color = new THREE.Vector4(0.784, 0.976, 0.231, 1);
+    else color = new THREE.Vector4(1.0, 0.349, 0.804, 1);
 
-      if (displayName === "Asset ID" || displayName === "Asset ID (GUID)") {
-        assetIDValue = displayValue;
-      }
-
-      if (
-        (displayName === "Level" || displayName === "Schedule Level") &&
-        displayCategory === "Constraints"
-      ) {
-        assetLevel = displayValue;
-      }
-
-      if (displayName === "Category") {
-        category = displayValue;
-      }
-    });
-
-    if (category === "Revit Room" || category === "Revit Rooms") return;
-
-    const match = assetIDValue === expectedID && assetIDValue != null && name != null;
-
-    if (match) {
-      outputArray.push(dbID);
-      alldbid.push(dbID);
-      viewer.setThemingColor(dbID, color, model);
+    if (HardAssetID && HardAssetID !== "N") {
+      uniqueIDs.set(HardAssetID, color);
+      if (!assetTaskMap.has(HardAssetID))
+        assetTaskMap.set(HardAssetID, { dbid: null, model: null, color, tasks: [] });
+      assetTaskMap.get(HardAssetID).tasks.push(TaskTypeName);
     }
   }
 
-  function searchAndProcess(model, id, type, outputArray, color) {
+  // Process properties only for HardAssetIDs
+  function processProps(props, dbID, model, expectedID, color) {
+    let assetIDValue = null;
+    let category = props.Category;
+
+    props.properties.forEach(({ displayName, displayValue }) => {
+      if (displayName === "Asset ID" || displayName === "Asset ID (GUID)") assetIDValue = (displayValue || "").trim();
+      if (displayName === "Category") category = displayValue;
+    });
+
+    if (props.name === undefined || props.name === null) return;
+    if (category === "Revit Room" || category === "Revit Rooms") return;
+
+    if (assetIDValue === expectedID && assetIDValue != null) {
+      alldbid.push(dbID);
+      alldbidAsset.push(dbID);
+      viewer.setThemingColor(dbID, color, model);
+      const asset = assetTaskMap.get(assetIDValue);
+      if (asset) {
+        asset.dbid = dbID;
+        asset.model = model;
+      }
+    }
+  }
+
+  async function searchAndColor(model, id, color) {
     return new Promise((resolve) => {
       model.search(id, (dbIDs) => {
-        if (!dbIDs || dbIDs.length === 0) {
-          return resolve();
-        }
-
-        const propPromises = dbIDs.map(
-          (dbID) =>
-            new Promise((propResolve) => {
-              model.getProperties(dbID, (props) => {
-                processProps(props, dbID, model, id, outputArray, type, color);
-                propResolve();
-              });
-            })
-        );
-
-        Promise.all(propPromises).then(resolve);
+        if (!dbIDs || dbIDs.length === 0) return resolve();
+        Promise.all(
+          dbIDs.map(
+            (dbID) =>
+              new Promise((r) =>
+                model.getProperties(dbID, (props) => {
+                  processProps(props, dbID, model, id, color);
+                  r();
+                })
+              )
+          )
+        ).then(resolve);
       });
     });
   }
 
-  const promises = [];
+  // Run searches (skip model index 2 if you still need to)
+  const allPromises = [];
+  for (const [id, color] of uniqueIDs.entries()) {
+    models.forEach((model, index) => {
+      // remove the next lines if you don't want to skip any model
+      if (index === 2) {
+        console.log(`Skipping model index ${index} for HardAssetID ${id}`);
+        return;
+      }
+      allPromises.push(searchAndColor(model, id, color));
+    });
+  }
+  await Promise.allSettled(allPromises);
 
-  JSONPayload.forEach((task) => {
-    const { TaskTypeName, TaskName, FunctionalLocation, HardAssetID } = task;
+  if (alldbidAsset.length > 0) {
+    models.forEach((model) => viewer.select(alldbidAsset, model));
+    models.forEach((model) => viewer.fitToView(alldbidAsset, model));
+  }
 
-    const STBase = TaskTypeName.toLowerCase().trim();
-    const taskName = TaskName.toLowerCase().trim();
-
-    let selectionColor;
-    if (cleaningRegex.test(STBase) || cleaningRegex.test(taskName)) {
-      selectionColor = new THREE.Vector4(0, 0, 1, 1); // blue
-    } else if (repairRegex.test(STBase) || repairRegex.test(taskName)) {
-      selectionColor = new THREE.Vector4(1, 1, 0, 1); // yellow
-    } else if (winterRegex.test(STBase) || winterRegex.test(taskName)) {
-      selectionColor = new THREE.Vector4(0.231, 0.976, 0.965, 1); // cyan
-    } else if (greenRegex.test(STBase) || greenRegex.test(taskName)) {
-      selectionColor = new THREE.Vector4(0.784, 0.976, 0.231, 1); // greenish
-    } else {
-      selectionColor = new THREE.Vector4(1.0, 0.349, 0.804, 1); // pink
+  // Build array of assets that have dbid + model and compute position
+  const assetTaskArray = [];
+  for (const [id, info] of assetTaskMap.entries()) {
+    if (!info.dbid || !info.model) continue;
+    const pos = getWorldPositionForDbId(info.model, info.dbid);
+    if (!pos) {
+      console.warn("No world position for", id, info.dbid);
+      continue;
     }
+    // slight vertical offset so sprite floats above object
+    pos.z += 0.25;
+    assetTaskArray.push({
+      id,
+      dbid: info.dbid,
+      color: info.color,
+      tasks: info.tasks,
+      model: info.model,
+      position: pos,
+    });
+  }
 
-    viewer.setSelectionColor(
-      new THREE.Color(selectionColor.x, selectionColor.y, selectionColor.z)
-    );
+  console.log("✅ Unique Hard Asset dbIds:", alldbidAsset);
+  console.log("Grouped asset-task list:", assetTaskArray);
 
-    // ✅ Search in ALL models instead of only models[0]
-    if (FunctionalLocation && FunctionalLocation !== "N") {
-      models.forEach((m) =>
-        promises.push(searchAndProcess(m, FunctionalLocation, "floc", [], selectionColor))
-      );
-    }
-    if (HardAssetID && HardAssetID !== "N") {
-      models.forEach((m) =>
-        promises.push(searchAndProcess(m, HardAssetID, "asset", [], selectionColor))
-      );
-    }
-  });
+  // -------------------------
+  // Create DataViz sprites
+  // -------------------------
+  if (assetTaskArray.length === 0) return assetTaskArray;
 
-  Promise.all(promises).then(() => {
-    models.forEach((model) => viewer.select(alldbid, model));
-    if (alldbid.length > 0) {
-      models.forEach((model) => viewer.fitToView(alldbid, model));
+  // load extension and core
+  const extension0 = await viewer.loadExtension("Autodesk.DataVisualization");
+  const DataVizCore = Autodesk.DataVisualization.Core;
+
+  // sprite icon (you had sample using an svg)
+  const baseURL = "./images/pin.svg"; // change if needed ./images/temp.svg
+  const spriteIconUrl = baseURL; // or null to use colored square
+
+  const viewableData = new DataVizCore.ViewableData();
+  viewableData.spriteSize = 30;
+
+  const viewableMap = new Map(); // dbid -> viewable
+
+  // add each asset as a sprite
+  for (const asset of assetTaskArray) {
+    const pos = asset.position;
+    // style uses a color and optional icon. Using same icon but tint via color param:
+    const spriteColor = new THREE.Color(asset.color.x, asset.color.y, asset.color.z);
+    const style = new DataVizCore.ViewableStyle(DataVizCore.ViewableType.SPRITE, spriteColor, spriteIconUrl);
+
+    // Use asset.dbid as the viewable id so MOUSE_CLICK event.dbId corresponds
+    const viewable = new DataVizCore.SpriteViewable({ x: pos.x, y: pos.y, z: pos.z }, style, asset.dbid, asset.id, null, null);
+    // attach custom metadata for click handling
+    viewable.customData = { assetId: asset.id, tasks: asset.tasks, dbid: asset.dbid, model: asset.model };
+
+    viewableData.addViewable(viewable);
+    viewableMap.set(asset.dbid, viewable);
+  }
+
+  await viewableData.finish();
+  extension0.addViewables(viewableData);
+
+  // Click handler for sprites
+  // --- Sprite Click Handler (robust version with level + viewCube) ---
+  const attachSpriteClickHandler = () => {
+    viewer.removeEventListener(DataVizCore.MOUSE_CLICK, onSpriteClick);
+    viewer.addEventListener(DataVizCore.MOUSE_CLICK, onSpriteClick);
+    console.log("✅ Sprite click event attached.");
+  };
+
+  const onSpriteClick = async (event) => {
+    try {
+      if (!event || !event.dbId) return;
+
+      const spriteId = event.dbId;
+      const viewable = viewableMap.get(spriteId);
+      if (!viewable || !viewable.customData) return;
+
+      // normalize data fields
+      const { dbid, model, assetId, tasks, pointId, objectDBID } = viewable.customData;
+      const targetDbId = dbid || objectDBID || spriteId;
+      const targetModel = model || dbIdModelMap?.get(targetDbId);
+
+      console.log("🟣 Sprite clicked:", assetId ?? pointId ?? spriteId, targetDbId, tasks);
+
+      if (!targetModel || !targetDbId) return;
+
+      // --- 1️⃣ select and fit to the asset ---
+      viewer.select([targetDbId], targetModel);
+      try {
+        viewer.fitToView([targetDbId], targetModel);
+      } catch {
+        viewer.fitToView([targetDbId]);
+      }
+
+      // --- 2️⃣ wait for camera transition (smooth) ---
+      await waitForCameraTransition(viewer, 1000);
+
+      // --- 3️⃣ switch to correct Level if found ---
+      targetModel.getProperties(targetDbId, async (props) => {
+        try {
+          console.log("Asset properties for level switch:", props);
+          const levelProp = props.properties.find((p) =>
+            ["Level", "Schedule Level"].includes(p.displayName) && p.displayCategory === "Constraints"
+          );
+          console.log("Found level property:", levelProp);
+          if (levelProp && levelProp.displayValue) {
+            const assetLevel = levelProp.displayValue;
+            const levelsExt = await viewer.loadExtension("Autodesk.AEC.LevelsExtension");
+            const levels = levelsExt.floorSelector?._floors || [];
+            console.log("Switching to asset level:", levels);
+            console.log("Available levels:", levels.map(lv => lv.name));
+            const matched = levels.find((lvl) => lvl.name === assetLevel);
+            if (matched) {
+              console.log("🔹 Switching to level:", matched.name);
+              levelsExt.floorSelector.selectFloor(matched.index, true);
+            }
+          }
+        } catch (err) {
+          console.warn("Level switch failed", err);
+        }
+      });
+
+      // --- 4️⃣ orient the view cube to top view ---
+      try {
+        const viewCube = await viewer.loadExtension("Autodesk.ViewCubeUi");
+        viewCube?.setViewCube?.("top");
+      } catch (err) {
+        console.warn("ViewCube set failed", err);
+      }
+    } catch (err) {
+      console.error("❌ Sprite click handler error:", err);
     }
-  });
+  };
+
+  // Attach handler safely
+  attachSpriteClickHandler();
+
+  return assetTaskArray;
 }
+
+
+
+
+
+
+
+
+
+
+
+// export async function showAllTasks(viewer, RepeatingTask) {
+//   viewer.showAll();
+//   const models = viewer.impl.modelQueue().getModels();
+//   const preview = document.getElementById("preview");
+//   if (preview) preview.style.top = "0em";
+//   viewer.resize();
+//   console.log("SHOWING ALL TASK (grouped)");
+
+//   const JSONPayload = JSON.parse(RepeatingTask.JSONPayload);
+
+//   const cleaningRegex = /(clean|cleaning|mop|wipe|cloth)/i;
+//   const repairRegex = /(fix|assess|issue|troubleshoot|assessment|control|report)/i;
+//   const winterRegex = /(snow|ice)/i;
+//   const greenRegex = /(green|green areas|maintain green areas)/i;
+
+//   const alldbid = [];
+//   const alldbidAsset = []; // ✅ only HardAsset dbIds
+//   const uniqueIDs = new Map();
+//   const assetTaskMap = new Map();
+
+//   // Group tasks & assign colors
+//   for (const { FunctionalLocation, HardAssetID, TaskTypeName, TaskName } of JSONPayload) {
+//     const STBase = (TaskTypeName || "").toLowerCase().trim();
+//     const taskName = (TaskName || "").toLowerCase().trim();
+
+//     let color;
+//     if (cleaningRegex.test(STBase) || cleaningRegex.test(taskName)) color = new THREE.Vector4(0, 0, 1, 1);
+//     else if (repairRegex.test(STBase) || repairRegex.test(taskName)) color = new THREE.Vector4(1, 1, 0, 1);
+//     else if (winterRegex.test(STBase) || winterRegex.test(taskName)) color = new THREE.Vector4(0.231, 0.976, 0.965, 1);
+//     else if (greenRegex.test(STBase) || greenRegex.test(taskName)) color = new THREE.Vector4(0.784, 0.976, 0.231, 1);
+//     else color = new THREE.Vector4(1.0, 0.349, 0.804, 1);
+
+//     if (HardAssetID && HardAssetID !== "N") {
+//       uniqueIDs.set(HardAssetID, color);
+//       if (!assetTaskMap.has(HardAssetID))
+//         assetTaskMap.set(HardAssetID, { dbid: null, model: null, color, tasks: [] });
+//       assetTaskMap.get(HardAssetID).tasks.push(TaskTypeName);
+//     }
+//   }
+
+//   // ✅ Process properties only for HardAssetIDs
+//   function processProps(props, dbID, model, expectedID, color) {
+//     let assetIDValue = null;
+//     let category = props.Category;
+
+//     console.log('Processing properties for dbID:', dbID, props);
+
+//     props.properties.forEach(({ displayName, displayValue }) => {
+//       if (displayName === "Asset ID" || displayName === "Asset ID (GUID)") assetIDValue = displayValue;
+//       if (displayName === "Category") category = displayValue;
+//     });
+
+//     if(props.name === undefined || props.name === null) return;
+
+//     if (category === "Revit Room" || category === "Revit Rooms") return;
+
+//     if (assetIDValue === expectedID && assetIDValue != null) {
+//       alldbid.push(dbID);
+//       alldbidAsset.push(dbID); // ✅ store in hard asset list
+//       viewer.setThemingColor(dbID, color, model);
+
+//       const asset = assetTaskMap.get(assetIDValue);
+//       if (asset) {
+//         asset.dbid = dbID;
+//         asset.model = model;
+//       }
+//     }
+//   }
+
+//   async function searchAndColor(model, id, color) {
+//     return new Promise((resolve) => {
+//       model.search(id, (dbIDs) => {
+//         if (!dbIDs || dbIDs.length === 0) return resolve();
+//         Promise.all(
+//           dbIDs.map(
+//             (dbID) =>
+//               new Promise((r) =>
+//                 model.getProperties(dbID, (props) => {
+//                   processProps(props, dbID, model, id, color);
+//                   r();
+//                 })
+//               )
+//           )
+//         ).then(resolve);
+//       });
+//     });
+//   }
+
+//   // ✅ Run searches, skip 3rd model
+//   const allPromises = [];
+//   for (const [id, color] of uniqueIDs.entries()) {
+//     models.forEach((model, index) => {
+//       if (index === 2) {
+//         console.log(`Skipping model index ${index} for HardAssetID ${id}`);
+//         return;
+//       }
+//       allPromises.push(searchAndColor(model, id, color));
+//     });
+//   }
+
+//   await Promise.allSettled(allPromises);
+
+//   if (alldbidAsset.length > 0) {
+//     models.forEach((model) => viewer.select(alldbidAsset, model));
+//     models.forEach((model) => viewer.fitToView(alldbidAsset, model));
+//   }
+
+//   const assetTaskArray = Array.from(assetTaskMap.entries()).map(([id, info]) => ({
+//     id,
+//     dbid: info.dbid,
+//     color: info.color,
+//     tasks: info.tasks,
+//     model: info.model,
+//   }));
+
+//   console.log("✅ Unique Hard Asset dbIds:", alldbidAsset);
+//   console.log("Grouped asset-task list:", assetTaskArray);
+
+//   // ===== Markups =====
+//   const container = viewer.container;
+//   if (window.getComputedStyle(container).position === "static")
+//     container.style.position = "relative";
+
+//   let wrapper = container.querySelector(".asset-markup-wrapper");
+//   if (!wrapper) {
+//     wrapper = document.createElement("div");
+//     wrapper.className = "asset-markup-wrapper";
+//     Object.assign(wrapper.style, {
+//       position: "absolute",
+//       left: "0",
+//       top: "0",
+//       width: "100%",
+//       height: "100%",
+//       pointerEvents: "none",
+//       zIndex: 9999,
+//     });
+//     container.appendChild(wrapper);
+//   }
+//   wrapper.innerHTML = "";
+
+//   for (const asset of assetTaskArray) {
+//     if (!asset.dbid || !asset.model) continue;
+//     addCircleMarkupForAsset(viewer, wrapper, asset);
+//   }
+
+//   return assetTaskArray;
+
+//   function addCircleMarkupForAsset(viewer, wrapperEl, asset) {
+//     const { dbid, model, color, id } = asset;
+//     try {
+//       const instanceTree = model.getInstanceTree();
+//       const fragList = model.getFragmentList();
+//       if (!instanceTree || !fragList) return;
+
+//       let position = null;
+//       instanceTree.enumNodeFragments(dbid, (fragId) => {
+//         const matrix = new THREE.Matrix4();
+//         fragList.getWorldMatrix(fragId, matrix);
+//         const pos = new THREE.Vector3().setFromMatrixPosition(matrix);
+//         pos.z += 0.3;
+//         position = pos;
+//       });
+
+//       if (!position) return;
+
+//       const screenPoint = viewer.worldToClient(position);
+
+//       const circle = document.createElement("div");
+//       circle.className = "custom-circle-markup";
+//       Object.assign(circle.style, {
+//         position: "absolute",
+//         width: "18px",
+//         height: "18px",
+//         border: `3px solid rgb(${Math.round(color.x * 255)}, ${Math.round(color.y * 255)}, ${Math.round(color.z * 255)})`,
+//         borderRadius: "50%",
+//         backgroundColor: `rgb(${Math.round(color.x * 255)}, ${Math.round(color.y * 255)}, ${Math.round(color.z * 255)})`,
+//         left: `${Math.round(screenPoint.x - 9)}px`,
+//         top: `${Math.round(screenPoint.y - 9)}px`,
+//         cursor: "pointer",
+//         pointerEvents: "auto",
+//         zIndex: 10000,
+//       });
+
+//       circle._worldCenter = position.clone();
+//       circle.dataset.dbid = dbid;
+//       circle.title = `Asset: ${id}\nTasks: ${asset.tasks.length}`;
+
+//       circle.addEventListener("click", async (ev) => {
+//         ev.stopPropagation();
+//         console.log("Clicked Hard Asset dbId:", dbid, "assetID:", id, "tasks:", asset.tasks);
+
+//         try {
+//           viewer.fitToView([dbid], asset.model);
+//           viewer.select([dbid], asset.model);
+//         } catch (e) {
+//           try { viewer.fitToView(dbid, asset.model); } catch (e2) { console.warn("fitToView fallback failed", e2); }
+//         }
+
+//         await waitForCameraTransition(viewer, 1000);
+
+//         try {
+//           const viewCube = await viewer.loadExtension("Autodesk.ViewCubeUi");
+//           if (viewCube && typeof viewCube.setViewCube === "function") {
+//             viewCube.setViewCube("top");
+//           }
+//         } catch (err) {
+//           console.warn("Could not load/set ViewCube:", err);
+//         }
+//       });
+
+//       wrapperEl.appendChild(circle);
+
+//       // Keep position synced on camera move
+//       const onCam = () => {
+//         const newScreen = viewer.worldToClient(circle._worldCenter);
+//         circle.style.left = `${Math.round(newScreen.x - 9)}px`;
+//         circle.style.top = `${Math.round(newScreen.y - 9)}px`;
+//       };
+//       viewer.addEventListener(Autodesk.Viewing.CAMERA_CHANGE_EVENT, onCam);
+//       circle._onCam = onCam;
+
+//       // 👇 New: Hide markups outside cut planes
+//       const onCut = () => {
+//         const cutPlanes = viewer.getCutPlanes();
+//         if (!cutPlanes || cutPlanes.length === 0) {
+//           circle.style.display = "block";
+//           return;
+//         }
+//         const visible = isPointInsideSectionBox(circle._worldCenter, cutPlanes);
+//         circle.style.display = visible ? "block" : "none";
+//       };
+//       viewer.addEventListener(Autodesk.Viewing.CUTPLANES_CHANGED_EVENT, onCut);
+//       circle._onCut = onCut;
+
+//     } catch (err) {
+//       console.error("addCircleMarkupForAsset error for", asset, err);
+//     }
+//   }
+// }
+
+// function waitForCameraTransition(viewer, timeoutMs = 1200) {
+//   return new Promise((resolve) => {
+//     let done = false;
+
+//     const onComplete = () => {
+//       if (done) return;
+//       done = true;
+//       viewer.removeEventListener(Autodesk.Viewing.CAMERA_TRANSITION_COMPLETED, onComplete);
+//       resolve(true);
+//     };
+
+//     viewer.addEventListener(Autodesk.Viewing.CAMERA_TRANSITION_COMPLETED, onComplete);
+
+//     // fallback: resolve after timeout so your UI won't hang if the event never fires
+//     setTimeout(() => {
+//       if (done) return;
+//       done = true;
+//       viewer.removeEventListener(Autodesk.Viewing.CAMERA_TRANSITION_COMPLETED, onComplete);
+//       resolve(false);
+//     }, timeoutMs);
+//   });
+// }
+
+
+
+
+
+
+
+// #endregion ALL TASKS

@@ -13,6 +13,7 @@ function createWebSocketRoutes(clients) {
       const client = clients.get(userid);
       if (client && client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify(message));
+        console.log(process.memoryUsage()); 
         console.log(`✅ Sent message to ${userid}:`, message);
         res.status(200).send("Message sent via WebSocket");
       } else {

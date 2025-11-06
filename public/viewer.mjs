@@ -43,6 +43,7 @@ export function initViewer(container) {
                     // 'Autodesk.AEC.LevelsExtension',
                     // 'Autodesk.DataVisualization',
                     // 'HistogramExtension',
+                    // 'IconMarkupExtension',
                 ]
             };
             const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
@@ -589,6 +590,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 // keep it outside so it's remembered across calls
 let offset = null;
 
+// #region load options
+
 async function onDocumentLoadSuccess(doc) {
     let viewables = doc.getRoot().getDefaultGeometry();
 
@@ -626,6 +629,32 @@ async function onDocumentLoadSuccess(doc) {
         alert("Error loading model into viewer. See console for details.");
     }
 }
+
+
+// async function onDocumentLoadSuccess(doc) {
+//     let viewables = doc.getRoot().getDefaultGeometry();
+
+//     const offset = viewables?.globalOffset || { x: 0, y: 0, z: 0 };
+
+//     const loadOptions = {
+//       applyrefPoint: true, // only for first model
+//       globalOffset: offset,
+//       keepCurrentModels: true,
+//     };
+
+//     try {
+//         console.log("Loading model with options:", loadOptions);
+//         const model = await viewer.loadDocumentNode(doc, viewables, loadOptions);
+
+//         modelsLoaded++;
+//         checkAllModelsLoaded();
+
+//     } catch (error) {
+//         console.error("Error loading model into viewer:", error);
+//         alert("Error loading model into viewer. See console for details.");
+//     }
+// }
+// #endregion
 
 
 

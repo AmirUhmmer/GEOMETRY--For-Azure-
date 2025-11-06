@@ -540,3 +540,14 @@ body, html {
 {
  display: none;
 }
+
+/* ------------------------------------- MARKUPS INSIDE 3D MODEL ------------------------------------- */
+.custom-markup-circle {
+  pointer-events: auto;
+  z-index: 5;
+}
+
+.adsk-viewing-viewer .adsk-control,
+.adsk-viewing-viewer .docking-panel {
+  z-index: 10 !important; /* make sure panels are on top */
+}
