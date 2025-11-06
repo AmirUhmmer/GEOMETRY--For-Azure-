@@ -1268,7 +1268,7 @@ export async function showAllTasks(viewer, RepeatingTask) {
     // Use asset.dbid as the viewable id so MOUSE_CLICK event.dbId corresponds
     const viewable = new DataVizCore.SpriteViewable({ x: pos.x, y: pos.y, z: pos.z }, style, asset.dbid, asset.id, null, null);
     // attach custom metadata for click handling
-    viewable.customData = { assetId: asset.id, tasks: asset.tasks, dbid: asset.dbid, model: asset.model };
+    viewable.customData = { assetId: asset.id, tasks: asset.tasks, dbid: asset.dbid, model: asset.model, color: asset.color };
 
     viewableData.addViewable(viewable);
     viewableMap.set(asset.dbid, viewable);
@@ -1345,6 +1345,9 @@ export async function showAllTasks(viewer, RepeatingTask) {
       } catch (err) {
         console.warn("ViewCube set failed", err);
       }
+
+      // --- 5️⃣ show task panel ---
+      showTaskPanel(viewer, viewable.customData.tasks)
     } catch (err) {
       console.error("❌ Sprite click handler error:", err);
     }
@@ -1354,6 +1357,67 @@ export async function showAllTasks(viewer, RepeatingTask) {
   attachSpriteClickHandler();
 
   return assetTaskArray;
+}
+
+
+// Function to create and display a docking panel
+export function showTaskPanel(viewer, taskArray = []) {
+  class RepeatingTaskPanel extends Autodesk.Viewing.UI.DockingPanel {
+    constructor(viewer, title) {
+      super(viewer.container, title);
+
+      this.container.style.top = "10px";
+      this.container.style.left = "10px";
+      this.container.style.width = "300px";
+      this.container.style.height = "325px";
+      this.container.style.backgroundColor = "#333";
+      this.container.style.color = "#fff";
+      this.container.style.overflow = "hidden";
+      this.container.style.resize = "auto";
+      this.container.classList.add("task-panel");
+
+      this.createScrollContainer();
+    }
+
+    createScrollContainer() {
+      this.scrollContainer = document.createElement("div");
+      this.scrollContainer.style.overflow = "auto";
+      this.scrollContainer.style.padding = "1em";
+      this.scrollContainer.style.height = "100%";
+      this.container.appendChild(this.scrollContainer);
+
+      this.createPanelContent();
+    }
+
+    createPanelContent() {
+      if (!Array.isArray(taskArray) || taskArray.length === 0) {
+        this.scrollContainer.innerHTML = `<p>No tasks available</p>`;
+        return;
+      }
+
+      taskArray.forEach((task, index) => {
+        const container = document.createElement("div");
+        container.style.marginBottom = "10px";
+        container.style.borderBottom = "1px solid #555";
+        container.style.paddingBottom = "5px";
+        container.innerHTML = `
+          <strong style="color:#ffd700;">Task ${index + 1}</strong><br>
+          <span>${task}</span>
+        `;
+        this.scrollContainer.appendChild(container);
+      });
+    }
+  }
+
+  // remove existing
+  if (viewer.RepeatingTaskPanel) {
+    viewer.RepeatingTaskPanel.setVisible(false);
+    viewer.RepeatingTaskPanel.uninitialize();
+  }
+
+  // create & show new
+  viewer.RepeatingTaskPanel = new RepeatingTaskPanel(viewer, "Repeating Tasks");
+  viewer.RepeatingTaskPanel.setVisible(true);
 }
 
 
