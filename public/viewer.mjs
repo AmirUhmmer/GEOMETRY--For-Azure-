@@ -10,6 +10,7 @@ import { ToolbarButton2DFaro } from './panelFor2DFaro.mjs';
 import { button3D } from './button3D.mjs';
 import { AgreementFunctionalLocationSearch } from './Hemy_Functions/Agreement.mjs';
 import { rightToolbar } from './rightToolbar.mjs';
+import { markTaskDone } from './Hemy_Functions/RepeatingTasks.mjs';
 
 
 async function getAccessToken(callback) {
@@ -399,7 +400,13 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                         } else if(message.type === "showZone"){ 
                             console.log("Received message [show all zones]:", event.data);
                             zoneFunctionalLocation(viewer, message);
+                        } else if (message.type === "completeTask") {
+                            console.log("Received message [complete task]:", message);
+                            console.log("Marking task as done for Hard Asset:", message.hardAsset, "Task Name:", message.taskName);
+                            markTaskDone(viewer, message.hardAsset, message.taskName);
                         }
+
+
                     };
                 }
 
