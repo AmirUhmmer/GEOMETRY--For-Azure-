@@ -1149,7 +1149,7 @@ export async function showAllTasks(viewer, RepeatingTask) {
       uniqueIDs.set(HardAssetID, color);
       if (!assetTaskMap.has(HardAssetID))
         assetTaskMap.set(HardAssetID, { dbid: null, model: null, color, tasks: [] });
-      assetTaskMap.get(HardAssetID).tasks.push(TaskTypeName);
+      assetTaskMap.get(HardAssetID).tasks.push(TaskName);
     }
   }
 
@@ -1276,6 +1276,8 @@ export async function showAllTasks(viewer, RepeatingTask) {
 
   await viewableData.finish();
   extension0.addViewables(viewableData);
+  viewer.viewableMap = viewableMap;
+  // markTaskDone(viewer, 'e7e49bc6-b842-ef11-a317-0022489fd3f3');
 
   // Click handler for sprites
   // --- Sprite Click Handler (robust version with level + viewCube) ---
@@ -1283,6 +1285,11 @@ export async function showAllTasks(viewer, RepeatingTask) {
     viewer.removeEventListener(DataVizCore.MOUSE_CLICK, onSpriteClick);
     viewer.addEventListener(DataVizCore.MOUSE_CLICK, onSpriteClick);
     console.log("✅ Sprite click event attached.");
+    // Delay markTaskDone call for testing
+    // const timeoutMs = 3000; // 1 second
+    // setTimeout(() => {
+    //   markTaskDone(viewer, "9715efcf-d42f-ef11-840b-0022489fdfca", "Dust - Top of cabinet - dry cloth");
+    // }, timeoutMs);
   };
 
   const onSpriteClick = async (event) => {
@@ -1422,8 +1429,66 @@ export function showTaskPanel(viewer, taskArray = []) {
 
 
 
+// #region MARK TASK DONE
+// Mark a Hard Asset as Done using its HardAssetID (not dbId)
+export async function markTaskDone(viewer, hardAssetId, taskName) {
+  const dataVizExtn = viewer.getExtension("Autodesk.DataVisualization");
+  const viewableMap = viewer.viewableMap;
+  if (!dataVizExtn || !viewableMap) return;
+
+  // Find target sprite
+  const targetSprite = [...viewableMap.values()].find(
+    v => v?.customData?.assetId === hardAssetId
+  );
+  if (!targetSprite) {
+    console.warn(`No sprite found for HardAssetID: ${hardAssetId}`);
+    return;
+  }
+
+  console.log("Target sprite found:", targetSprite);
+
+  // ✅ Update only the matching task name
+  const data = targetSprite.customData;
+  data.tasks = data.tasks.map(t =>
+    t === taskName ? (t.includes("(Done)") ? t : `${t} (Done)`) : t
+  );
+
+  // ✅ Check if ALL tasks under this sprite are done
+  const allDone = data.tasks.every(t => t.includes("(Done)"));
+
+  if (!allDone) {
+    console.log(`⚠️ Not all tasks done for ${hardAssetId}, skipping color update.`);
+  } else {
+    // ✅ Store color in both customData and DataViz internal dataset
+    const newColor = { r: 0, g: 1, b: 0 };
+    data.color = newColor;
+
+    const spriteDbId = targetSprite.dbId;
+    const sprites = dataVizExtn.viewableData.viewables;
+    const spriteInData = sprites.find(v => v.dbId === spriteDbId);
+    if (spriteInData) {
+      spriteInData.style.color = new THREE.Color(newColor.r, newColor.g, newColor.b);
+    }
+
+    // ✅ Update the visible sprite
+    dataVizExtn.invalidateViewables([spriteDbId], () => ({
+      color: newColor
+    }));
+
+    console.log(`✅ All tasks done for ${hardAssetId} — sprite color updated to green.`);
+  }
+
+  // ✅ Force refresh (always run to ensure visual sync)
+  setTimeout(() => viewer.impl.invalidate(true, true, true), 100);
+}
 
 
+
+
+
+
+
+// #endregion
 
 
 
