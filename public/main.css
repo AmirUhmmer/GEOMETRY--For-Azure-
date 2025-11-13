@@ -524,7 +524,9 @@ body, html {
 
 /* ------------------------------------- TOOLBARS INSIDE 3D MODEL ------------------------------------- */
 #levels-item,
-#model-browser-button-item{
+#model-browser-button-item,
+#parking-item,
+#zones-button-item{
  display: none;
 }
 

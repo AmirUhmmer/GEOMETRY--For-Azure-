@@ -57,86 +57,26 @@ export function FunctionalLocationSearch(viewer, FunctionalLocation){
 
 
 // #region Zone FL
-// export async function zoneFunctionalLocation(viewer, message) {
-//   const zoneData = JSON.parse(message.JSONPayload);
-//   console.log("Parsed zone data:", zoneData);
-
-//   const models = viewer.impl.modelQueue().getModels();
-//   if (!models || models.length === 0) return;
-
-//   models.forEach(model => viewer.clearThemingColors(model));
-
-//   const color = new THREE.Vector4(0, 1, 0, 1); // RGBA green
-//   viewer.setSelectionColor(new THREE.Color(0, 1, 0)); // RGB green
-
-//   // Collect all dbIDs first
-//   const allDbIds = [];
-//   const searchPromises = [];
-
-//   // ✅ Fix: use zoneData (not functionalLocations.FunctionalLocation)
-//   zoneData.forEach((location) => {
-//     models.forEach((model) => {
-//       const searchPromise = new Promise((resolve) => {
-//         // ✅ You were using location.id, but your data uses FunctionalLocationName
-//         model.search(location.FunctionalLocation, (dbIDs) => {
-//           if (dbIDs && dbIDs.length > 0) {
-//             dbIDs.forEach((id) => {
-//               allDbIds.push({ dbId: id, model });
-//             });
-//           } else {
-//             // console.log("No matching objects found for:", location.FunctionalLocationName);
-//           }
-//           resolve();
-//         });
-//       });
-//       searchPromises.push(searchPromise);
-//     });
-//   });
-
-//   await Promise.all(searchPromises);
-
-//   // Apply coloring and selection
-//   if (allDbIds.length > 0) {
-//     const dbIdsByModel = {};
-
-//     allDbIds.forEach(({ dbId, model }) => {
-//       const modelId = model.id || model.getData().instanceTree.nodeAccess.dbIdToIndex.length;
-//       if (!dbIdsByModel[modelId]) {
-//         dbIdsByModel[modelId] = { model, dbIds: [] };
-//       }
-//       dbIdsByModel[modelId].dbIds.push(dbId);
-//     });
-
-//     const models = viewer.impl.modelQueue().getModels();
-
-//     Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
-//       console.log(`Highlighting ${dbIds.length} objects in model ${model.id}:`, dbIds);
-//     //   dbIds.forEach((id) => viewer.setThemingColor(id, color, models[0]));
-//       for (const id of dbIds) {
-//         viewer.setThemingColor(id, color, models[0]);
-//       }
-//       viewer.select(dbIds, model);
-//     });
-//   } else {
-//     console.log("No objects found for any functional locations");
-//   }
-// }
 
 
 export async function zoneFunctionalLocation(viewer, message) {
-  const zoneData = JSON.parse(message.JSONPayload);
+  const zoneData = JSON.parse(message.JSONPayload || "[]");
   console.log("Parsed zone data:", zoneData);
 
   const models = viewer.impl.modelQueue().getModels();
   if (!models?.length) return;
 
-  // Clear all previous colors
+  // Always clear existing theming
   models.forEach(model => viewer.clearThemingColors(model));
 
-  // Get unique tenants
-  const tenants = [...new Set(zoneData.map(z => z.Tenant))];
+  // If no data, just clear colors and exit
+  if (!Array.isArray(zoneData) || zoneData.length === 0) {
+    console.log("No zone data — clearing theming only.");
+    return;
+  }
 
-  // Assign a distinct color for each tenant
+  // Get unique tenants and assign colors
+  const tenants = [...new Set(zoneData.map(z => z.Tenant))];
   const tenantColors = {};
   tenants.forEach((tenant, i) => {
     const hue = (i * 360 / tenants.length) / 360;
@@ -144,40 +84,129 @@ export async function zoneFunctionalLocation(viewer, message) {
     tenantColors[tenant] = new THREE.Vector4(color.r, color.g, color.b, 1);
   });
 
-  // For each tenant, find and color all functional locations
+  // Process each tenant group just like AgreementFunctionalLocationSearch
   for (const tenant of tenants) {
     const tenantItems = zoneData.filter(z => z.Tenant === tenant);
     const tenantColor = tenantColors[tenant];
-    const tenantDbIds = [];
 
+    const allDbIds = [];
     const searchPromises = [];
 
+    // Search through all models and collect dbIds
     tenantItems.forEach(item => {
       models.forEach(model => {
-        const promise = new Promise(resolve => {
+        const searchPromise = new Promise(resolve => {
           model.search(item.FunctionalLocation, dbIDs => {
-            // console.log(`Search for "${item.FunctionalLocation}" in model ${model.id} returned:`, dbIDs);
-            if (dbIDs?.length) {
-              dbIDs.forEach(id => tenantDbIds.push({ dbId: id, model }));
+            if (dbIDs && dbIDs.length > 0) {
+              dbIDs.forEach(id => allDbIds.push({ dbId: id, model }));
+            } else {
+              console.log(`No matching objects found for: ${item.FunctionalLocation}`);
             }
             resolve();
           });
         });
-        searchPromises.push(promise);
+        searchPromises.push(searchPromise);
       });
     });
 
     await Promise.all(searchPromises);
 
-    // Apply color to all found dbIds for this tenant
-    tenantDbIds.forEach(({ dbId, model }) => {
-      viewer.setThemingColor(dbId, tenantColor, model);
-    });
-
-    // console.log(` Tenant "${tenant}" → ${tenantDbIds.length} objects colored.`);
+    if (allDbIds.length > 0) {
+      // Group dbIds by model for efficiency
+      const dbIdsByModel = {};
+      allDbIds.forEach(({ dbId, model }) => {
+        const modelId = model.id || model.getData().instanceTree.nodeAccess.dbIdToIndex.length;
+        if (!dbIdsByModel[modelId]) {
+          dbIdsByModel[modelId] = { model, dbIds: [] };
+        }
+        dbIdsByModel[modelId].dbIds.push(dbId);
+      });
+      // Apply color and selection
+      Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
+        console.log(`Highlighting ${dbIds.length} objects for tenant "${tenant}" in model ${model.id}`);
+        dbIds.forEach(id => viewer.setThemingColor(id, tenantColor, model));
+        viewer.select(dbIds, model);
+      });
+    } else {
+      console.log(`No objects found for tenant "${tenant}"`);
+    }
   }
 
-  viewer.impl.invalidate(true, true, true);
+  // viewer.impl.invalidate(true, true, true);
 }
+
+
+// export async function zoneFunctionalLocation(viewer, message) {
+//   const zoneData = JSON.parse(message.JSONPayload || "[]");
+//   console.log("Parsed zone data:", zoneData);
+
+//   const models = viewer.impl.modelQueue().getModels();
+//   if (!models?.length) return;
+
+//   // Clear all theming colors
+//   models.forEach(model => viewer.clearThemingColors(model));
+
+//   if (!Array.isArray(zoneData) || zoneData.length === 0) {
+//     console.log("No zone data — clearing theming only.");
+//     return;
+//   }
+
+//   // Assign each tenant a unique color
+//   const tenants = [...new Set(zoneData.map(z => z.Tenant))];
+//   const tenantColors = {};
+//   tenants.forEach((tenant, i) => {
+//     const hue = (i * 360) / tenants.length / 360;
+//     const color = new THREE.Color().setHSL(hue, 0.8, 0.5);
+//     tenantColors[tenant] = new THREE.Vector4(color.r, color.g, color.b, 0.8); // alpha < 1
+//   });
+
+//   // For each tenant
+//   for (const tenant of tenants) {
+//     const tenantItems = zoneData.filter(z => z.Tenant === tenant);
+//     const tenantColor = tenantColors[tenant];
+
+//     const allDbIds = [];
+//     const searchPromises = [];
+
+//     // Search in all models
+//     tenantItems.forEach(item => {
+//       models.forEach(model => {
+//         const searchPromise = new Promise(resolve => {
+//           model.search(item.FunctionalLocation, dbIDs => {
+//             if (dbIDs?.length) {
+//               dbIDs.forEach(id => allDbIds.push({ dbId: id, model }));
+//             } else {
+//               console.log(`No match for ${item.FunctionalLocation}`);
+//             }
+//             resolve();
+//           });
+//         });
+//         searchPromises.push(searchPromise);
+//       });
+//     });
+
+//     await Promise.all(searchPromises);
+
+//     if (allDbIds.length > 0) {
+//       console.log(`✅ Found ${allDbIds.length} objects for tenant "${tenant}"`);
+
+//       const models = viewer.impl.modelQueue().getModels();
+//       console.log(allDbIds);
+
+//       const dbIds = allDbIds.map(item => item.dbId);
+
+
+
+//       const color = new THREE.Vector4(0, 1, 0, 1);
+//       dbIds.forEach(id => viewer.setThemingColor(id, color, models[0]));
+//       viewer.select(dbIds, models[0]);
+//     } else {
+//       console.log(`No objects found for tenant "${tenant}"`);
+//     }
+//   }
+
+//   // viewer.impl.invalidate(true, true, true);
+// }
+
 
 // #endregion
