@@ -285,6 +285,10 @@ export async function zoneFunctionalLocation(viewer, message) {
   const red = new THREE.Vector4(1, 0, 0, 1);
   const green = new THREE.Vector4(0, 1, 0, 1);
 
+  const redSel = new THREE.Color(1, 0, 0);
+  const greenSel = new THREE.Color(0, 1, 0);
+
+
   // Group FunctionalLocations by Tenant
   const tenantGroups = [...new Set(zoneData.map(z => z.Tenant))].map(t => ({
     tenant: t,
@@ -326,12 +330,15 @@ export async function zoneFunctionalLocation(viewer, message) {
       if (!matchedIds?.length) continue;
 
       matchedIds.forEach(id => viewer.setThemingColor(id, tenantColor, model));
+      console.log("Tenant Color:", tenantColor);
+      viewer.setSelectionColor(tenant === "Unoccupied" ? redSel : greenSel);
       viewer.select(matchedIds, model);
 
       console.log(
         `Tenant "${tenant}" → ${matchedIds.length} matches in model ${model.id}`
       );
     }
+    
   }
 }
 
