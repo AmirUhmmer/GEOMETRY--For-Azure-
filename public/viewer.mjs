@@ -2,7 +2,7 @@ import * as functions from './viewerSidebar.mjs';
 import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from './Live_Data/LiveData.mjs';
 import { HardAssetSearch } from './Hemy_Functions/HardAssets.mjs';
 import { ServiceZoneSearch } from './Hemy_Functions/ServiceZone.mjs';
-import { FunctionalLocationSearch, zoneFunctionalLocation } from './Hemy_Functions/FunctionalLocation.mjs';
+import { FunctionalLocationSearch, zoneFunctionalLocation, highlightFLByTask } from './Hemy_Functions/FunctionalLocation.mjs';
 import { RepeatingTasks, showTasks, showAllTasks } from './Hemy_Functions/RepeatingTasks.mjs';
 import { WOServiceTask } from './Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
@@ -381,6 +381,12 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 WOServiceTask(viewer);
 
+                AgreementFunctionalLocationSearch(viewer, window.agreementFL);
+
+                highlightFLByTask(viewer, window.serviceZone);
+
+
+
                 // showTasks(viewer, onetaskSample);
 
                 // #endregion
@@ -404,7 +410,11 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             console.log("Received message [complete task]:", message);
                             console.log("Marking task as done for Hard Asset:", message.hardAsset, "Task Name:", message.taskName);
                             markTaskDone(viewer, message.hardAsset, message.taskName);
-                        }
+                        } 
+                        // else if (message.type === "functionallocations_with_tasks") {
+                        //     console.log("Received message:", message);
+                        //     highlightFLByTask(viewer, message);
+                        // }
 
 
                     };
@@ -435,8 +445,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 // button3D(viewer, urns);
 
                 // rightToolbar(viewer, modelAbbreviation);
-
-                AgreementFunctionalLocationSearch(viewer, window.agreementFL);
 
                 const canvas = viewer.impl.canvas;
 
