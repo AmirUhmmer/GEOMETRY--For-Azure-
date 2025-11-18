@@ -271,6 +271,7 @@ export async function highlightFLByTask(viewer, message) {
 
 
 export async function zoneFunctionalLocation(viewer, message) {
+  viewer.clearSelection();
   const zoneData = JSON.parse(message.JSONPayload || "[]");
   console.log("Parsed zone data:", zoneData);
 
