@@ -507,7 +507,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
      
                                 
-                                       if (HardAsset === 'Hard Asset' || FunctionalLocation === 'TRUE' || ServiceZone === 'TRUE' || userType === 'tenant') {
+                                       if (HardAsset === 'Hard Asset' || FunctionalLocation === 'TRUE' || ServiceZone === 'TRUE' && userType === 'tenant') {
                                             if (model === viewer.impl.modelQueue().getModels()[1]) {
                                       //          // Second model
                                                // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
@@ -523,21 +523,23 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                                         }else{
 
-                                           if (model === viewer.impl.modelQueue().getModels()[1]) {
+                                           if (model === viewer.impl.modelQueue().getModels()[1] && userType === 'tenant') {
                                      //    //       Second model
                                         
                                                newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
                                             } else {
                                      //      //     Default case if neither first nor second model
-                                               if (HardAssetInsideARModel || userType === 'tenant') {
+                                               if (HardAssetInsideARModel && userType === 'tenant') {
                                                    newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
-                                                } else {
+                                                } else if (userType === 'tenant'){
                                                   newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
                                                }
                                             }
                                         }
 
-                                        if (HardAsset === 'Hard Asset' || FunctionalLocation === 'TRUE' || ServiceZone === 'TRUE' || userType === 'supplier') {
+                                        console.log("URL 1: " + newUrl);
+
+                                        if (HardAsset === 'Hard Asset' || FunctionalLocation === 'TRUE' || ServiceZone === 'TRUE' && userType === 'supplier') {
                                             if (model === viewer.impl.modelQueue().getModels()[1]) {
                                       //          // Second model
                                                // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
@@ -553,22 +555,25 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                                         }else{
                                             
-                                           if (model === viewer.impl.modelQueue().getModels()[1]) {
+                                           if (model === viewer.impl.modelQueue().getModels()[1] && userType === 'supplier') {
                                      //    //       Second model
                                         
                                                newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
                                             } else {
                                      //      //     Default case if neither first nor second model
-                                               if (HardAssetInsideARModel || userType === 'supplier') {
+                                               if (HardAssetInsideARModel && userType === 'supplier') {
                                                    newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
-                                                } else {
+                                                } else if (userType === 'supplier'){
                                                   newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
                                                }
                                             }
                                         }
 
+                                        console.log("URL 2: " + newUrl);
 
-                                          if (HardAsset === 'Hard Asset' || FunctionalLocation === 'TRUE' || ServiceZone === 'TRUE' || userType === 'business') {
+
+
+                                          if (HardAsset === 'Hard Asset' || FunctionalLocation === 'TRUE' || ServiceZone === 'TRUE' && (userType === 'business' || !userType )) {
                                             if (model === viewer.impl.modelQueue().getModels()[1]) {
                                       //          // Second model
                                                // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
@@ -584,44 +589,44 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                                         }else{
                                             
-                                           if (model === viewer.impl.modelQueue().getModels()[1]) {
+                                           if (model === viewer.impl.modelQueue().getModels()[1] && (userType === 'business' || !userType)) {
                                      //    //       Second model
                                         
                                                newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=" + globalID;
                                             } else {
                                      //      //     Default case if neither first nor second model
-                                               if (HardAssetInsideARModel || userType === 'business') {
+                                               if (HardAssetInsideARModel && (userType === 'business' || !userType)) {
                                                    newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
-                                                } else {
+                                                } else if (userType === 'business' || !userType){
                                                   newUrl = "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
                                                }
                                             }
                                         }
 
+                                        console.log("URL 3: " + newUrl);
 
 
 
+                                    //  // 👉 Inject into iframe
+                                    const iframe = document.getElementById("iframeTest");
+                                    const closeBtn = document.getElementById("closeIframeBtn");
+                                    iframe.src = newUrl;
+                                    iframe.style.visibility = "visible"
+                                    closeBtn.style.visibility = "visible"
 
-//  // 👉 Inject into iframe
-const iframe = document.getElementById("iframeTest");
-const closeBtn = document.getElementById("closeIframeBtn");
-iframe.src = newUrl;
-iframe.style.visibility = "visible"
- closeBtn.style.visibility = "visible"
-
- if (iframe.style.visibility === "visible") {
-    closeBtn.style.display = "block"; // show button
-  }
+                                    if (iframe.style.visibility === "visible") {
+                                        closeBtn.style.display = "block"; // show button
+                                    }
 
 
-   
+                                    
 
-//Close button handler
-document.getElementById("closeIframeBtn").addEventListener("click", () => {
-    iframe.style.visibility = "hidden";
-    iframe.src = ""; // optional: clear the URL
-    closeBtn.style.display = "none"; // hide button
-});
+                                    //Close button handler
+                                    document.getElementById("closeIframeBtn").addEventListener("click", () => {
+                                        iframe.style.visibility = "hidden";
+                                        iframe.src = ""; // optional: clear the URL
+                                        closeBtn.style.display = "none"; // hide button
+                                    });
 
 
 
