@@ -58,6 +58,52 @@ body, html {
   width: 72%;
 }
 
+
+#iframeTest {
+  position: fixed;
+  width: 75%;
+  height: 100%;
+  left: 0;
+  top: 3em;
+  bottom: 0;
+  border: none;
+  transition: width 0.3s ease;
+  visibility: hidden;
+}
+
+
+#closeIframeBtn {
+  /* display: none;              start hidden */
+  background: #d9534f;
+  color: white;
+  border: none;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  font-size: 11px;
+  border-radius: 4px;
+  visibility: hidden;
+}
+
+#closeIframeBtn:hover {
+  background: #c9302c;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #header > * {
     height: 2em;
     margin: 0 0.5em;
