@@ -60,11 +60,24 @@ export async function highlightFLByTask(viewer, message) {
   
   await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
 
-  // Detect the actual data shape
-  let flData =
-    message.payload ||
-    JSON.parse(message.JSONPayload || "[]") ||
-    message;
+  // Detect the actual data shape (message is already an array)
+  let flData;
+
+  if (Array.isArray(message)) {
+    flData = message;
+  } else if (Array.isArray(message.payload)) {
+    flData = message.payload;
+  } else if (message.JSONPayload) {
+    try {
+      flData = JSON.parse(message.JSONPayload);
+    } catch {
+      flData = [];
+    }
+  } else {
+    flData = [];
+  }
+
+  console.log("Message data:", flData);
 
   if (!Array.isArray(flData) || flData.length === 0) {
     console.warn("No FL data found in message.");
