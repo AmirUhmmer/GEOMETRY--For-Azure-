@@ -56,6 +56,7 @@ export function FunctionalLocationSearch(viewer, FunctionalLocation){
 export async function highlightFLByTask(viewer, message) {
   // Expecting message.payload = [ { flId, flName, taskNames: [...] }, ... ]
   console.log("Highlight FL by Task message received.");
+  console.log("Message payload:", message);
   await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
   const flData = message.payload || [];
   if (!Array.isArray(flData) || flData.length === 0) return;
