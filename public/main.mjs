@@ -1,52 +1,142 @@
-import { initViewer, loadModel } from "./viewer.mjs";
-import { initTree } from "./sidebar.mjs";
+// import { initViewer, loadModel } from "./viewer.mjs";
+// import { initTree } from "./sidebar.mjs";
 
-document.addEventListener("DOMContentLoaded", () => {
-  // console.log("HELLOOO WORLD");
-  if (!localStorage.getItem("authToken") || isTokenExpired()) {
-    fetchAccessToken(); // Starts fetching early, before user clicks anything
-  }
-});
-
-// window.agreementFL = window.agreementFL || [];
-
-// window.addEventListener("message", (event) => {
-//   console.log("📨 Message received in iframe:", event.data);
-
-//   if (event.data?.type === "functionallocations") {
-//     console.log("✅ FL payload received:", event.data.payload);
-//     window.agreementFL.push(...event.data.payload);
-//     //AgreementFunctionalLocationSearch(viewer, event.data.payload);
+// document.addEventListener("DOMContentLoaded", () => {
+//   // console.log("HELLOOO WORLD");
+//   if (!localStorage.getItem("authToken") || isTokenExpired()) {
+//     fetchAccessToken(); // Starts fetching early, before user clicks anything
 //   }
 // });
 
-const login = document.getElementById("login");
+// // window.agreementFL = window.agreementFL || [];
 
-// Function to fetch access token using Client Credentials from your server
-export async function fetchAccessToken() {
+// // window.addEventListener("message", (event) => {
+// //   console.log("📨 Message received in iframe:", event.data);
+
+// //   if (event.data?.type === "functionallocations") {
+// //     console.log("✅ FL payload received:", event.data.payload);
+// //     window.agreementFL.push(...event.data.payload);
+// //     //AgreementFunctionalLocationSearch(viewer, event.data.payload);
+// //   }
+// // });
+
+// const login = document.getElementById("login");
+
+// // Function to fetch access token using Client Credentials from your server
+// export async function fetchAccessToken() {
+//   try {
+//     const response = await fetch("/api/auth/token"); // Fetch the token from the server-side endpoint
+//     if (!response.ok) {
+//       throw new Error("Failed to get access token");
+//     }
+//     const data = await response.json();
+//     localStorage.setItem("authToken", data.access_token);
+//     localStorage.setItem("refreshToken", data.refresh_token);
+//     localStorage.setItem("expires_at", Date.now() + data.expires_in * 1000); // Store expiry time in milliseconds
+//     localStorage.setItem("internal_token", data.internal_token);
+
+//     return data.access_token; // Return the access token
+//   } catch (error) {
+//     console.error("Error fetching access token:", error);
+//     throw error;
+//   }
+// }
+
+// // Function to check if the token is still valid
+// export function isTokenExpired() {
+//   const expires_at = localStorage.getItem("expires_at");
+//   return !expires_at || Date.now() >= parseInt(expires_at, 10);
+// }
+
+
+import { initViewer, loadModel } from "./viewer.mjs";
+import { initTree } from "./sidebar.mjs";
+
+document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const response = await fetch("/api/auth/token"); // Fetch the token from the server-side endpoint
-    if (!response.ok) {
-      throw new Error("Failed to get access token");
-    }
-    const data = await response.json();
-    localStorage.setItem("authToken", data.access_token);
-    localStorage.setItem("refreshToken", data.refresh_token);
-    localStorage.setItem("expires_at", Date.now() + data.expires_in * 1000); // Store expiry time in milliseconds
-    localStorage.setItem("internal_token", data.internal_token);
+    // Start all tasks in parallel
+    const tokenPromise = (!localStorage.getItem("authToken") || isTokenExpired())
+      ? fetchAccessToken()
+      : Promise.resolve(localStorage.getItem("authToken"));
 
-    return data.access_token; // Return the access token
+    const modelPromise = loadModel(); // Start loading the model immediately
+
+    const websocketPromise = setupWebSocket(); // Start WebSocket setup immediately
+
+    // Wait for all to finish
+    const [authToken, model, socket] = await Promise.all([
+      tokenPromise,
+      modelPromise,
+      websocketPromise
+    ]);
+
+    console.log("✅ Token, model, and WebSocket are ready!");
+    initializeApp(authToken, model, socket);
   } catch (error) {
-    console.error("Error fetching access token:", error);
-    throw error;
+    console.error("Error during initialization:", error);
   }
+});
+
+// Fetch token
+export async function fetchAccessToken() {
+  const response = await fetch("/api/auth/token");
+  if (!response.ok) throw new Error("Failed to get access token");
+  const data = await response.json();
+  localStorage.setItem("authToken", data.access_token);
+  localStorage.setItem("refreshToken", data.refresh_token);
+  localStorage.setItem("expires_at", Date.now() + data.expires_in * 1000);
+  localStorage.setItem("internal_token", data.internal_token);
+  return data.access_token;
 }
 
-// Function to check if the token is still valid
+// Check token expiry
 export function isTokenExpired() {
   const expires_at = localStorage.getItem("expires_at");
   return !expires_at || Date.now() >= parseInt(expires_at, 10);
 }
+
+// WebSocket setup
+async function setupWebSocket() {
+  const userGuid = new URLSearchParams(window.location.search).get("userGuid");
+  if (!userGuid) return null;
+
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket(`wss://hemydigitaltwin-dra9gjbxbsaydxdz.northeurope-01.azurewebsites.net/ws/${userGuid}`);
+    socket.addEventListener("open", () => {
+      console.log("🔌 WebSocket connected");
+      socket.send(JSON.stringify({ type: "ping" }));
+      resolve(socket);
+    });
+    socket.addEventListener("error", reject);
+  });
+}
+
+// Initialize app after everything is ready
+function initializeApp(authToken, model, socket) {
+  initViewer(model);
+  initTree();
+  console.log("App initialized with token:", authToken);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 async function initApp() {
   try {
