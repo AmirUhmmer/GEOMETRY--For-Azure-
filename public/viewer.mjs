@@ -385,7 +385,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 highlightFLByTask(viewer, window.serviceZone);
 
-
+                console.log("SERVICE ZONE FROM VIEWER:", window.serviceZone);
 
                 // showTasks(viewer, onetaskSample);
 
