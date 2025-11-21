@@ -57,9 +57,19 @@ export async function highlightFLByTask(viewer, message) {
   // Expecting message.payload = [ { flId, flName, taskNames: [...] }, ... ]
   console.log("Highlight FL by Task message received.");
   console.log("Message payload:", message);
+  
   await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
-  const flData = message.payload || [];
-  if (!Array.isArray(flData) || flData.length === 0) return;
+
+  // Detect the actual data shape
+  let flData =
+    message.payload ||
+    JSON.parse(message.JSONPayload || "[]") ||
+    message;
+
+  if (!Array.isArray(flData) || flData.length === 0) {
+    console.warn("No FL data found in message.");
+    return;
+  }
   
   console.log("Parsed FL + Tasks Data:", flData);
 
