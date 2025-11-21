@@ -509,18 +509,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                       }
                                       let userType = params["user"]; // The user, if it exists
 
-                                      if (
-                                        HardAsset === "Hard Asset" ||
-                                        FunctionalLocation === "TRUE" ||
-                                        (ServiceZone === "TRUE" &&
-                                          userType === "tenant")
-                                      ) {
-                                        if (
-                                          model ===
-                                          viewer.impl
-                                            .modelQueue()
-                                            .getModels()[1]
-                                        ) {
+                                      if (HardAsset === "Hard Asset" || FunctionalLocation === "TRUE" || (ServiceZone === "TRUE" && userType === "tenant")) {
+                                        if (model === viewer.impl.modelQueue().getModels()[1]) {
                                           //          // Second model
                                           // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
                                           if (HardAssetInsideARModel) {
@@ -539,24 +529,14 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                             globalID;
                                         }
                                       } else {
-                                        if (
-                                          model ===
-                                            viewer.impl
-                                              .modelQueue()
-                                              .getModels()[1] &&
-                                          userType === "tenant"
-                                        ) {
+                                        if (model === viewer.impl.modelQueue().getModels()[1] && userType === "tenant") {
                                           //    //       Second model
-
                                           newUrl =
                                             "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
                                             globalID;
                                         } else {
                                           //      //     Default case if neither first nor second model
-                                          if (
-                                            HardAssetInsideARModel &&
-                                            userType === "tenant"
-                                          ) {
+                                          if (HardAssetInsideARModel && userType === "tenant") {
                                             newUrl =
                                               "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
                                               globalID;
@@ -570,17 +550,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                                       console.log("URL 1: " + newUrl);
 
-                                      if (
-                                        HardAsset === "Hard Asset" ||
-                                        FunctionalLocation === "TRUE" ||
-                                        (ServiceZone === "TRUE" &&
-                                          userType === "supplier")
-                                      ) {
-                                        if (
-                                          model ===
-                                          viewer.impl
-                                            .modelQueue()
-                                            .getModels()[1]
+                                      if (HardAsset === "Hard Asset" || FunctionalLocation === "TRUE" || (ServiceZone === "TRUE" && userType === "supplier")) {
+                                        if (model === viewer.impl.modelQueue().getModels()[1]
                                         ) {
                                           //          // Second model
                                           // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
@@ -600,24 +571,14 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                             globalID;
                                         }
                                       } else {
-                                        if (
-                                          model ===
-                                            viewer.impl
-                                              .modelQueue()
-                                              .getModels()[1] &&
-                                          userType === "supplier"
-                                        ) {
-                                          //    //       Second model
-
+                                        if (model === viewer.impl.modelQueue().getModels()[1] &&userType === "supplier") {
+                                          //       Second model
                                           newUrl =
                                             "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
                                             globalID;
                                         } else {
                                           //      //     Default case if neither first nor second model
-                                          if (
-                                            HardAssetInsideARModel &&
-                                            userType === "supplier"
-                                          ) {
+                                          if (HardAssetInsideARModel && userType === "supplier") {
                                             newUrl =
                                               "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
                                               globalID;
@@ -631,20 +592,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                                       console.log("URL 2: " + newUrl);
 
-                                      if (
-                                        HardAsset === "Hard Asset" ||
-                                        FunctionalLocation === "TRUE" ||
-                                        (ServiceZone === "TRUE" &&
-                                          (userType === "business" ||
-                                            !userType))
-                                      ) {
-                                        if (
-                                          model ===
-                                          viewer.impl
-                                            .modelQueue()
-                                            .getModels()[1]
-                                        ) {
-                                          //          // Second model
+                                      if (HardAsset === "Hard Asset" ||FunctionalLocation === "TRUE" || (ServiceZone === "TRUE" && (userType === "business" || !userType))) {
+                                        if (model === viewer.impl.modelQueue().getModels()[1]) {
+                                          // Second model
                                           // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
                                           if (HardAssetInsideARModel) {
                                             newUrl =
@@ -663,24 +613,15 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                         }
                                       } else {
                                         if (
-                                          model ===
-                                            viewer.impl
-                                              .modelQueue()
-                                              .getModels()[1] &&
-                                          (userType === "business" || !userType)
+                                          model ===viewer.impl.modelQueue().getModels()[1] && (userType === "business" || !userType)
                                         ) {
-                                          //    //       Second model
-
+                                         //       Second mode;
                                           newUrl =
                                             "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
                                             globalID;
                                         } else {
                                           //      //     Default case if neither first nor second model
-                                          if (
-                                            HardAssetInsideARModel &&
-                                            (userType === "business" ||
-                                              !userType)
-                                          ) {
+                                          if (HardAssetInsideARModel && (userType === "business" || !userType)) {
                                             newUrl =
                                               "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
                                               globalID;
@@ -695,33 +636,33 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                                         }
                                       }
 
-                                      console.log("URL 3: " + newUrl);
+                                    console.log("URL 3: " + newUrl);
 
-                                      //  // 👉 Inject into iframe
-                                      const iframe =
-                                        document.getElementById("iframeTest");
-                                      const closeBtn =
-                                        document.getElementById(
-                                          "closeIframeBtn"
-                                        );
-                                      iframe.src = newUrl;
-                                      iframe.style.visibility = "visible";
-                                      closeBtn.style.visibility = "visible";
+                                    // 👉 Inject into iframe
+                                    const iframe = document.getElementById("iframeTest");
+                                    const closeBtn = document.getElementById("closeIframeBtn");
 
-                                      if (
-                                        iframe.style.visibility === "visible"
-                                      ) {
-                                        closeBtn.style.display = "block"; // show button
-                                      }
+                                    // Show iframe
+                                    iframe.src = newUrl;
+                                    iframe.classList.add("show");
+                                    closeBtn.style.visibility = "visible";
+
+                                    setTimeout(() => viewer.resize(), 500);
+
+
+                                    closeBtn.addEventListener("click", () => {
+                                        iframe.classList.remove("show");   // hides + collapses iframe
+                                        iframe.src = "";                    // optional
+                                        closeBtn.style.visibility = "hidden";
+                                        setTimeout(() => viewer.resize(), 500);
+                                    });
 
                                       //Close button handler
-                                      document
-                                        .getElementById("closeIframeBtn")
-                                        .addEventListener("click", () => {
-                                          iframe.style.visibility = "hidden";
-                                          iframe.src = ""; // optional: clear the URL
-                                          closeBtn.style.display = "none"; // hide button
-                                        });
+                                    //   document.getElementById("closeIframeBtn").addEventListener("click", () => {
+                                    //       iframe.style.visibility = "hidden";
+                                    //       iframe.src = ""; // optional: clear the URL
+                                    //       closeBtn.style.display = "none"; // hide button
+                                    //     });
 
                                       // console.log("New URL:", newUrl);
                                       // const response = fetch('https://prod-189.westeurope.logic.azure.com:443/workflows/648f7d062b8f4fb7bb200fb9a0cd7ca4/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=0TJSRQdgZwnOnfxsrHgpuqeNJK5s1zkrx-4mctfQJ9U', {
