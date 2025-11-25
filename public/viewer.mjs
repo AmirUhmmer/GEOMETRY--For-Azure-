@@ -452,240 +452,107 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
 
                 canvas.addEventListener('dblclick', function (event) {
-                    event.preventDefault(); // Prevent default zoom on double-click
-                
-                    const aggregateSelection = viewer.getAggregateSelection(); // Get selections from all loaded models
-                
-                    if (aggregateSelection && aggregateSelection.length > 0) {
-                        // Loop through all selections across models
-                        aggregateSelection.forEach(selection => {
-                            const model = selection.model;           // Get the selected model
-                            const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
-                
-                            if (dbIdArray && dbIdArray.length > 0) {
-                                const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
-                                console.log("DOUBLE CLICK -- Selected DBID:", dbId);
-                
-                                // Retrieve properties using the DBID and the model (since there are multiple models)
-                                model.getProperties(dbId, function (props) {
-                                    // Find the GlobalID or Asset ID property
-                                    let globalID = null;
-                                    let identity = null;
-                                    props.properties.forEach(function (prop) {
-                                        if (prop.displayName === "Asset ID" && prop.displayValue != '') {
-                                            globalID = prop.displayValue;
-                                            // console.log(selection.model);
-                                            // console.log(viewer.impl.modelQueue().getModels()[1]);
-                                        }
-                                        if (prop.displayName === "Asset ID (GUID)" && prop.displayValue != '') {
-                                            console.log("Asset ID (GUID):", prop.displayValue);
-                                            globalID = prop.displayValue;
-                                        }
-                                    });
-                
-                                    if (globalID) {
-                                      // Check if the selected model is the first or second model
-                                      let newUrl;
-                                      let HardAssetInsideARModel = false;
-                                      console.log("Properties:", props);
-                                      props.properties.forEach((prop) => {
-                                        if (
-                                          prop.displayName === "Category" &&
-                                          prop.displayValue !== "Revit Mass"
-                                        ) {
-                                          HardAssetInsideARModel = true;
-                                          console.log("Properties HARD ASSET");
-                                        }
-                                      });
+    event.preventDefault(); // Prevent default zoom on double-click
 
-                                      // retrieve query parameters from the URL
-                                      let params = {};
-                                      let queryString =
-                                        window.location.search.substring(1);
-                                      let queryParts = queryString.split("&");
-                                      for (let i = 0; i < queryParts.length; i++) {
-                                        let param = queryParts[i].split("=");
-                                        params[decodeURIComponent(param[0])] = decodeURIComponent(param[1]);
-                                      }
-                                      let userType = params["user"]; // The user, if it exists
+    const aggregateSelection = viewer.getAggregateSelection();
 
-                                      if (HardAsset === "Hard Asset" || FunctionalLocation === "TRUE" || (ServiceZone === "TRUE" && userType === "tenant")) {
-                                        if (model === viewer.impl.modelQueue().getModels()[1]) {
-                                          //          // Second model
-                                          // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
-                                          if (HardAssetInsideARModel) {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
-                                              globalID;
-                                          } else {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
-                                              globalID;
-                                          }
-                                        } else {
-                                          //  //     Default case if neither first nor second model
-                                          newUrl =
-                                            "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
-                                            globalID;
-                                        }
-                                      } else {
-                                        if (model === viewer.impl.modelQueue().getModels()[1] && userType === "tenant") {
-                                          //    //       Second model
-                                          newUrl =
-                                            "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
-                                            globalID;
-                                        } else {
-                                          //      //     Default case if neither first nor second model
-                                          if (HardAssetInsideARModel && userType === "tenant") {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
-                                              globalID;
-                                          } else if (userType === "tenant") {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
-                                              globalID;
-                                          }
-                                        }
-                                      }
+    if (!aggregateSelection || aggregateSelection.length === 0) {
+        console.log('No objects selected or aggregate selection is undefined.');
+        return;
+    }
 
-                                      console.log("URL 1: " + newUrl);
+    aggregateSelection.forEach(selection => {
+        const model = selection.model;
+        const dbIdArray = selection.selection;
 
-                                      if (HardAsset === "Hard Asset" || FunctionalLocation === "TRUE" || (ServiceZone === "TRUE" && userType === "supplier")) {
-                                        if (model === viewer.impl.modelQueue().getModels()[1]
-                                        ) {
-                                          //          // Second model
-                                          // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
-                                          if (HardAssetInsideARModel) {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
-                                              globalID;
-                                          } else {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
-                                              globalID;
-                                          }
-                                        } else {
-                                          //  //     Default case if neither first nor second model
-                                          newUrl =
-                                            "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
-                                            globalID;
-                                        }
-                                      } else {
-                                        if (model === viewer.impl.modelQueue().getModels()[1] &&userType === "supplier") {
-                                          //       Second model
-                                          newUrl =
-                                            "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
-                                            globalID;
-                                        } else {
-                                          //      //     Default case if neither first nor second model
-                                          if (HardAssetInsideARModel && userType === "supplier") {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
-                                              globalID;
-                                          } else if (userType === "supplier") {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
-                                              globalID;
-                                          }
-                                        }
-                                      }
+        if (!dbIdArray || dbIdArray.length === 0) return;
 
-                                      console.log("URL 2: " + newUrl);
+        const dbId = dbIdArray[0];
+        console.log("DOUBLE CLICK -- Selected DBID:", dbId);
 
-                                      if (HardAsset === "Hard Asset" ||FunctionalLocation === "TRUE" || (ServiceZone === "TRUE" && (userType === "business" || !userType))) {
-                                        if (model === viewer.impl.modelQueue().getModels()[1]) {
-                                          // Second model
-                                          // newUrl = "https://semydev.crm4.dynamics.com/main.aspx?appid=b86bd27b-2e83-ec11-8d21-000d3a64cba3&pagetype=entityrecord&etn=msdyn_functionallocation&id=" + globalID;
-                                          if (HardAssetInsideARModel) {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
-                                              globalID;
-                                          } else {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
-                                              globalID;
-                                          }
-                                        } else {
-                                          //  //     Default case if neither first nor second model
-                                          newUrl =
-                                            "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
-                                            globalID;
-                                        }
-                                      } else {
-                                        if (
-                                          model ===viewer.impl.modelQueue().getModels()[1] && (userType === "business" || !userType)
-                                        ) {
-                                         //       Second mode;
-                                          newUrl =
-                                            "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=" +
-                                            globalID;
-                                        } else {
-                                          //      //     Default case if neither first nor second model
-                                          if (HardAssetInsideARModel && (userType === "business" || !userType)) {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
-                                              globalID;
-                                          } else if (
-                                            userType === "business" ||
-                                            !userType
-                                          ) {
-                                            newUrl =
-                                              "https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=" +
-                                              globalID;
-                                          }
-                                        }
-                                      }
+        model.getProperties(dbId, function (props) {
+            let globalID = null;
+            let isHardAsset = false;
+            let isFunctionalLocation = false;
 
-                                    console.log("URL 3: " + newUrl);
+            // Determine Hard Asset / Functional Location
+            props.properties.forEach(prop => {
+                if ((prop.displayName === "Asset ID" || prop.displayName === "Asset ID (GUID)") && prop.displayValue !== '') {
+                    globalID = prop.displayValue;
+                }
 
-                                    // 👉 Inject into iframe
-                                    const iframe = document.getElementById("iframeTest");
-                                    const closeBtn = document.getElementById("closeIframeBtn");
+                // Check if category is NOT Revit Mass -> Hard Asset
+                if (prop.displayName === "Category" && prop.displayValue !== "Revit Mass") {
+                    isHardAsset = true;
+                }
 
-                                    // Show iframe
-                                    iframe.src = newUrl;
-                                    iframe.classList.add("show");
-                                    closeBtn.style.visibility = "visible";
+                // Functional Location logic: zone or model text
+                if (prop.displayName === "Category" && prop.displayValue === "Revit Mass") {
+                    isFunctionalLocation = true;
+                }
+                if (prop.displayName === "Type Name" && /text/i.test(prop.displayValue)) {
+                    isFunctionalLocation = true;
+                }
+            });
 
-                                    setTimeout(() => viewer.resize(), 500);
+            if (!globalID) {
+                console.log("GlobalID not found.");
+                return;
+            }
+
+            // Retrieve userType from URL
+            const params = {};
+            const queryParts = window.location.search.substring(1).split("&");
+            queryParts.forEach(q => {
+                const [key, val] = q.split("=");
+                params[decodeURIComponent(key)] = decodeURIComponent(val);
+            });
+            const userType = params["user"]; // tenant, supplier, business, or undefined
+
+            let newUrl = "";
+            const secondModel = viewer.impl.modelQueue().getModels()[1];
+
+            // Determine URL based on userType and asset type
+            if (userType === "tenant") {
+                newUrl = isHardAsset
+                    ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
+                    : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
+            } else if (userType === "supplier") {
+                newUrl = isHardAsset
+                    ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
+                    : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
+            } else { // business or undefined
+                newUrl = isHardAsset
+                    ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
+                    : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
+            }
+
+            console.log("Final URL:", newUrl);
+
+            // Inject into iframe
+            const iframe = document.getElementById("iframeTest");
+            const closeBtn = document.getElementById("closeIframeBtn");
+
+            iframe.src = newUrl;
+            iframe.classList.add("show");
+            closeBtn.style.visibility = "visible";
+
+            setTimeout(() => viewer.resize(), 500);
+
+            closeBtn.addEventListener("click", () => {
+                iframe.classList.remove("show");
+                iframe.src = "";
+                closeBtn.style.visibility = "hidden";
+                setTimeout(() => viewer.resize(), 500);
+            });
+
+            window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
+        });
+    });
+});
 
 
-                                    closeBtn.addEventListener("click", () => {
-                                        iframe.classList.remove("show");   // hides + collapses iframe
-                                        iframe.src = "";                    // optional
-                                        closeBtn.style.visibility = "hidden";
-                                        setTimeout(() => viewer.resize(), 500);
-                                    });
 
-                                      //Close button handler
-                                    //   document.getElementById("closeIframeBtn").addEventListener("click", () => {
-                                    //       iframe.style.visibility = "hidden";
-                                    //       iframe.src = ""; // optional: clear the URL
-                                    //       closeBtn.style.display = "none"; // hide button
-                                    //     });
-
-                                      // console.log("New URL:", newUrl);
-                                      // const response = fetch('https://prod-189.westeurope.logic.azure.com:443/workflows/648f7d062b8f4fb7bb200fb9a0cd7ca4/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=0TJSRQdgZwnOnfxsrHgpuqeNJK5s1zkrx-4mctfQJ9U', {
-                                      //     method: 'POST',
-                                      //     headers: { 'Content-Type': 'application/json' },
-                                      //     body: JSON.stringify({ urn: urn, data: markupData, projectid: projectid })
-                                      // });
-                                      // Open the URL in a new tab
-                                      //window.open(newUrl, '_blank');
-                                      window.parent.postMessage(
-                                        { type: "openUrl", url: newUrl },
-                                        "*"
-                                      );
-                                    } else {
-                                      console.log("GlobalID not found.");
-                                    }
-                                });
-                            }
-                        });
-                    } else {
-                        console.log('No objects selected or aggregate selection is undefined.');
-                    }
-                });
                 
 
 
