@@ -416,10 +416,11 @@ export async function zoneFunctionalLocation(viewer, message) {
   console.log("Parsed zone data:", zoneData);
 
   const models = viewer.impl.modelQueue().getModels();
-  if (!models?.length || !Array.isArray(zoneData) || zoneData.length === 0) return;
 
   // Clear all theming at start
   models.forEach(model => viewer.clearThemingColors(model));
+
+  if (!models?.length || !Array.isArray(zoneData) || zoneData.length === 0) return;
 
   // Define fixed colors
   const red = new THREE.Vector4(1, 0, 0, 1);
