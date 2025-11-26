@@ -336,80 +336,6 @@ export async function highlightFLByTask(viewer, message) {
 
 
 // #region Zone FL
-// export async function zoneFunctionalLocation(viewer, message) {
-//   const zoneData = JSON.parse(message.JSONPayload || "[]");
-//   console.log("Parsed zone data:", zoneData);
-
-//   const models = viewer.impl.modelQueue().getModels();
-//   if (!models?.length) return;
-
-//   // Clear all theming
-//   models.forEach(model => viewer.clearThemingColors(model));
-//   if (!Array.isArray(zoneData) || zoneData.length === 0) return;
-
-//   // Unique tenants + colors
-//   const tenants = [...new Set(zoneData.map(z => z.Tenant))];
-//   const tenantColors = {};
-//   tenants.forEach((tenant, i) => {
-//     const hue = (i * 360 / tenants.length) / 360;
-//     const c = new THREE.Color().setHSL(hue, 0.8, 0.5);
-//     tenantColors[tenant] = new THREE.Vector4(c.r, c.g, c.b, 1);
-//   });
-
-//   // Group FunctionalLocations by Tenant
-//   const tenantGroups = tenants.map(t => ({
-//     tenant: t,
-//     locations: zoneData.filter(z => z.Tenant === t).map(z => z.FunctionalLocation),
-//   }));
-
-//   // Process per tenant
-//   for (const { tenant, locations } of tenantGroups) {
-//     const tenantColor = tenantColors[tenant];
-//     const dbIdsByModel = {};
-
-//     // For each model, batch all location searches
-//     const searchPromises = models.map(model =>
-//       new Promise(resolve => {
-//         let matchedIds = [];
-//         let pending = locations.length;
-//         if (pending === 0) return resolve();
-
-//         locations.forEach(loc => {
-//           model.search(
-//             loc,
-//             dbIDs => {
-//               if (dbIDs?.length) matchedIds.push(...dbIDs);
-//               if (--pending === 0) resolve({ model, matchedIds });
-//             },
-//             err => {
-//               console.warn("Search error:", err);
-//               if (--pending === 0) resolve({ model, matchedIds });
-//             }
-//           );
-//         });
-//       })
-//     );
-
-//     const modelResults = await Promise.all(searchPromises);
-
-//     // Apply colors
-//     for (const { model, matchedIds } of modelResults) {
-//       if (!matchedIds?.length) continue;
-//       dbIdsByModel[model.id] = matchedIds;
-
-//       // Apply theming color in bulk
-//       matchedIds.forEach(id => viewer.setThemingColor(id, tenantColor, model));
-//       viewer.select(matchedIds, model);
-//       console.log(`Tenant "${tenant}" → ${matchedIds.length} matches in model ${model.id}`);
-//     }
-//   }
-
-//   // Optionally refresh view
-//   // viewer.impl.invalidate(true, true, true);
-// }
-
-
-
 export async function zoneFunctionalLocation(viewer, message) {
   viewer.clearSelection();
   const zoneData = JSON.parse(message.JSONPayload || "[]");
@@ -422,7 +348,7 @@ export async function zoneFunctionalLocation(viewer, message) {
 
   if (!models?.length || !Array.isArray(zoneData) || zoneData.length === 0) return;
 
-  // Define fixed colors
+  // Colors
   const red = new THREE.Vector4(1, 0, 0, 1);
   const green = new THREE.Vector4(0, 1, 0, 1);
   const redSel = new THREE.Color(1, 0, 0);
@@ -434,29 +360,107 @@ export async function zoneFunctionalLocation(viewer, message) {
     locations: zoneData.filter(z => z.Tenant === t).map(z => z.FunctionalLocation),
   }));
 
-  // Progressive coloring
-  tenantGroups.forEach(({ tenant, locations }) => {
+  const model2 = models[1];
+  if (!model2) {
+    console.warn("Second model not found!");
+    return;
+  }
+
+  // 🔥 Loop stays EXACTLY the same — only small async fix inside
+  for (const { tenant, locations } of tenantGroups) {
+
     const tenantColor = tenant === "Unoccupied" ? red : green;
     const selectionColor = tenant === "Unoccupied" ? redSel : greenSel;
 
-    models.forEach(model => {
-      locations.forEach(loc => {
-        model.search(
+    let allDbIds = [];
+
+    // 🔥 ONLY change: wrap each search in a Promise
+    const searches = locations.map(loc => {
+      return new Promise(resolve => {
+        model2.search(
           loc,
           dbIDs => {
             if (dbIDs?.length) {
-              dbIDs.forEach(id => viewer.setThemingColor(id, tenantColor, model));
-              viewer.select(dbIDs, model); // selects progressively
+
+              allDbIds.push(...dbIDs);
+
+              dbIDs.forEach(id => viewer.setThemingColor(id, tenantColor, model2));
+
+              // Progressive selection (you keep this)
+              viewer.select(dbIDs, model2);
               viewer.setSelectionColor(selectionColor);
-              console.log(`Tenant "${tenant}" → ${dbIDs.length} matches in model ${model.id}`);
+
+              console.log(`Tenant "${tenant}" → ${dbIDs.length} matches in model ${model2.id}`);
             }
+            resolve();
           },
-          err => console.warn("Search error:", err)
+          err => {
+            console.warn("Search error:", err);
+            resolve();
+          }
         );
       });
     });
-  });
+
+    // 🔥 Only new line: wait for all search callbacks
+    await Promise.all(searches);
+
+    // NOW allDbIds is filled → this finally works
+    console.log("Selecting all matched dbIds:", allDbIds);
+    viewer.select(allDbIds, model2);
+  }
 }
+
+
+// export async function zoneFunctionalLocation(viewer, message) {
+//   viewer.clearSelection();
+//   const zoneData = JSON.parse(message.JSONPayload || "[]");
+//   console.log("Parsed zone data:", zoneData);
+
+//   const models = viewer.impl.modelQueue().getModels();
+
+//   // Clear all theming at start
+//   models.forEach(model => viewer.clearThemingColors(model));
+
+//   if (!models?.length || !Array.isArray(zoneData) || zoneData.length === 0) return;
+
+//   // Define fixed colors
+//   const red = new THREE.Vector4(1, 0, 0, 1);
+//   const green = new THREE.Vector4(0, 1, 0, 1);
+//   const redSel = new THREE.Color(1, 0, 0);
+//   const greenSel = new THREE.Color(0, 1, 0);
+
+//   // Group FunctionalLocations by Tenant
+//   const tenantGroups = [...new Set(zoneData.map(z => z.Tenant))].map(t => ({
+//     tenant: t,
+//     locations: zoneData.filter(z => z.Tenant === t).map(z => z.FunctionalLocation),
+//   }));
+
+//   // Progressive coloring
+//   tenantGroups.forEach(({ tenant, locations }) => {
+//     const tenantColor = tenant === "Unoccupied" ? red : green;
+//     const selectionColor = tenant === "Unoccupied" ? redSel : greenSel;
+
+//     models[1].forEach(model => {
+//       locations.forEach(loc => {
+//         model.search(
+//           loc,
+//           dbIDs => {
+//             if (dbIDs?.length) {
+//               dbIDs.forEach(id => viewer.setThemingColor(id, tenantColor, model));
+//               viewer.select(dbIDs, model); // selects progressively
+//               viewer.setSelectionColor(selectionColor);
+//               console.log(`Tenant "${tenant}" → ${dbIDs.length} matches in model ${model.id}`);
+//             }
+//           },
+//           err => console.warn("Search error:", err)
+//         );
+//       });
+//     });
+
+//     viewer.select(alldbIDs, models[1]);
+//   });
+// }
 
 
 
