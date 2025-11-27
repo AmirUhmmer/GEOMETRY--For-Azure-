@@ -1127,6 +1127,8 @@ export async function showAllTasks(viewer, RepeatingTask) {
   const repairRegex = /(fix|assess|issue|troubleshoot|assessment|control|report)/i;
   const winterRegex = /(snow|ice)/i;
   const greenRegex = /(green|green areas|maintain green areas)/i;
+  const firehoseRegex = /(Annual maintenance service control for Fire Hose Reel)/i;
+  const fireExtinguisherRegex = /(Annual maintenance service control for Handheld Fire Extinguisher)/i;
 
   const alldbid = [];
   const alldbidAsset = []; // only HardAsset dbIds
@@ -1148,8 +1150,8 @@ export async function showAllTasks(viewer, RepeatingTask) {
     if (HardAssetID && HardAssetID !== "N") {
       uniqueIDs.set(HardAssetID, color);
       if (!assetTaskMap.has(HardAssetID))
-        assetTaskMap.set(HardAssetID, { dbid: null, model: null, color, tasks: [] });
-      assetTaskMap.get(HardAssetID).tasks.push(TaskName);
+        assetTaskMap.set(HardAssetID, { dbid: null, model: null, color, tasks: [], type: STBase });
+        assetTaskMap.get(HardAssetID).tasks.push(TaskName);
     }
   }
 
@@ -1234,6 +1236,7 @@ export async function showAllTasks(viewer, RepeatingTask) {
       tasks: info.tasks,
       model: info.model,
       position: pos,
+      type: info.type
     });
   }
 
@@ -1245,30 +1248,58 @@ export async function showAllTasks(viewer, RepeatingTask) {
   // -------------------------
   if (assetTaskArray.length === 0) return assetTaskArray;
 
-  // load extension and core
+  // load extension
   const extension0 = await viewer.loadExtension("Autodesk.DataVisualization");
   const DataVizCore = Autodesk.DataVisualization.Core;
-
-  // sprite icon (you had sample using an svg)
-  const baseURL = "./images/pin.svg"; // change if needed ./images/temp.svg
-  const spriteIconUrl = baseURL; // or null to use colored square
 
   const viewableData = new DataVizCore.ViewableData();
   viewableData.spriteSize = 30;
 
-  const viewableMap = new Map(); // dbid -> viewable
+  const viewableMap = new Map();
 
   // add each asset as a sprite
   for (const asset of assetTaskArray) {
     const pos = asset.position;
-    // style uses a color and optional icon. Using same icon but tint via color param:
-    const spriteColor = new THREE.Color(asset.color.x, asset.color.y, asset.color.z);
-    const style = new DataVizCore.ViewableStyle(DataVizCore.ViewableType.SPRITE, spriteColor, spriteIconUrl);
 
-    // Use asset.dbid as the viewable id so MOUSE_CLICK event.dbId corresponds
-    const viewable = new DataVizCore.SpriteViewable({ x: pos.x, y: pos.y, z: pos.z }, style, asset.dbid, asset.id, null, null);
-    // attach custom metadata for click handling
-    viewable.customData = { assetId: asset.id, tasks: asset.tasks, dbid: asset.dbid, model: asset.model, color: asset.color };
+    // --- Determine icon PER asset ---
+    let iconURL = "./images/pin.svg"; // default
+    let spriteColor = new THREE.Color(asset.color.x, asset.color.y, asset.color.z);
+
+    const joinedTasks = asset.type.toLowerCase();
+
+    console.log("Determining icon for tasks:", joinedTasks);
+
+    if (/annual maintenance service control for fire hose reel/i.test(joinedTasks)) {
+      iconURL = "./images/fire hose reel.svg";
+      spriteColor = new THREE.Color(1, 1, 1);
+    } else if (/annual maintenance service control for handheld fire extinguisher/i.test(joinedTasks)) {
+      iconURL = "./images/fire extinguisher.svg";
+      spriteColor = new THREE.Color(1, 1, 1);
+    }
+
+    // style
+    const style = new DataVizCore.ViewableStyle(
+      DataVizCore.ViewableType.SPRITE,
+      spriteColor,
+      iconURL
+    );
+
+
+    // create sprite
+    const viewable = new DataVizCore.SpriteViewable(
+      { x: pos.x, y: pos.y, z: pos.z },
+      style,
+      asset.dbid,
+      asset.id
+    );
+
+    viewable.customData = {
+      assetId: asset.id,
+      tasks: asset.tasks,
+      dbid: asset.dbid,
+      model: asset.model,
+      color: asset.color,
+    };
 
     viewableData.addViewable(viewable);
     viewableMap.set(asset.dbid, viewable);
@@ -1277,7 +1308,11 @@ export async function showAllTasks(viewer, RepeatingTask) {
   await viewableData.finish();
   extension0.addViewables(viewableData);
   viewer.viewableMap = viewableMap;
-  // markTaskDone(viewer, 'e7e49bc6-b842-ef11-a317-0022489fd3f3');
+
+
+
+
+  
 
   // Click handler for sprites
   // --- Sprite Click Handler (robust version with level + viewCube) ---
@@ -1285,10 +1320,11 @@ export async function showAllTasks(viewer, RepeatingTask) {
     viewer.removeEventListener(DataVizCore.MOUSE_CLICK, onSpriteClick);
     viewer.addEventListener(DataVizCore.MOUSE_CLICK, onSpriteClick);
     console.log("✅ Sprite click event attached.");
+
     // Delay markTaskDone call for testing
     // const timeoutMs = 3000; // 1 second
     // setTimeout(() => {
-    //   markTaskDone(viewer, "9715efcf-d42f-ef11-840b-0022489fdfca", "Dust - Top of cabinet - dry cloth");
+    //   markTaskDone(viewer, "ef9cc73b-1d1d-f011-998b-7c1e527684d6", "Conduct - Fire Fighting System - Maintenance Inspection. Use Inspection Template");
     // }, timeoutMs);
   };
 
@@ -1478,6 +1514,8 @@ export async function markTaskDone(viewer, hardAssetId, taskName) {
     console.log(`✅ All tasks done for ${hardAssetId} — sprite color updated to green.`);
   }
 
+  const models = viewer.impl.modelQueue().getModels();
+  viewer.fitToView(models[0]);
   // ✅ Force refresh (always run to ensure visual sync)
   setTimeout(() => viewer.impl.invalidate(true, true, true), 100);
 }
