@@ -451,47 +451,31 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
 
 
-                canvas.addEventListener('dblclick', function (event) {
+  canvas.addEventListener('dblclick', async function(event) {
     event.preventDefault(); // Prevent default zoom on double-click
 
     const aggregateSelection = viewer.getAggregateSelection();
-
     if (!aggregateSelection || aggregateSelection.length === 0) {
         console.log('No objects selected or aggregate selection is undefined.');
         return;
     }
 
-    aggregateSelection.forEach(selection => {
+    for (const selection of aggregateSelection) {
         const model = selection.model;
         const dbIdArray = selection.selection;
-
-        if (!dbIdArray || dbIdArray.length === 0) return;
+        if (!dbIdArray || dbIdArray.length === 0) continue;
 
         const dbId = dbIdArray[0];
         console.log("DOUBLE CLICK -- Selected DBID:", dbId);
 
-        model.getProperties(dbId, function (props) {
+        model.getProperties(dbId, async function(props) {
             let globalID = null;
-            let isHardAsset = false;
-            let isFunctionalLocation = false;
 
-            // Determine Hard Asset / Functional Location
+            // --- Extract GlobalID ---
             props.properties.forEach(prop => {
-                if ((prop.displayName === "Asset ID" || prop.displayName === "Asset ID (GUID)") && prop.displayValue !== '') {
+                if ((prop.displayName === "Asset ID" || prop.displayName === "Asset ID (GUID)") &&
+                    prop.displayValue !== '') {
                     globalID = prop.displayValue;
-                }
-
-                // Check if category is NOT Revit Mass -> Hard Asset
-                if (prop.displayName === "Category" && prop.displayValue !== "Revit Mass") {
-                    isHardAsset = true;
-                }
-
-                // Functional Location logic: zone or model text
-                if (prop.displayName === "Category" && prop.displayValue === "Revit Mass") {
-                    isFunctionalLocation = true;
-                }
-                if (prop.displayName === "Type Name" && /text/i.test(prop.displayValue)) {
-                    isFunctionalLocation = true;
                 }
             });
 
@@ -500,19 +484,82 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 return;
             }
 
-            // Retrieve userType from URL
+            let isFunctionalLocation = false;
+            let isHardAsset = false;
+
+            // --- Check CRM Functional Location ---
+            try {
+                const crmResp = await fetch(
+                    `https://org47a0b99a.crm4.dynamics.com/api/data/v9.2/msdyn_functionallocations(${globalID})`,
+                    { headers: { 'Accept': 'application/json;odata.metadata=none' } }
+                );
+
+                if (crmResp.ok) {
+                    // Record exists in CRM → Functional Location
+                    isFunctionalLocation = true;
+                    console.log("CRM confirms Functional Location for", globalID);
+                } else {
+                    // Not found → fallback to heuristic
+                    console.log("CRM did not find FL, applying heuristic...");
+                }
+            } catch (err) {
+                console.warn("CRM check failed, fallback to heuristic", err);
+            }
+
+            // --- Fallback heuristic if CRM check failed ---
+            if (!isFunctionalLocation) {
+                props.properties.forEach(prop => {
+                    const val = (prop.displayValue || "").toString().toLowerCase();
+                    const functionalKeywords = [
+                        "room", "rooms", "space", "spaces", "area", "areas",
+                        "corridor", "hallway", "hall", "passage",
+                        "lobby", "vestibule", "foyer", "gallery", "concourse",
+                        "stair", "stairs", "staircase", "stairwell",
+                        "escalator", "lift lobby", "elevator lobby", "shaft", "riser",
+                        "mechanical room", "electrical room", "communication room",
+                        "server room", "telco", "riser room", "pump room",
+                        "fire pump room", "control room", "plant room",
+                        "boiler room", "chiller room",
+                        "toilet", "washroom", "bathroom", "lavatory", "wc", "shower",
+                        "pantry", "kitchen", "storage", "storeroom",
+                        "janitor", "cleaner", "archive", "file room",
+                        "meeting room", "conference room", "boardroom", "office",
+                        "zone", "zones", "mass", "revit mass",
+                        "fire zone", "hvac zone",
+                        "text"
+                    ];
+
+                    if (prop.displayName === "Category") {
+                        if (["revit mass", "rooms", "spaces", "areas"].includes(val)) {
+                            isFunctionalLocation = true;
+                        }
+                    }
+
+                    if (["Type Name", "Family", "Name"].includes(prop.displayName)) {
+                        for (const keyword of functionalKeywords) {
+                            if (val.includes(keyword)) {
+                                isFunctionalLocation = true;
+                                break;
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (!isFunctionalLocation) isHardAsset = true;
+
+            console.log("Final classification:", { globalID, isFunctionalLocation, isHardAsset });
+
+            // --- User type from URL ---
             const params = {};
-            const queryParts = window.location.search.substring(1).split("&");
-            queryParts.forEach(q => {
+            window.location.search.substring(1).split("&").forEach(q => {
                 const [key, val] = q.split("=");
                 params[decodeURIComponent(key)] = decodeURIComponent(val);
             });
-            const userType = params["user"]; // tenant, supplier, business, or undefined
+            const userType = params["user"];
 
+            // --- Build URL ---
             let newUrl = "";
-            const secondModel = viewer.impl.modelQueue().getModels()[1];
-
-            // Determine URL based on userType and asset type
             if (userType === "tenant") {
                 newUrl = isHardAsset
                     ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
@@ -521,7 +568,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 newUrl = isHardAsset
                     ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
                     : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
-            } else { // business or undefined
+            } else {
                 newUrl = isHardAsset
                     ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
                     : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
@@ -529,7 +576,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
             console.log("Final URL:", newUrl);
 
-            // Inject into iframe
+            // --- Load iframe ---
             const iframe = document.getElementById("iframeTest");
             const closeBtn = document.getElementById("closeIframeBtn");
 
@@ -548,8 +595,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
             window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
         });
-    });
+    }
 });
+
 
 
 
