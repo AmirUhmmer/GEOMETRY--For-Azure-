@@ -66,51 +66,51 @@ export function initViewer(container) {
 
             window.viewerInstance = viewer; // Store the viewer instance globally for access in other modules
 
-            canvas.addEventListener('click', function (event) {
-                // console.log("Canvas clicked:", event); // Log the event to ensure the click is firing
+            // canvas.addEventListener('click', function (event) {
+            //     // console.log("Canvas clicked:", event); // Log the event to ensure the click is firing
             
-                const aggregateSelection = viewer.getAggregateSelection(); // Get selections from all loaded models
-                // console.log("Aggregate selection:", aggregateSelection); // Log the aggregate selection
+            //     const aggregateSelection = viewer.getAggregateSelection(); // Get selections from all loaded models
+            //     // console.log("Aggregate selection:", aggregateSelection); // Log the aggregate selection
             
-                if (aggregateSelection && aggregateSelection.length > 0) { // Check if aggregateSelection is defined and has items
-                    aggregateSelection.forEach(selection => {
-                        // console.log("Processing selection:", selection); // Log the selection details
+            //     if (aggregateSelection && aggregateSelection.length > 0) { // Check if aggregateSelection is defined and has items
+            //         aggregateSelection.forEach(selection => {
+            //             // console.log("Processing selection:", selection); // Log the selection details
             
-                        const model = selection.model;           // Get the selected model
-                        // console.log("Model:", model);            // Log the model
+            //             const model = selection.model;           // Get the selected model
+            //             // console.log("Model:", model);            // Log the model
             
-                        const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
-                        // console.log("dbIdArray:", dbIdArray);    // Log the dbIdArray
+            //             const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
+            //             // console.log("dbIdArray:", dbIdArray);    // Log the dbIdArray
             
-                        if (dbIdArray && dbIdArray.length > 0) { // Ensure dbIdArray is defined and has objects
-                            const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
-                            console.log("Selected dbId:", dbId); // Log the selected dbId
+            //             if (dbIdArray && dbIdArray.length > 0) { // Ensure dbIdArray is defined and has objects
+            //                 const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
+            //                 console.log("Selected dbId:", dbId); // Log the selected dbId
             
-                            const instanceTree = model.getInstanceTree();
-                            // console.log("InstanceTree:", instanceTree); // Log the instance tree to ensure it's available
+            //                 const instanceTree = model.getInstanceTree();
+            //                 // console.log("InstanceTree:", instanceTree); // Log the instance tree to ensure it's available
             
-                            if (instanceTree) {
-                                instanceTree.enumNodeFragments(dbId, (fragId) => {
-                                    const fragList = model.getFragmentList();    // Use the correct model's fragment list
-                                    const matrix = new THREE.Matrix4();
-                                    fragList.getWorldMatrix(fragId, matrix);
+            //                 if (instanceTree) {
+            //                     instanceTree.enumNodeFragments(dbId, (fragId) => {
+            //                         const fragList = model.getFragmentList();    // Use the correct model's fragment list
+            //                         const matrix = new THREE.Matrix4();
+            //                         fragList.getWorldMatrix(fragId, matrix);
             
-                                    const position = new THREE.Vector3();
-                                    position.setFromMatrixPosition(matrix);
+            //                         const position = new THREE.Vector3();
+            //                         position.setFromMatrixPosition(matrix);
             
-                                    console.log(`World Coordinates (Model ${model.id}): x=${position.x}, y=${position.y}, z=${position.z}`);
-                                });
-                            } else {
-                                console.log("InstanceTree not available for model:", model);
-                            }
-                        } else {
-                            console.log("No objects selected in dbIdArray.");
-                        }
-                    });
-                } else {
-                    console.log('No objects selected or aggregate selection is undefined.');
-                }
-            });
+            //                         console.log(`World Coordinates (Model ${model.id}): x=${position.x}, y=${position.y}, z=${position.z}`);
+            //                     });
+            //                 } else {
+            //                     console.log("InstanceTree not available for model:", model);
+            //                 }
+            //             } else {
+            //                 console.log("No objects selected in dbIdArray.");
+            //             }
+            //         });
+            //     } else {
+            //         console.log('No objects selected or aggregate selection is undefined.');
+            //     }
+            // });
                      
         
 
@@ -592,124 +592,169 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 //     }
                 // });
 
-                canvas.addEventListener('dblclick', async function (event) {
-                    event.preventDefault();
-
+                let lastTap = 0;
+                canvas.addEventListener('click', async function (event) {
+                    const now = Date.now();
                     const aggregateSelection = viewer.getAggregateSelection();
-                    if (!aggregateSelection?.length) return;
+                    if (now - lastTap < 300) {
+                        // console.log("🔥 DOUBLE TAP FIRED ON MOBILE!");
+                        lastTap = 0;
 
-                    const iframe = document.getElementById("iframeTest");
-                    const closeBtn = document.getElementById("closeIframeBtn");
+                        if (!aggregateSelection?.length) return;
 
-                    // only bind close once
-                    if (!closeBtn._bound) {
-                        closeBtn._bound = true;
-                        closeBtn.addEventListener("click", () => {
-                            iframe.classList.remove("show");
-                            iframe.src = "";
-                            closeBtn.style.visibility = "hidden";
-                            setTimeout(() => viewer.resize(), 300);
-                        });
-                    }
+                        const iframe = document.getElementById("iframeTest");
+                        const closeBtn = document.getElementById("closeIframeBtn");
 
-                    // parse userType once
-                    const params = new URLSearchParams(window.location.search);
-                    const userType = params.get("user");
-
-                    for (const selection of aggregateSelection) {
-                        const model = selection.model;
-                        const dbId = selection.selection?.[0];
-                        if (!dbId) continue;
-
-                        // ----- getProperties (wrap in Promise)
-                        const props = await new Promise(resolve => {
-                            model.getProperties(dbId, p => resolve(p));
-                        });
-
-                        // ----- extract GlobalID
-                        let globalID = null;
-                        for (const prop of props.properties) {
-                            if ((prop.displayName === "Asset ID" || prop.displayName === "Asset ID (GUID)") &&
-                                prop.displayValue) {
-                                globalID = prop.displayValue;
-                                break;
-                            }
+                        // only bind close once
+                        if (!closeBtn._bound) {
+                            closeBtn._bound = true;
+                            closeBtn.addEventListener("click", () => {
+                                iframe.classList.remove("show");
+                                iframe.src = "";
+                                closeBtn.style.visibility = "hidden";
+                                setTimeout(() => viewer.resize(), 300);
+                            });
                         }
-                        if (!globalID) continue;
 
-                        // ----- classification
-                        let isFunctionalLocation = false;
+                        // parse userType once
+                        const params = new URLSearchParams(window.location.search);
+                        const userType = params.get("user");
 
-                        // CRM check (non-blocking)
-                        (async () => {
-                            try {
-                                const crmResp = await fetch(
-                                    `https://org47a0b99a.crm4.dynamics.com/api/data/v9.2/msdyn_functionallocations(${globalID})`,
-                                    { headers: { "Accept": "application/json;odata.metadata=none" } }
-                                );
-                                if (crmResp.ok) {
-                                    isFunctionalLocation = true;
-                                }
-                            } catch { /* ignore */ }
-                        })();
+                        for (const selection of aggregateSelection) {
+                            const model = selection.model;
+                            const dbId = selection.selection?.[0];
+                            if (!dbId) continue;
 
-                        // fallback logic
-                        if (!isFunctionalLocation) {
-                            const functionalKeywords = [
-                                "room","rooms","space","spaces","area","areas","corridor","hallway","hall",
-                                "passage","lobby","vestibule","foyer","gallery","concourse","stair","stairs",
-                                "staircase","stairwell","escalator","lift lobby","elevator lobby","shaft","riser",
-                                "mechanical room","electrical room","communication room","server room","telco",
-                                "riser room","pump room","fire pump room","control room","plant room",
-                                "boiler room","chiller room","toilet","washroom","bathroom","lavatory","wc",
-                                "shower","pantry","kitchen","storage","storeroom","janitor","cleaner","archive",
-                                "file room","meeting room","conference room","boardroom","office","zone","zones",
-                                "mass","revit mass","fire zone","hvac zone","text"
-                            ];
+                            // ----- getProperties (wrap in Promise)
+                            const props = await new Promise(resolve => {
+                                model.getProperties(dbId, p => resolve(p));
+                            });
 
+                            // ----- extract GlobalID
+                            let globalID = null;
                             for (const prop of props.properties) {
-                                const val = (prop.displayValue ?? "").toString().toLowerCase();
-
-                                if (prop.displayName === "Category") {
-                                    if (["revit mass", "rooms", "spaces", "areas"].includes(val)) {
-                                        isFunctionalLocation = true;
-                                        break;
-                                    }
+                                if ((prop.displayName === "Asset ID" || prop.displayName === "Asset ID (GUID)") &&
+                                    prop.displayValue) {
+                                    globalID = prop.displayValue;
+                                    break;
                                 }
+                            }
+                            if (!globalID) continue;
 
-                                if (["Type Name", "Family", "Name"].includes(prop.displayName)) {
-                                    if (functionalKeywords.some(k => val.includes(k))) {
+                            // ----- classification
+                            let isFunctionalLocation = false;
+
+                            // CRM check (non-blocking)
+                            (async () => {
+                                try {
+                                    const crmResp = await fetch(
+                                        `https://org47a0b99a.crm4.dynamics.com/api/data/v9.2/msdyn_functionallocations(${globalID})`,
+                                        { headers: { "Accept": "application/json;odata.metadata=none" } }
+                                    );
+                                    if (crmResp.ok) {
                                         isFunctionalLocation = true;
-                                        break;
+                                    }
+                                } catch { /* ignore */ }
+                            })();
+
+                            // fallback logic
+                            if (!isFunctionalLocation) {
+                                const functionalKeywords = [
+                                    "room","rooms","space","spaces","area","areas","corridor","hallway","hall",
+                                    "passage","lobby","vestibule","foyer","gallery","concourse","stair","stairs",
+                                    "staircase","stairwell","escalator","lift lobby","elevator lobby","shaft","riser",
+                                    "mechanical room","electrical room","communication room","server room","telco",
+                                    "riser room","pump room","fire pump room","control room","plant room",
+                                    "boiler room","chiller room","toilet","washroom","bathroom","lavatory","wc",
+                                    "shower","pantry","kitchen","storage","storeroom","janitor","cleaner","archive",
+                                    "file room","meeting room","conference room","boardroom","office","zone","zones",
+                                    "mass","revit mass","fire zone","hvac zone","text"
+                                ];
+
+                                for (const prop of props.properties) {
+                                    const val = (prop.displayValue ?? "").toString().toLowerCase();
+
+                                    if (prop.displayName === "Category") {
+                                        if (["revit mass", "rooms", "spaces", "areas"].includes(val)) {
+                                            isFunctionalLocation = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (["Type Name", "Family", "Name"].includes(prop.displayName)) {
+                                        if (functionalKeywords.some(k => val.includes(k))) {
+                                            isFunctionalLocation = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
+
+                            const isHardAsset = !isFunctionalLocation;
+
+                            // ----- Build URL
+                            let appId;
+                            if (userType === "tenant") {
+                                appId = "63879c3c-5060-f011-bec1-7c1e527684d6";
+                            } else if (userType === "supplier") {
+                                appId = "230c5e7c-1bd1-ef11-8eea-000d3ab86138";
+                            } else {
+                                appId = "2019ee4f-38bc-ef11-b8e9-000d3ab86138";
+                            }
+
+                            const entity = isHardAsset ? "msdyn_customerasset" : "msdyn_functionallocation";
+                            const newUrl = `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=${appId}&pagetype=entityrecord&etn=${entity}&id=${globalID}`;
+
+                            // ----- Show iframe instantly
+                            iframe.src = newUrl;
+                            iframe.classList.add("show");
+                            closeBtn.style.visibility = "visible";
+                            setTimeout(() => viewer.resize(), 300);
+
+                            // notify container
+                            window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
                         }
-
-                        const isHardAsset = !isFunctionalLocation;
-
-                        // ----- Build URL
-                        let appId;
-                        if (userType === "tenant") {
-                            appId = "63879c3c-5060-f011-bec1-7c1e527684d6";
-                        } else if (userType === "supplier") {
-                            appId = "230c5e7c-1bd1-ef11-8eea-000d3ab86138";
+                    } else {
+                         if (aggregateSelection && aggregateSelection.length > 0) { // Check if aggregateSelection is defined and has items
+                            aggregateSelection.forEach(selection => {
+                                // console.log("Processing selection:", selection); // Log the selection details
+                    
+                                const model = selection.model;           // Get the selected model
+                                // console.log("Model:", model);            // Log the model
+                    
+                                const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
+                                // console.log("dbIdArray:", dbIdArray);    // Log the dbIdArray
+                    
+                                if (dbIdArray && dbIdArray.length > 0) { // Ensure dbIdArray is defined and has objects
+                                    const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
+                                    console.log("Selected dbId:", dbId); // Log the selected dbId
+                    
+                                    const instanceTree = model.getInstanceTree();
+                                    // console.log("InstanceTree:", instanceTree); // Log the instance tree to ensure it's available
+                    
+                                    if (instanceTree) {
+                                        instanceTree.enumNodeFragments(dbId, (fragId) => {
+                                            const fragList = model.getFragmentList();    // Use the correct model's fragment list
+                                            const matrix = new THREE.Matrix4();
+                                            fragList.getWorldMatrix(fragId, matrix);
+                    
+                                            const position = new THREE.Vector3();
+                                            position.setFromMatrixPosition(matrix);
+                    
+                                            console.log(`World Coordinates (Model ${model.id}): x=${position.x}, y=${position.y}, z=${position.z}`);
+                                        });
+                                    } else {
+                                        console.log("InstanceTree not available for model:", model);
+                                    }
+                                } else {
+                                    console.log("No objects selected in dbIdArray.");
+                                }
+                            });
                         } else {
-                            appId = "2019ee4f-38bc-ef11-b8e9-000d3ab86138";
+                            console.log('No objects selected or aggregate selection is undefined.');
                         }
-
-                        const entity = isHardAsset ? "msdyn_customerasset" : "msdyn_functionallocation";
-                        const newUrl = `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=${appId}&pagetype=entityrecord&etn=${entity}&id=${globalID}`;
-
-                        // ----- Show iframe instantly
-                        iframe.src = newUrl;
-                        iframe.classList.add("show");
-                        closeBtn.style.visibility = "visible";
-                        setTimeout(() => viewer.resize(), 300);
-
-                        // notify container
-                        window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
                     }
+                    lastTap = now;
                 });
 
 
