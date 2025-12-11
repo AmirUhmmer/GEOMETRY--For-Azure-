@@ -410,7 +410,13 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             console.log("Received message [complete task]:", message);
                             console.log("Marking task as done for Hard Asset:", message.hardAsset, "Task Name:", message.taskName);
                             markTaskDone(viewer, message.hardAsset, message.taskName);
-                        } 
+                        } else if (message.type === "showFirePlan") {
+                            functions.firePlansPanel();
+                        } else if (message.type === "showSheets2D") {
+                            functions.sheets2DPanel();
+                        } else {
+                            console.log("Unknown message type received:", message.type);
+                        }
                         // else if (message.type === "functionallocations_with_tasks") {
                         //     console.log("Received message:", message);
                         //     highlightFLByTask(viewer, message);
@@ -419,18 +425,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                     };
                 }
-
-
-                // window.addEventListener("message", (event) => {
-                //     console.log("📨 Message received in iframe:", event.data);
-
-                //     if (event.data?.type === "functionallocations") {
-                //         console.log("✅[VIEWER LISTENER] FL payload received:", event.data.payload);
-                //         window.agreementFL.push(...event.data.payload);
-                //         AgreementFunctionalLocationSearch(viewer, event.data.payload);
-                //     }
-                // });
-
 
 
                 let urn, modelUrn, urns = [];
@@ -451,152 +445,272 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
 
 
-  canvas.addEventListener('dblclick', async function(event) {
-    event.preventDefault(); // Prevent default zoom on double-click
+                // canvas.addEventListener('dblclick', async function(event) {
+                //     event.preventDefault(); // Prevent default zoom on double-click
 
-    const aggregateSelection = viewer.getAggregateSelection();
-    if (!aggregateSelection || aggregateSelection.length === 0) {
-        console.log('No objects selected or aggregate selection is undefined.');
-        return;
-    }
+                //     const aggregateSelection = viewer.getAggregateSelection();
+                //     if (!aggregateSelection || aggregateSelection.length === 0) {
+                //         console.log('No objects selected or aggregate selection is undefined.');
+                //         return;
+                //     }
 
-    for (const selection of aggregateSelection) {
-        const model = selection.model;
-        const dbIdArray = selection.selection;
-        if (!dbIdArray || dbIdArray.length === 0) continue;
+                //     for (const selection of aggregateSelection) {
+                //         const model = selection.model;
+                //         const dbIdArray = selection.selection;
+                //         if (!dbIdArray || dbIdArray.length === 0) continue;
 
-        const dbId = dbIdArray[0];
-        console.log("DOUBLE CLICK -- Selected DBID:", dbId);
+                //         const dbId = dbIdArray[0];
+                //         console.log("DOUBLE CLICK -- Selected DBID:", dbId);
 
-        model.getProperties(dbId, async function(props) {
-            let globalID = null;
+                //         model.getProperties(dbId, async function(props) {
+                //             let globalID = null;
 
-            // --- Extract GlobalID ---
-            props.properties.forEach(prop => {
-                if ((prop.displayName === "Asset ID" || prop.displayName === "Asset ID (GUID)") &&
-                    prop.displayValue !== '') {
-                    globalID = prop.displayValue;
-                }
-            });
+                //             // --- Extract GlobalID ---
+                //             props.properties.forEach(prop => {
+                //                 if ((prop.displayName === "Asset ID" || prop.displayName === "Asset ID (GUID)") &&
+                //                     prop.displayValue !== '') {
+                //                     globalID = prop.displayValue;
+                //                 }
+                //             });
 
-            if (!globalID) {
-                console.log("GlobalID not found.");
-                return;
-            }
+                //             if (!globalID) {
+                //                 console.log("GlobalID not found.");
+                //                 return;
+                //             }
 
-            let isFunctionalLocation = false;
-            let isHardAsset = false;
+                //             let isFunctionalLocation = false;
+                //             let isHardAsset = false;
 
-            // --- Check CRM Functional Location ---
-            try {
-                const crmResp = await fetch(
-                    `https://org47a0b99a.crm4.dynamics.com/api/data/v9.2/msdyn_functionallocations(${globalID})`,
-                    { headers: { 'Accept': 'application/json;odata.metadata=none' } }
-                );
+                //             // --- Check CRM Functional Location ---
+                //             try {
+                //                 const crmResp = await fetch(
+                //                     `https://org47a0b99a.crm4.dynamics.com/api/data/v9.2/msdyn_functionallocations(${globalID})`,
+                //                     { headers: { 'Accept': 'application/json;odata.metadata=none' } }
+                //                 );
 
-                if (crmResp.ok) {
-                    // Record exists in CRM → Functional Location
-                    isFunctionalLocation = true;
-                    console.log("CRM confirms Functional Location for", globalID);
-                } else {
-                    // Not found → fallback to heuristic
-                    console.log("CRM did not find FL, applying heuristic...");
-                }
-            } catch (err) {
-                console.warn("CRM check failed, fallback to heuristic", err);
-            }
+                //                 if (crmResp.ok) {
+                //                     // Record exists in CRM → Functional Location
+                //                     isFunctionalLocation = true;
+                //                     console.log("CRM confirms Functional Location for", globalID);
+                //                 } else {
+                //                     // Not found → fallback to heuristic
+                //                     console.log("CRM did not find FL, applying heuristic...");
+                //                 }
+                //             } catch (err) {
+                //                 console.warn("CRM check failed, fallback to heuristic", err);
+                //             }
 
-            // --- Fallback heuristic if CRM check failed ---
-            if (!isFunctionalLocation) {
-                props.properties.forEach(prop => {
-                    const val = (prop.displayValue || "").toString().toLowerCase();
-                    const functionalKeywords = [
-                        "room", "rooms", "space", "spaces", "area", "areas",
-                        "corridor", "hallway", "hall", "passage",
-                        "lobby", "vestibule", "foyer", "gallery", "concourse",
-                        "stair", "stairs", "staircase", "stairwell",
-                        "escalator", "lift lobby", "elevator lobby", "shaft", "riser",
-                        "mechanical room", "electrical room", "communication room",
-                        "server room", "telco", "riser room", "pump room",
-                        "fire pump room", "control room", "plant room",
-                        "boiler room", "chiller room",
-                        "toilet", "washroom", "bathroom", "lavatory", "wc", "shower",
-                        "pantry", "kitchen", "storage", "storeroom",
-                        "janitor", "cleaner", "archive", "file room",
-                        "meeting room", "conference room", "boardroom", "office",
-                        "zone", "zones", "mass", "revit mass",
-                        "fire zone", "hvac zone",
-                        "text"
-                    ];
+                //             // --- Fallback heuristic if CRM check failed ---
+                //             if (!isFunctionalLocation) {
+                //                 props.properties.forEach(prop => {
+                //                     const val = (prop.displayValue || "").toString().toLowerCase();
+                //                     const functionalKeywords = [
+                //                         "room", "rooms", "space", "spaces", "area", "areas",
+                //                         "corridor", "hallway", "hall", "passage",
+                //                         "lobby", "vestibule", "foyer", "gallery", "concourse",
+                //                         "stair", "stairs", "staircase", "stairwell",
+                //                         "escalator", "lift lobby", "elevator lobby", "shaft", "riser",
+                //                         "mechanical room", "electrical room", "communication room",
+                //                         "server room", "telco", "riser room", "pump room",
+                //                         "fire pump room", "control room", "plant room",
+                //                         "boiler room", "chiller room",
+                //                         "toilet", "washroom", "bathroom", "lavatory", "wc", "shower",
+                //                         "pantry", "kitchen", "storage", "storeroom",
+                //                         "janitor", "cleaner", "archive", "file room",
+                //                         "meeting room", "conference room", "boardroom", "office",
+                //                         "zone", "zones", "mass", "revit mass",
+                //                         "fire zone", "hvac zone",
+                //                         "text"
+                //                     ];
 
-                    if (prop.displayName === "Category") {
-                        if (["revit mass", "rooms", "spaces", "areas"].includes(val)) {
-                            isFunctionalLocation = true;
-                        }
+                //                     if (prop.displayName === "Category") {
+                //                         if (["revit mass", "rooms", "spaces", "areas"].includes(val)) {
+                //                             isFunctionalLocation = true;
+                //                         }
+                //                     }
+
+                //                     if (["Type Name", "Family", "Name"].includes(prop.displayName)) {
+                //                         for (const keyword of functionalKeywords) {
+                //                             if (val.includes(keyword)) {
+                //                                 isFunctionalLocation = true;
+                //                                 break;
+                //                             }
+                //                         }
+                //                     }
+                //                 });
+                //             }
+
+                //             if (!isFunctionalLocation) isHardAsset = true;
+
+                //             console.log("Final classification:", { globalID, isFunctionalLocation, isHardAsset });
+
+                //             // --- User type from URL ---
+                //             const params = {};
+                //             window.location.search.substring(1).split("&").forEach(q => {
+                //                 const [key, val] = q.split("=");
+                //                 params[decodeURIComponent(key)] = decodeURIComponent(val);
+                //             });
+                //             const userType = params["user"];
+
+                //             // --- Build URL ---
+                //             let newUrl = "";
+                //             if (userType === "tenant") {
+                //                 newUrl = isHardAsset
+                //                     ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
+                //                     : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
+                //             } else if (userType === "supplier") {
+                //                 newUrl = isHardAsset
+                //                     ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
+                //                     : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
+                //             } else {
+                //                 newUrl = isHardAsset
+                //                     ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
+                //                     : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
+                //             }
+
+                //             console.log("Final URL:", newUrl);
+
+                //             // --- Load iframe ---
+                //             const iframe = document.getElementById("iframeTest");
+                //             const closeBtn = document.getElementById("closeIframeBtn");
+
+                //             iframe.src = newUrl;
+                //             iframe.classList.add("show");
+                //             closeBtn.style.visibility = "visible";
+
+                //             setTimeout(() => viewer.resize(), 500);
+
+                //             closeBtn.addEventListener("click", () => {
+                //                 iframe.classList.remove("show");
+                //                 iframe.src = "";
+                //                 closeBtn.style.visibility = "hidden";
+                //                 setTimeout(() => viewer.resize(), 500);
+                //             });
+
+                //             window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
+                //         });
+                //     }
+                // });
+
+                canvas.addEventListener('dblclick', async function (event) {
+                    event.preventDefault();
+
+                    const aggregateSelection = viewer.getAggregateSelection();
+                    if (!aggregateSelection?.length) return;
+
+                    const iframe = document.getElementById("iframeTest");
+                    const closeBtn = document.getElementById("closeIframeBtn");
+
+                    // only bind close once
+                    if (!closeBtn._bound) {
+                        closeBtn._bound = true;
+                        closeBtn.addEventListener("click", () => {
+                            iframe.classList.remove("show");
+                            iframe.src = "";
+                            closeBtn.style.visibility = "hidden";
+                            setTimeout(() => viewer.resize(), 300);
+                        });
                     }
 
-                    if (["Type Name", "Family", "Name"].includes(prop.displayName)) {
-                        for (const keyword of functionalKeywords) {
-                            if (val.includes(keyword)) {
-                                isFunctionalLocation = true;
+                    // parse userType once
+                    const params = new URLSearchParams(window.location.search);
+                    const userType = params.get("user");
+
+                    for (const selection of aggregateSelection) {
+                        const model = selection.model;
+                        const dbId = selection.selection?.[0];
+                        if (!dbId) continue;
+
+                        // ----- getProperties (wrap in Promise)
+                        const props = await new Promise(resolve => {
+                            model.getProperties(dbId, p => resolve(p));
+                        });
+
+                        // ----- extract GlobalID
+                        let globalID = null;
+                        for (const prop of props.properties) {
+                            if ((prop.displayName === "Asset ID" || prop.displayName === "Asset ID (GUID)") &&
+                                prop.displayValue) {
+                                globalID = prop.displayValue;
                                 break;
                             }
                         }
+                        if (!globalID) continue;
+
+                        // ----- classification
+                        let isFunctionalLocation = false;
+
+                        // CRM check (non-blocking)
+                        (async () => {
+                            try {
+                                const crmResp = await fetch(
+                                    `https://org47a0b99a.crm4.dynamics.com/api/data/v9.2/msdyn_functionallocations(${globalID})`,
+                                    { headers: { "Accept": "application/json;odata.metadata=none" } }
+                                );
+                                if (crmResp.ok) {
+                                    isFunctionalLocation = true;
+                                }
+                            } catch { /* ignore */ }
+                        })();
+
+                        // fallback logic
+                        if (!isFunctionalLocation) {
+                            const functionalKeywords = [
+                                "room","rooms","space","spaces","area","areas","corridor","hallway","hall",
+                                "passage","lobby","vestibule","foyer","gallery","concourse","stair","stairs",
+                                "staircase","stairwell","escalator","lift lobby","elevator lobby","shaft","riser",
+                                "mechanical room","electrical room","communication room","server room","telco",
+                                "riser room","pump room","fire pump room","control room","plant room",
+                                "boiler room","chiller room","toilet","washroom","bathroom","lavatory","wc",
+                                "shower","pantry","kitchen","storage","storeroom","janitor","cleaner","archive",
+                                "file room","meeting room","conference room","boardroom","office","zone","zones",
+                                "mass","revit mass","fire zone","hvac zone","text"
+                            ];
+
+                            for (const prop of props.properties) {
+                                const val = (prop.displayValue ?? "").toString().toLowerCase();
+
+                                if (prop.displayName === "Category") {
+                                    if (["revit mass", "rooms", "spaces", "areas"].includes(val)) {
+                                        isFunctionalLocation = true;
+                                        break;
+                                    }
+                                }
+
+                                if (["Type Name", "Family", "Name"].includes(prop.displayName)) {
+                                    if (functionalKeywords.some(k => val.includes(k))) {
+                                        isFunctionalLocation = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        const isHardAsset = !isFunctionalLocation;
+
+                        // ----- Build URL
+                        let appId;
+                        if (userType === "tenant") {
+                            appId = "63879c3c-5060-f011-bec1-7c1e527684d6";
+                        } else if (userType === "supplier") {
+                            appId = "230c5e7c-1bd1-ef11-8eea-000d3ab86138";
+                        } else {
+                            appId = "2019ee4f-38bc-ef11-b8e9-000d3ab86138";
+                        }
+
+                        const entity = isHardAsset ? "msdyn_customerasset" : "msdyn_functionallocation";
+                        const newUrl = `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=${appId}&pagetype=entityrecord&etn=${entity}&id=${globalID}`;
+
+                        // ----- Show iframe instantly
+                        iframe.src = newUrl;
+                        iframe.classList.add("show");
+                        closeBtn.style.visibility = "visible";
+                        setTimeout(() => viewer.resize(), 300);
+
+                        // notify container
+                        window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
                     }
                 });
-            }
-
-            if (!isFunctionalLocation) isHardAsset = true;
-
-            console.log("Final classification:", { globalID, isFunctionalLocation, isHardAsset });
-
-            // --- User type from URL ---
-            const params = {};
-            window.location.search.substring(1).split("&").forEach(q => {
-                const [key, val] = q.split("=");
-                params[decodeURIComponent(key)] = decodeURIComponent(val);
-            });
-            const userType = params["user"];
-
-            // --- Build URL ---
-            let newUrl = "";
-            if (userType === "tenant") {
-                newUrl = isHardAsset
-                    ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
-                    : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=63879c3c-5060-f011-bec1-7c1e527684d6&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
-            } else if (userType === "supplier") {
-                newUrl = isHardAsset
-                    ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
-                    : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=230c5e7c-1bd1-ef11-8eea-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
-            } else {
-                newUrl = isHardAsset
-                    ? `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_customerasset&id=${globalID}`
-                    : `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=2019ee4f-38bc-ef11-b8e9-000d3ab86138&pagetype=entityrecord&etn=msdyn_functionallocation&id=${globalID}`;
-            }
-
-            console.log("Final URL:", newUrl);
-
-            // --- Load iframe ---
-            const iframe = document.getElementById("iframeTest");
-            const closeBtn = document.getElementById("closeIframeBtn");
-
-            iframe.src = newUrl;
-            iframe.classList.add("show");
-            closeBtn.style.visibility = "visible";
-
-            setTimeout(() => viewer.resize(), 500);
-
-            closeBtn.addEventListener("click", () => {
-                iframe.classList.remove("show");
-                iframe.src = "";
-                closeBtn.style.visibility = "hidden";
-                setTimeout(() => viewer.resize(), 500);
-            });
-
-            window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
-        });
-    }
-});
 
 
 
@@ -655,7 +769,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
         }
     }
 
-    // Success handler for loading individual models
+
 // keep it outside so it's remembered across calls
 let offset = null;
 
@@ -735,30 +849,6 @@ async function onDocumentLoadSuccess(doc) {
 
 
     // Function to fetch the latest version URN of a file inside a folder
-    async function fetchLatestUrn(hubId, projectId, folderId, baseUrn) {
-        const accessToken = localStorage.getItem('authToken'); // Retrieve the access token
-        const versionsUrl = `https://developer.api.autodesk.com/data/v1/projects/${projectId}/items/${baseUrn}/versions`;
-        const response = await fetch(versionsUrl, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-            },
-        });
-        const versionsData = await response.json();
-        // console.log('Latest Version URN:', versionsData);
-        if (versionsData.data && versionsData.data.length > 0) {
-            const latestVersion = versionsData.data[0];  // Assuming the first item is the latest
-            let latestVersionUrn = latestVersion.id;  // This will be the URN for the latest version
-            console.log('Latest Version URN:', latestVersionUrn);
-            const base64Urn = btoa(latestVersionUrn);  // This encodes the URN to base64
-            // console.log('Base64 URN:', base64Urn);
-            return base64Urn;
-        } else {
-            console.error('No versions found for the file.');
-        }
-
-    }
-
     async function fetchLatestUrn(hubId, projectId, folderId, baseUrn) {
         const accessToken = localStorage.getItem('authToken');
     

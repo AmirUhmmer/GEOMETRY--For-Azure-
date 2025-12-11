@@ -17,18 +17,34 @@ document.getElementById("2D-sheets").addEventListener("click", sheets2DPanel);
 
 
 
+
+
+
+// ***************************** panel close functionality **************************
+document.getElementById("closeFirePlan").onclick = () => {
+    document.getElementById("fire-plan-panel").style.visibility = "hidden";
+};
+
+document.getElementById("closeSheets2D").onclick = () => {
+    document.getElementById("sheets-2d-panel").style.visibility = "hidden";
+};
+
+
+
 const toggleBtn = document.getElementById('toggleSidebar');
 const sidebar = document.getElementById('viewerSidebar');
 toggleBtn.addEventListener('click', () => {
   sidebar.classList.toggle('open');
   if(!sidebar.classList.contains('open')){
     sidebar.style.visibility = 'hidden';
+    document.getElementById('layoutRow').style.right = '0px';
     document.getElementById('preview').style.width = '100%';
     setTimeout(() => {
       window.viewerInstance.resize();
     }, 300);
   } else {
     sidebar.style.visibility = 'visible';
+    document.getElementById('layoutRow').style.right = '70px';
     document.getElementById('preview').style.width = '95%';
     setTimeout(() => {
       window.viewerInstance.resize();
@@ -265,7 +281,7 @@ async function modelBrowserPanel() {
 
 
 
-
+// #region: 3D Model
 export async function button3D() {
     const viewer = window.viewerInstance;
     // const models = viewer.impl.modelQueue().getModels();
@@ -323,7 +339,7 @@ export async function button3D() {
   
     await loadModels();
 }
-
+// #endregion
 
 
 
@@ -495,7 +511,7 @@ async function liveDataPanel() {
 
 
 // Fire Drawing
-async function firePlansPanel() {
+export async function firePlansPanel() {
   const viewer = window.viewerInstance;
   const models = viewer.impl.modelQueue().getModels();
   const browserPanel = document.getElementById("model-browser-panel");
@@ -637,9 +653,9 @@ function find2DFilesDeep(node, results = new Set(), visited = new Set()) {
 
 
 
-
+// #region: 2D Sheets
 // 2D Sheets
-async function sheets2DPanel() {
+export async function sheets2DPanel() {
   const viewer = window.viewerInstance;
   const models = viewer.impl.modelQueue().getModels();
   const browserPanel = document.getElementById("model-browser-panel");
@@ -781,3 +797,4 @@ function findSheetsFilesDeep(node, results = new Set(), visited = new Set()) {
 
   return [...results];
 }
+// #endregion

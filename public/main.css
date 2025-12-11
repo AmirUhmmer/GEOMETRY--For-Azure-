@@ -532,7 +532,7 @@ body, html {
   visibility: hidden;
   position: fixed;
   top: 0;
-  right: 4%;
+  right: 70px;
   width: 25%;
   height: 98vh;
   background: white;
@@ -623,8 +623,33 @@ body, html {
   display: none;
 }
 
-/* #toolbar-settingsTool, */
-/* #toolbar-levelsTool,  */
+#fire-plan-panel .close-btn,
+#sheets-2d-panel .close-btn {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 24px;
+  text-align: center;
+
+  border: 0px solid #ccc;  /* subtle outline instead of color */
+  background: transparent; /* no fill */
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+#fire-plan-panel .close-btn:hover
+#sheets-2d-panel .close-btn:hover {
+  border-color: #999; /* just slightly darker outline on hover */
+  transform: scale(1.05);
+}
+
 
 
 
