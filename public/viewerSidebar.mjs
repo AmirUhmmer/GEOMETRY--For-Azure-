@@ -422,7 +422,7 @@ function levelsPanel() {
 // ***************************** levels panel functionality **************************
 
 
-async function liveDataPanel() {
+export async function liveDataPanel() {
   const viewer = window.viewerInstance;
   const dataVizExtn = await viewer.loadExtension("Autodesk.DataVisualization");
 

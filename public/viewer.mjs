@@ -1,7 +1,7 @@
 import * as functions from './viewerSidebar.mjs';
 import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from './Live_Data/LiveData.mjs';
 import { HardAssetSearch } from './Hemy_Functions/HardAssets.mjs';
-import { ServiceZoneSearch } from './Hemy_Functions/ServiceZone.mjs';
+import { ServiceZoneSearch, spaceInventorySearch } from './Hemy_Functions/ServiceZone.mjs';
 import { FunctionalLocationSearch, zoneFunctionalLocation, highlightFLByTask } from './Hemy_Functions/FunctionalLocation.mjs';
 import { RepeatingTasks, showTasks, showAllTasks } from './Hemy_Functions/RepeatingTasks.mjs';
 import { WOServiceTask } from './Hemy_Functions/WOServiceTask.mjs';
@@ -385,7 +385,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 highlightFLByTask(viewer, window.serviceZone);
 
-                console.log("SERVICE ZONE FROM VIEWER:", window.serviceZone);
+                spaceInventorySearch(viewer, window.spaceInventory);
+
+                // console.log("SERVICE ZONE FROM VIEWER:", window.serviceZone);
 
                 // showTasks(viewer, onetaskSample);
 
@@ -414,7 +416,9 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             functions.firePlansPanel();
                         } else if (message.type === "showSheets2D") {
                             functions.sheets2DPanel();
-                        } else {
+                        } else if (message.type === "showLiveData") {
+                            functions.liveDataPanel();
+                        }else {
                             console.log("Unknown message type received:", message.type);
                         }
                         // else if (message.type === "functionallocations_with_tasks") {
