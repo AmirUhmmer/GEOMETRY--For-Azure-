@@ -525,7 +525,7 @@ export async function firePlansPanel() {
   levelsPanel.style.visibility = "hidden";
   livedataPanel.style.visibility = "hidden";
   panel.style.visibility = isVisible ? "hidden" : "visible";
-  isVisible ? panel.style.right = "0px" : panel.style.right = "70px";
+  sidebar ? panel.style.right = "0px" : panel.style.right = "70px";
   document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
 
 
@@ -675,6 +675,7 @@ export async function sheets2DPanel() {
   const livedataPanel = document.getElementById("live-data-panel");
   const panel = document.getElementById("sheets-2d-panel");
   const isVisible = panel.style.visibility === "visible";
+  let sidebar = toggleSidebar();
 
   browserPanel.style.visibility = "hidden";
   levelsPanel.style.visibility = "hidden";
@@ -682,7 +683,7 @@ export async function sheets2DPanel() {
   document.getElementById("fire-plan-panel").style.visibility = "hidden";
   panel.style.visibility = isVisible ? "hidden" : "visible";
   document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
-
+  sidebar ? panel.style.right = "0px" : panel.style.right = "70px";
   setTimeout(() => {
     viewer.resize();
   }, 300);
