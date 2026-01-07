@@ -463,7 +463,8 @@ async function initApp() {
         ],
 
         // FV50
-        "Fornebuveien 50": [
+        // "Fornebuveien 50" <- removed/changed?
+        "Fornebuveien 50 (Joint Cost c/o Semy AS)": [
           "urn:adsk.wipemea:dm.lineage:ys5aGM_9S8S7mQQVGsSk1Q", //MEP
           "urn:adsk.wipemea:dm.lineage:HT_kw5D_SEyxCe84jqaASQ", //ARCHI
         ],
