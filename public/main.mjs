@@ -207,6 +207,7 @@ async function initApp() {
       if (sidebar === "off") {
         document.getElementById("viewerSidebar").style.display = "none";
         document.getElementById("layoutRow").style.right = "0px";
+        document.getElementById("toggleSidebar").style.display = "none";
       }
       
       if (userGuid) {
@@ -464,7 +465,8 @@ async function initApp() {
 
         // FV50
         // "Fornebuveien 50" <- removed/changed?
-        "Fornebuveien 50 (Joint Cost c/o Semy AS)": [
+        // "Fornebuveien 50 (Joint Cost c/o Semy AS)" <- changed again
+        "Fornebuveien 50 (under Semy Felleskost AS)": [
           "urn:adsk.wipemea:dm.lineage:ys5aGM_9S8S7mQQVGsSk1Q", //MEP
           "urn:adsk.wipemea:dm.lineage:HT_kw5D_SEyxCe84jqaASQ", //ARCHI
         ],
