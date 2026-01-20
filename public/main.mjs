@@ -611,7 +611,8 @@ async function initApp() {
         "Ole Deviks Vei 18 AS": "b.6623a4ce-ac71-4678-af1c-55a4030ff9d9",
         "Billingstadsletta 19 AS": "b.1c8224f1-b860-4a2b-821b-d393c94b190d",
         // "Fornebuveien 50": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f", // removed/changed?
-        "Fornebuveien 50 (Joint Cost c/o Semy AS)": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f",
+        // "Fornebuveien 50 (Joint Cost c/o Semy AS)": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f", // changed again
+        "Fornebuveien 50 (under Semy Felleskost AS)": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f",
         "Billingstadsletta 17 AS": "b.09751ad8-ce14-4f21-99c2-440312cd216f",
         "Trondheimsveien 135 AS": "b.39d3702e-4095-44d4-8c29-becf571a90aa",
       };
