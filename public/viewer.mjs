@@ -418,6 +418,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             functions.sheets2DPanel();
                         } else if (message.type === "showLiveData") {
                             functions.liveDataPanel();
+                        } else if (message.type === "closeInsidePanel") {
+                            functions.closeInsidePanel();
                         }else {
                             console.log("Unknown message type received:", message.type);
                         }

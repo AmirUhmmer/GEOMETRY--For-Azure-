@@ -807,6 +807,28 @@ function findSheetsFilesDeep(node, results = new Set(), visited = new Set()) {
 }
 // #endregion
 
+// #region: Close All Panels
+export async function closeInsidePanel() {
+  const viewer = window.viewerInstance;
+  const models = viewer.impl.modelQueue().getModels();
+  const livedataPanel = document.getElementById("live-data-panel");
+  const panel = document.getElementById("sheets-2d-panel");
+  const firePlansPanel = document.getElementById("fire-plan-panel");
+
+  livedataPanel.style.visibility = "hidden";
+  firePlansPanel.style.visibility = "hidden";
+  panel.style.visibility = "hidden";
+  document.getElementById("preview").style.width =  "100%";
+  setTimeout(() => {
+    viewer.resize();
+  }, 300);
+}
+// #endregion
+
+
+
+
+
 // #region: sidebar off
 function toggleSidebar() {
   let params = {};
@@ -824,3 +846,5 @@ function toggleSidebar() {
   }
 }
 // #endregion
+
+
