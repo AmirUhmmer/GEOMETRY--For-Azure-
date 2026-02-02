@@ -509,7 +509,7 @@ export async function liveDataPanel() {
 }
 
 
-
+// #region: Fire Drawing
 // Fire Drawing
 export async function firePlansPanel() {
   const viewer = window.viewerInstance;
@@ -596,6 +596,8 @@ export async function firePlansPanel() {
           });
 
           console.log("✅ Loaded 2D sheet:", viewableNode.data.name);
+          localStorage.setItem("is2D", "true");
+          // console.log("is2D set to true in localStorage: ", localStorage.getItem("is2D"));
           break;
 
         } catch (err) {
@@ -613,7 +615,7 @@ export async function firePlansPanel() {
     listContainer.appendChild(listItem);
   });
 }
-
+// #endregion
 
 function loadDocumentAsync(urn, accessToken) {
   return new Promise((resolve, reject) => {
@@ -658,7 +660,13 @@ function find2DFilesDeep(node, results = new Set(), visited = new Set()) {
     find2DFilesDeep(node.parent, results, visited);
   }
 
-  return [...results];
+  // return [...results];
+  return [...results].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, {
+      numeric: true,
+      sensitivity: "base"
+    })
+  );
 }
 
 
@@ -803,7 +811,13 @@ function findSheetsFilesDeep(node, results = new Set(), visited = new Set()) {
     findSheetsFilesDeep(node.parent, results, visited);
   }
 
-  return [...results];
+  // return [...results];
+  return [...results].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, {
+      numeric: true,
+      sensitivity: "base"
+    })
+  );
 }
 // #endregion
 
@@ -822,6 +836,10 @@ export async function closeInsidePanel() {
   setTimeout(() => {
     viewer.resize();
   }, 300);
+
+  if(localStorage.getItem("is2D") === "true"){
+    location.reload();  
+  }
 }
 // #endregion
 
