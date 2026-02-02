@@ -2,7 +2,7 @@ import * as functions from './viewerSidebar.mjs';
 import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from './Live_Data/LiveData.mjs';
 import { HardAssetSearch } from './Hemy_Functions/HardAssets.mjs';
 import { ServiceZoneSearch, spaceInventorySearch } from './Hemy_Functions/ServiceZone.mjs';
-import { FunctionalLocationSearch, zoneFunctionalLocation, highlightFLByTask } from './Hemy_Functions/FunctionalLocation.mjs';
+import { FunctionalLocationSearch, zoneFunctionalLocation, highlightFLByTask, prewarmFunctionalLocationCacheFromModel } from './Hemy_Functions/FunctionalLocation.mjs';
 import { RepeatingTasks, showTasks, showAllTasks } from './Hemy_Functions/RepeatingTasks.mjs';
 import { WOServiceTask } from './Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
@@ -369,7 +369,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 // // HardAsset: "77ccbb96-62ca-ee11-907a-0022489fd3f3",
                 // };
 
-
+                await prewarmFunctionalLocationCacheFromModel(models[1]);
 
                 HardAssetSearch(viewer, HardAsset);
 
