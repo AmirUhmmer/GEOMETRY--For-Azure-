@@ -436,10 +436,12 @@ export async function zoneFunctionalLocation(viewer, message) {
 
   // Colors
   const red = new THREE.Vector4(1, 0, 0, 1);
-  const green = new THREE.Vector4(0, 1, 0, 1);
-  const redSel = new THREE.Color(1, 0, 0);
-  const greenSel = new THREE.Color(0, 1, 0);
+  // const green = new THREE.Vector4(0, 1, 0, 1);
+  const pink = new THREE.Vector4(0.902, 0.451, 0.890, 1);
 
+  const redSel = new THREE.Color(1, 0, 0);
+  // const greenSel = new THREE.Color(0, 1, 0);
+  const pinkSel = new THREE.Color(0.902, 0.451, 0.890);
   /* -----------------------------
      1. Build cache (SEARCH BY ID)
   ------------------------------*/
@@ -500,9 +502,33 @@ export async function zoneFunctionalLocation(viewer, message) {
   ------------------------------*/
   let finalSelection = [];
 
-  for (const { tenant, locations } of tenantGroups) {
-    const themeColor = tenant === "Unoccupied" ? red : green;
-    const selectColor = tenant === "Unoccupied" ? redSel : greenSel;
+  // for (const { tenant, locations } of tenantGroups) {
+  //   const themeColor = tenant === "Unoccupied" ? red : pink;
+  //   const selectColor = tenant === "Unoccupied" ? redSel : pinkSel;
+
+  //   let tenantDbIds = [];
+
+  //   for (const loc of locations) {
+  //     const ids = locationMap.get(loc);
+  //     if (ids?.length) tenantDbIds.push(...ids);
+  //   }
+
+  //   tenantDbIds.forEach(id =>
+  //     viewer.setThemingColor(id, themeColor, model2)
+  //   );
+
+  //   if (tenantDbIds.length) {
+  //     viewer.setSelectionColor(selectColor);
+  //     finalSelection.push(...tenantDbIds);
+  //   }
+  // }
+
+
+  tenantGroups.forEach(({ tenant, locations }, index) => {
+    const isLast = index === tenantGroups.length - 1;
+
+    const themeColor = tenant === "Unoccupied" ? red : pink;
+    const selectColor = tenant === "Unoccupied" ? redSel : pinkSel;
 
     let tenantDbIds = [];
 
@@ -515,11 +541,13 @@ export async function zoneFunctionalLocation(viewer, message) {
       viewer.setThemingColor(id, themeColor, model2)
     );
 
-    if (tenantDbIds.length) {
+    // ONLY push selection if this is the last tenantGroup
+    if (isLast && tenantDbIds.length) {
       viewer.setSelectionColor(selectColor);
       finalSelection.push(...tenantDbIds);
     }
-  }
+  });
+
 
   // Force repaint (important)
   viewer.impl.invalidate(true);
