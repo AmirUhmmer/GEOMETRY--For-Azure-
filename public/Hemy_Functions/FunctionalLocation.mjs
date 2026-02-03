@@ -451,7 +451,16 @@ export async function zoneFunctionalLocation(viewer, message) {
   const locationMap = functionalLocationCache.get(model2.id);
 
   // Unique FunctionalLocation IDs
-  const uniqueLocations = [...new Set(zoneData.map(z => z.FunctionalLocation))];
+  // const uniqueLocations = [...new Set(zoneData.map(z => z.FunctionalLocation))];
+
+  const uniqueLocations = [
+    ...new Set(
+      zoneData
+        .map(z => z.FunctionalLocation)
+        .filter(loc => typeof loc === "string" && loc.trim() !== "")
+    )
+  ];
+
 
   // Run searches ONLY for uncached IDs
   const searches = uniqueLocations
@@ -613,6 +622,16 @@ export async function prewarmFunctionalLocationCacheFromModel(model) {
           const zoneId = props.properties.find(
             p => p.displayName === 'Asset ID (GUID)'
           )?.displayValue;
+
+          // if (!locationMap.has(zoneId)) {
+          //   locationMap.set(zoneId, []);
+          // }
+
+          // 🚫 HARD STOP: no empty / invalid zone IDs
+          if (typeof zoneId !== "string" || zoneId.trim() === "") {
+            resolve();
+            return;
+          }
 
           if (!locationMap.has(zoneId)) {
             locationMap.set(zoneId, []);
