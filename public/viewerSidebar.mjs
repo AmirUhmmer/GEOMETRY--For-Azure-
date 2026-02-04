@@ -758,6 +758,8 @@ export async function sheets2DPanel() {
           });
 
           console.log("✅ Loaded 2D sheet:", viewableNode.data.name);
+          localStorage.setItem("is2D", "true");
+          
           break;
 
         } catch (err) {
@@ -838,6 +840,7 @@ export async function closeInsidePanel() {
   }, 300);
 
   if(localStorage.getItem("is2D") === "true"){
+    localStorage.setItem("is2D", "false");
     location.reload();  
   }
 }

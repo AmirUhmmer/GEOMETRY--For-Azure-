@@ -369,6 +369,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 // // HardAsset: "77ccbb96-62ca-ee11-907a-0022489fd3f3",
                 // };
 
+                localStorage.setItem("is2D", "false");
+
                 await prewarmFunctionalLocationCacheFromModel(models[1]);
 
                 HardAssetSearch(viewer, HardAsset);
