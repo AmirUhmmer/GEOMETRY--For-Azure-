@@ -551,7 +551,7 @@ export async function zoneFunctionalLocation(viewer, message) {
 
   // Force repaint (important)
   viewer.impl.invalidate(true);
-
+  viewer.setGhosting(true);
   viewer.select(finalSelection, model2);
 
   

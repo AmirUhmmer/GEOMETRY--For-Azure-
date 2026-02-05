@@ -6,10 +6,7 @@ import { FunctionalLocationSearch, zoneFunctionalLocation, highlightFLByTask, pr
 import { RepeatingTasks, showTasks, showAllTasks } from './Hemy_Functions/RepeatingTasks.mjs';
 import { WOServiceTask } from './Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from './SOL11_23/sol11360pics.mjs';
-import { ToolbarButton2DFaro } from './panelFor2DFaro.mjs';
-import { button3D } from './button3D.mjs';
 import { AgreementFunctionalLocationSearch } from './Hemy_Functions/Agreement.mjs';
-import { rightToolbar } from './rightToolbar.mjs';
 import { markTaskDone } from './Hemy_Functions/RepeatingTasks.mjs';
 
 
@@ -48,12 +45,9 @@ export function initViewer(container) {
                 ]
             };
             const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
-            // const viewer = new Autodesk.Viewing.AggregatedView(container, config);
 
             viewer.start();
             viewer.setTheme('dark-theme');
-            // viewer.setQualityLevel(true, true);
-            // console.log(accessToken);
             viewer.setOptimizeNavigation(true)
             viewer.setQualityLevel(false, false);
             viewer.setGroundShadow(false);
@@ -66,88 +60,10 @@ export function initViewer(container) {
 
             window.viewerInstance = viewer; // Store the viewer instance globally for access in other modules
 
-            // canvas.addEventListener('click', function (event) {
-            //     // console.log("Canvas clicked:", event); // Log the event to ensure the click is firing
-            
-            //     const aggregateSelection = viewer.getAggregateSelection(); // Get selections from all loaded models
-            //     // console.log("Aggregate selection:", aggregateSelection); // Log the aggregate selection
-            
-            //     if (aggregateSelection && aggregateSelection.length > 0) { // Check if aggregateSelection is defined and has items
-            //         aggregateSelection.forEach(selection => {
-            //             // console.log("Processing selection:", selection); // Log the selection details
-            
-            //             const model = selection.model;           // Get the selected model
-            //             // console.log("Model:", model);            // Log the model
-            
-            //             const dbIdArray = selection.selection;   // Get the selected object IDs from the selection array
-            //             // console.log("dbIdArray:", dbIdArray);    // Log the dbIdArray
-            
-            //             if (dbIdArray && dbIdArray.length > 0) { // Ensure dbIdArray is defined and has objects
-            //                 const dbId = dbIdArray[0];           // Assume the first selected object for demonstration
-            //                 console.log("Selected dbId:", dbId); // Log the selected dbId
-            
-            //                 const instanceTree = model.getInstanceTree();
-            //                 // console.log("InstanceTree:", instanceTree); // Log the instance tree to ensure it's available
-            
-            //                 if (instanceTree) {
-            //                     instanceTree.enumNodeFragments(dbId, (fragId) => {
-            //                         const fragList = model.getFragmentList();    // Use the correct model's fragment list
-            //                         const matrix = new THREE.Matrix4();
-            //                         fragList.getWorldMatrix(fragId, matrix);
-            
-            //                         const position = new THREE.Vector3();
-            //                         position.setFromMatrixPosition(matrix);
-            
-            //                         console.log(`World Coordinates (Model ${model.id}): x=${position.x}, y=${position.y}, z=${position.z}`);
-            //                     });
-            //                 } else {
-            //                     console.log("InstanceTree not available for model:", model);
-            //                 }
-            //             } else {
-            //                 console.log("No objects selected in dbIdArray.");
-            //             }
-            //         });
-            //     } else {
-            //         console.log('No objects selected or aggregate selection is undefined.');
-            //     }
-            // });
-                     
-        
-
-            
             resolve(viewer);
         });
     });
 }
-
-// export function loadModel(viewer, urn) {
-//     function onDocumentLoadSuccess(doc) {
-//         // Load the model geometry
-//         viewer.loadDocumentNode(doc, doc.getRoot().getDefaultGeometry())
-//             .then(() => {
-//                 // Once the geometry is loaded, call surface shading setup
-//                 viewer.addEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function () {
-//                     if (viewer.model) {
-//                     }
-//                 });
-//             })
-//             .catch((error) => {
-//                 console.error("Error loading geometry:", error);
-//             });
-//     }
-    
-
-//     function onDocumentLoadFailure(code, message) {
-//         alert('Could not load model. See console for more details.');
-//         console.error(message);
-//     }
-
-//     console.log(urn);
-//     Autodesk.Viewing.Document.load('urn:' + urn, onDocumentLoadSuccess, onDocumentLoadFailure);
-// }
-
-
-
 // ******************************* WORKING ************************
 
 
@@ -168,18 +84,16 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
             // window.parent.postMessage({ type: "ready-for-data" }, "*");
             // console.log(viewer.getAllModels(), "All models have been loaded.");
             const accessToken = localStorage.getItem('authToken'); // Retrieve the access token
-            // console.log('Access Token:', accessToken);
             const models = viewer.impl.modelQueue().getModels();
             // Perform actions only when all models are loaded
 
             // let model = viewer.getAllModels()[0]; //!<< Check the first model just for demo
             // let fragList = model.getFragmentList();
             // let hiddenDbIds = Object.keys( fragList.vizflags ).filter(fragId => !fragList.isFragVisible( fragId )).map(fragId => fragList.getDbIds( fragId ) );
-
-            // // hiddenDbIds.forEach(dbId => viewer.getProperties(dbId, console.log))
-
-
+            
+            // if (allModelsInitialized) return;
             if (viewer.model) {
+                // allModelsInitialized = true; // 🔐 HARD STOP
                 viewer.loadExtension('Autodesk.DataVisualization').then(() => {
                     console.log('Autodesk.DataVisualization loaded.');
                 });
@@ -190,7 +104,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
     
                 viewer.loadExtension('Autodesk.AEC.LevelsExtension').then((levelsExt) => {
                     console.log('Autodesk.AEC.LevelsExtension loaded.');
-                    // levelsExt.floorSelector.selectFloor(1);
                 });
 
                 viewer.loadExtension('Autodesk.FullScreen').then(() => {
@@ -210,71 +123,63 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 navTools.removeControl('toolbar-cameraSubmenuTool');
                 
 
-
-                // const settingsTools = viewer.toolbar.getControl('settingsTools');
-                // settingsTools.removeControl('toolbar-settingsTool');
-                
-
-                
-                
-
                 if(model === 'DB8' || model === 'HG62'){
                     showLiveDataPanel(viewer);
                     showLiveDataListPanel(viewer, model);
                     createToolbarLiveDataListButton(viewer, model);
-                    hideGenericModels(viewer, models[0]);
                 }else if(model === 'SOL11'){
                     Sol11PicsSPRITES(viewer);
                 }
 
-                async function hideGenericModels(viewer, model) {
-                    // Wrap getObjectTree in a promise
-                    const instanceTree = await new Promise((resolve, reject) => {
-                        model.getObjectTree(function(tree) {
-                            resolve(tree);
-                        }, reject);
-                    });
+                // async function hideGenericModels(viewer, model) {
+                //     // Wrap getObjectTree in a promise
+                //     const instanceTree = await new Promise((resolve, reject) => {
+                //         model.getObjectTree(function(tree) {
+                //             resolve(tree);
+                //         }, reject);
+                //     });
 
-                    const dbIdsToHide = [];
+                //     const dbIdsToHide = [];
 
-                    // Collect all dbIds
-                    const rootId = instanceTree.getRootId();
-                    const allDbIds = [];
-                    instanceTree.enumNodeChildren(rootId, function(dbId) {
-                        allDbIds.push(dbId);
-                    }, true);
+                //     // Collect all dbIds
+                //     const rootId = instanceTree.getRootId();
+                //     const allDbIds = [];
+                //     instanceTree.enumNodeChildren(rootId, function(dbId) {
+                //         allDbIds.push(dbId);
+                //     }, true);
 
-                    // For each dbId, get properties as a promise
-                    const propertyPromises = allDbIds.map(dbId => {
-                        return new Promise(resolve => {
-                            model.getProperties(dbId, function(props) {
-                                if (props && props.properties) {
-                                    const categoryProp = props.properties.find(p => p.displayName === 'Category');
-                                    const zoneNameProp = props.properties.find(p => p.displayName === 'NV3DZoneName');
+                //     // For each dbId, get properties as a promise
+                //     const propertyPromises = allDbIds.map(dbId => {
+                //         return new Promise(resolve => {
+                //             model.getProperties(dbId, function(props) {
+                //                 if (props && props.properties) {
+                //                     const categoryProp = props.properties.find(p => p.displayName === 'Category');
+                //                     const zoneNameProp = props.properties.find(p => p.displayName === 'NV3DZoneName');
 
-                                    if (
-                                        categoryProp &&
-                                        categoryProp.displayValue === 'Revit Generic Models' &&
-                                        zoneNameProp &&
-                                        !zoneNameProp.displayValue.includes('Parking Area')
-                                    ) {
-                                        dbIdsToHide.push(dbId);
-                                    }
-                                }
-                                resolve();
-                            }, true);
-                        });
-                    });
+                //                     if (
+                //                         categoryProp &&
+                //                         categoryProp.displayValue === 'Revit Generic Models' &&
+                //                         zoneNameProp &&
+                //                         !zoneNameProp.displayValue.includes('Parking Area')
+                //                     ) {
+                //                         dbIdsToHide.push(dbId);
+                //                     }
+                //                 }
+                //                 resolve();
+                //             }, true);
+                //         });
+                //     });
 
-                    // Wait for all property checks to finish
-                    await Promise.all(propertyPromises);
+                //     // Wait for all property checks to finish
+                //     await Promise.all(propertyPromises);
 
-                    // Hide the collected nodes
-                    if (dbIdsToHide.length > 0) {
-                        viewer.hide(dbIdsToHide);
-                        console.log('Hiding Generic Models:', dbIdsToHide);
-                    }
-                }
+                //     // Hide the collected nodes
+                //     if (dbIdsToHide.length > 0) {
+                //         viewer.hide(dbIdsToHide);
+                //         console.log('Hiding Generic Models:', dbIdsToHide);
+                //     }
+                // }
+
                 
                 // viewer.anyLayerHidden();
                 // console.log("Aggregate Hidden Nodes:", viewer.anyLayerHidden());
@@ -293,9 +198,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                             console.log(LiveData);
                             if (LiveData === 'DB8' || LiveData === 'HG62' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
                                 viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex, LiveData); // Call LiveDataListPanel
-                             }//else if (LiveData === 'HG62' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0) {
-                            //     viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex); // Call LiveDataListPanel
-                            // }
+                             }
                         });
                 
                         // Optionally, set a default floor after loading the extension
@@ -357,22 +260,25 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 let HardAsset = localStorage.getItem('HardAssetChecker');
 
                 // #region FUNCTIONS
-    //-------------------------------------------------FUNCTIONS----------------------------------------------
-
-                // const onetaskSample = {
-                // type: "showTask",
-                // Name: "Conduct - Fire Fighting System - Maintenance Inspection. Use Inspection Template",
-                // STBase: "Annual maintenance service control",
-                // HardAsset: "935b161e-86fe-ef11-bae2-0022489c0ebb", //SOL20
-                // FunctionalLocation: "d78f140d-211d-f011-998b-7c1e527687d8" //SOL20
-                // // FunctionalLocation: "ccd12779-0ced-ee11-a203-0022489fd44c",
-                // // HardAsset: "77ccbb96-62ca-ee11-907a-0022489fd3f3",
-                // };
 
                 localStorage.setItem("is2D", "false");
 
                 await prewarmFunctionalLocationCacheFromModel(models[1]);
 
+                viewer.addEventListener(
+                    Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
+                    () => hideGenericModels(viewer, models[1])
+                );
+
+                [
+                Autodesk.Viewing.ISOLATE_EVENT,
+                Autodesk.Viewing.SHOW_ALL_EVENT
+                ].forEach(evt =>
+                viewer.addEventListener(evt, () =>
+                    hideGenericModels(viewer, models[1])
+                )
+                );
+                
                 HardAssetSearch(viewer, HardAsset);
 
                 ServiceZoneSearch(viewer, ServiceZone);
@@ -389,18 +295,12 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 spaceInventorySearch(viewer, window.spaceInventory);
 
-                // console.log("SERVICE ZONE FROM VIEWER:", window.serviceZone);
-
-                // showTasks(viewer, onetaskSample);
-
                 // #endregion
 
                 // TASK colors highlight websocket
                 if (window.socket) {
                     window.socket.onmessage = async (event) => {
                     const message = JSON.parse(event.data);
-                    // console.log("Received message:", event.data); 
-                    //
                         if (message.type === "showTask") {
                             console.log("Received message:", event.data);
                             showTasks(viewer, message);
@@ -425,10 +325,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                         }else {
                             console.log("Unknown message type received:", message.type);
                         }
-                        // else if (message.type === "functionallocations_with_tasks") {
-                        //     console.log("Received message:", message);
-                        //     highlightFLByTask(viewer, message);
-                        // }
 
 
                     };
@@ -443,10 +339,6 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 });
 
                 window.urns = urns; // Store the URNs globally for access in other modules
-
-                // button3D(viewer, urns);
-
-                // rightToolbar(viewer, modelAbbreviation);
 
                 const canvas = viewer.impl.canvas;
 
@@ -615,24 +507,11 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     lastTap = now;
                 });
 
-
-
-
-                
-
-
-                
-
-
-
-
                 // ENABLE IF WANT TO SEARCH OBJECT IN MODEL
-
 
                 // const overlay = document.getElementById('overlay');
 
                 // overlay.style.visibility = 'visible';
-
 
                 // document.getElementById("search").addEventListener("click", function first() {
                 //     // viewer.search(
@@ -667,7 +546,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 //     }, function(error) {
                 //         console.error('Search error:', error);  // Handle any potential search errors
                 //     });
-                // });
+                // });              
             }
         }
     }
@@ -715,31 +594,6 @@ async function onDocumentLoadSuccess(doc) {
         alert("Error loading model into viewer. See console for details.");
     }
 }
-
-
-// async function onDocumentLoadSuccess(doc) {
-//     let viewables = doc.getRoot().getDefaultGeometry();
-
-//     const offset = viewables?.globalOffset || { x: 0, y: 0, z: 0 };
-
-//     const loadOptions = {
-//       applyrefPoint: true, // only for first model
-//       globalOffset: offset,
-//       keepCurrentModels: true,
-//     };
-
-//     try {
-//         console.log("Loading model with options:", loadOptions);
-//         const model = await viewer.loadDocumentNode(doc, viewables, loadOptions);
-
-//         modelsLoaded++;
-//         checkAllModelsLoaded();
-
-//     } catch (error) {
-//         console.error("Error loading model into viewer:", error);
-//         alert("Error loading model into viewer. See console for details.");
-//     }
-// }
 // #endregion
 
 
@@ -777,9 +631,6 @@ async function onDocumentLoadSuccess(doc) {
             } else if (latestVersionUrn === 'urn:adsk.wipemea:fs.file:vf.Oiuj-KZlQGWHcvIe4nDKKQ?version=73') {
                 latestVersionUrn = 'urn:adsk.wipemea:fs.file:vf.Oiuj-KZlQGWHcvIe4nDKKQ?version=70';
             }
-            // Latest Version URN: urn:adsk.wipemea:fs.file:vf.9RzMYc2xRfu3IQ8Kzf3Cpg?version=9
-            // Latest Version URN: urn:adsk.wipemea:fs.file:vf.q8g1LE0vQ2WO5AHJ9Kd55A?version=30
-            // Latest Version URN: urn:adsk.wipemea:fs.file:vf.gs0PRB3eRUS6ANLK09vDYA?version=47
 
             console.log('Latest Version URN:', latestVersionUrn);
             return btoa(latestVersionUrn); // Base64 encode
@@ -825,15 +676,81 @@ async function onDocumentLoadSuccess(doc) {
             console.error("Unexpected error in loadModels:", error);
         }
     }
-    
-    
     // Load each model sequentially
     loadModels();
-    
-
-
-
 }
+
+
+const lockedGenericDbIds = new Set();
+
+async function hideGenericModels(viewer, model) {
+  const instanceTree = await new Promise((resolve, reject) => {
+    model.getObjectTree(resolve, reject);
+  });
+
+  const rootId = instanceTree.getRootId();
+  const allDbIds = [];
+
+  instanceTree.enumNodeChildren(rootId, dbId => {
+    allDbIds.push(dbId);
+  }, true);
+
+  const checks = allDbIds.map(dbId => {
+    return new Promise(resolve => {
+      model.getProperties(dbId, props => {
+        if (!props?.properties) return resolve();
+
+        const categoryProp = props.properties.find(
+          p => p.displayName === 'Category'
+        )?.displayValue;
+
+        const zoneProp = props.properties.find(
+          p => p.displayName === 'NV3DZoneName'
+        )?.displayValue;
+
+        const isGenericCategory =
+          categoryProp === 'Revit Generic Models' ||
+          categoryProp === 'Generic Models' ||
+          categoryProp === 'Revit Mass' ||
+          categoryProp === 'Mass';
+
+        // ✅ EXACT MATCH with prewarm
+        if (isGenericCategory && zoneProp) {
+          lockedGenericDbIds.add(dbId);
+        }
+
+        resolve();
+      });
+    });
+  });
+
+  await Promise.all(checks);
+
+  if (!lockedGenericDbIds.size) return;
+
+  const ids = [...lockedGenericDbIds];
+
+  console.log('Ghosting Generic Models:', ids);
+
+//   viewer.select(ids, model);
+  // 👻 Locked ghost mode
+  viewer.setGhosting(true);
+  viewer.hide(ids, model);
+//   viewer.lockSelection(ids, true, model);
+
+  // Prevent isolate / show from bringing them back
+//   viewer.impl.visibilityManager.setNodeOff(ids, true);
+
+//   viewer.impl.invalidate(true);
+
+  console.log(`Locked ${ids.length} Generic Models`);
+}
+
+
+
+
+
+
 
 
 // ******************************* WORKING ************************
