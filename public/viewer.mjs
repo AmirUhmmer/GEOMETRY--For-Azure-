@@ -278,7 +278,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     hideGenericModels(viewer, models[1])
                 )
                 );
-                
+
                 HardAssetSearch(viewer, HardAsset);
 
                 ServiceZoneSearch(viewer, ServiceZone);
@@ -730,7 +730,7 @@ async function hideGenericModels(viewer, model) {
 
   const ids = [...lockedGenericDbIds];
 
-  console.log('Ghosting Generic Models:', ids);
+//   console.log('Ghosting Generic Models:', ids);
 
 //   viewer.select(ids, model);
   // 👻 Locked ghost mode
@@ -743,7 +743,7 @@ async function hideGenericModels(viewer, model) {
 
 //   viewer.impl.invalidate(true);
 
-  console.log(`Locked ${ids.length} Generic Models`);
+//   console.log(`Locked ${ids.length} Generic Models`);
 }
 
 
