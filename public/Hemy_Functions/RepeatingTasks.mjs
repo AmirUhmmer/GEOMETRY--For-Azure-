@@ -871,7 +871,8 @@ export function showTasks(viewer, RepeatingTask) {
 
 
             // Start fit animation
-            viewer.fitToView(alldbidAsset, model);
+            // viewer.fitToView(alldbidAsset, model);
+            viewCube.setViewCube('top');
 
             // Wait until the fitToView camera animation completes
             const onCameraTransitionComplete = () => {
