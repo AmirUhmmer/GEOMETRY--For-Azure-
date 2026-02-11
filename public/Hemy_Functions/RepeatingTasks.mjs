@@ -906,12 +906,23 @@ export function showTasks(viewer, RepeatingTask) {
           model.getProperties(dbId, (props) => {
             let assetLevel = null;
 
+            // Ignore Revit Rooms
+            const isRevitRoom = props.properties.some(
+              (prop) =>
+                prop.displayName === "Category" &&
+                (prop.displayValue === "Revit Room" ||
+                prop.displayValue === "Revit Rooms")
+            );
+
+            if (isRevitRoom) return;
+
             props.properties.forEach((prop) => {
               if (["Level", "Schedule Level"].includes(prop.displayName)) {
                 assetLevel = prop.displayValue;
               }
             });
-
+            // console.log("Properties for dbID:", dbId, props);
+            // console.log("Asset Level for dbID", dbId, "is", assetLevel);
             viewer.loadExtension("Autodesk.AEC.LevelsExtension").then((levelsExt) => {
               const levels = levelsExt.floorSelector?._floors || [];
               const matched = levels.find((lvl) => lvl.name === assetLevel);
