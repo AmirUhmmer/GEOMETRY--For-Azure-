@@ -760,10 +760,10 @@ export function showTasks(viewer, RepeatingTask) {
     viewer.setSelectionColor(new THREE.Color(1.0, 0.349, 0.804));
   }
 
-  console.log("showTasks called with task name:", taskName);
-  console.log("showTasks called with st base:", STBase);
-  console.log("showTasks called with HardAsset [Actually a FL]:", hardAssetID);
-  console.log("showTasks called with FunctionalLocation [Actually a HA]:", funcLocID);
+  // console.log("showTasks called with task name:", taskName);
+  // console.log("showTasks called with st base:", STBase);
+  // console.log("showTasks called with HardAsset [Actually a FL]:", hardAssetID);
+  // console.log("showTasks called with FunctionalLocation [Actually a HA]:", funcLocID);
 
   let alldbid = [];
   let alldbidAsset = [];
@@ -779,7 +779,7 @@ export function showTasks(viewer, RepeatingTask) {
     props.properties.forEach((prop) => {
       const { displayName, displayValue, displayCategory } = prop;
 
-      if (displayName === "Asset ID" || displayName === "Asset ID (GUID)") {
+      if (displayName === "Asset ID (GUID)") { //displayName === "Asset ID" || 
         assetIDValue = displayValue;
       }
 
@@ -796,7 +796,7 @@ export function showTasks(viewer, RepeatingTask) {
     });
 
     if (category === "Revit Room" || category === "Revit Rooms") return;
-
+    // console.log(`Checking dbID ${dbID} with Asset ID: ${assetIDValue}, Level: ${assetLevel}, Name: ${name}, Category: ${category} against expected ID: ${expectedID}`);
     const match =
       assetIDValue === expectedID &&
       assetIDValue != null &&
@@ -814,9 +814,10 @@ export function showTasks(viewer, RepeatingTask) {
     return new Promise((resolve) => {
       model.search(id, (dbIDs) => {
         if (!dbIDs || dbIDs.length === 0) {
+          // console.log(`No dbIDs found for ${type} ID: ${id} in model ${model.id}`);
           return resolve();
         }
-
+        // console.log(`Found dbIDs for ${type} in model ${model.id}:`, dbIDs);
         const propPromises = dbIDs.map((dbID) => {
           return new Promise((propResolve) => {
             model.getProperties(dbID, (props) => {
@@ -840,9 +841,9 @@ export function showTasks(viewer, RepeatingTask) {
   );
 
   Promise.all([...assetSearches, ...funcLocSearches]).then(() => {
-    console.log("All dbIDs:", alldbid);
-    console.log("Asset dbIDs:", alldbidAsset);
-    console.log("Functional Location dbIDs:", alldbidFunctionalLocation);
+    // console.log("All dbIDs:", alldbid);
+    // console.log("Asset dbIDs:", alldbidAsset);
+    // console.log("Functional Location dbIDs:", alldbidFunctionalLocation);
 
     const fitAndSelect = () => {
       if (alldbidFunctionalLocation.length > 0) {
@@ -870,7 +871,8 @@ export function showTasks(viewer, RepeatingTask) {
 
 
             // Start fit animation
-            viewer.fitToView(alldbidAsset, model);
+            // viewer.fitToView(alldbidAsset, model);
+            viewCube.setViewCube('top');
 
             // Wait until the fitToView camera animation completes
             const onCameraTransitionComplete = () => {
@@ -904,12 +906,23 @@ export function showTasks(viewer, RepeatingTask) {
           model.getProperties(dbId, (props) => {
             let assetLevel = null;
 
+            // Ignore Revit Rooms
+            const isRevitRoom = props.properties.some(
+              (prop) =>
+                prop.displayName === "Category" &&
+                (prop.displayValue === "Revit Room" ||
+                prop.displayValue === "Revit Rooms")
+            );
+
+            if (isRevitRoom) return;
+
             props.properties.forEach((prop) => {
               if (["Level", "Schedule Level"].includes(prop.displayName)) {
                 assetLevel = prop.displayValue;
               }
             });
-
+            // console.log("Properties for dbID:", dbId, props);
+            // console.log("Asset Level for dbID", dbId, "is", assetLevel);
             viewer.loadExtension("Autodesk.AEC.LevelsExtension").then((levelsExt) => {
               const levels = levelsExt.floorSelector?._floors || [];
               const matched = levels.find((lvl) => lvl.name === assetLevel);

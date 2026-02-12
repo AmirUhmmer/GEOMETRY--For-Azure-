@@ -207,6 +207,7 @@ async function initApp() {
       if (sidebar === "off") {
         document.getElementById("viewerSidebar").style.display = "none";
         document.getElementById("layoutRow").style.right = "0px";
+        document.getElementById("toggleSidebar").style.display = "none";
       }
       
       if (userGuid) {
@@ -364,7 +365,7 @@ async function initApp() {
 
         // ODV18
         "c2233237-dc9f-ef11-8a6a-00224899e340": [
-          "urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw", //ARCHI ?????
+          "urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw", //ARCHI 
           "urn:adsk.wipemea:dm.lineage:QlwJKiUVTzORuyDvPuGl1Q", //MEP
           //urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA //deleted file
         ],
@@ -451,7 +452,7 @@ async function initApp() {
 
         // ODV18
         "Ole Deviks Vei 18 AS": [
-          "urn:adsk.wipemea:dm.lineage:58bBVbtMRzG4z7e3fzLsGA", //MEP
+          "urn:adsk.wipemea:dm.lineage:QlwJKiUVTzORuyDvPuGl1Q", //MEP
           "urn:adsk.wipemea:dm.lineage:Af_CxVQ8R9Gk7aIC2c69Rw", //ARCHI
         ],
 
@@ -463,7 +464,9 @@ async function initApp() {
         ],
 
         // FV50
-        "Fornebuveien 50": [
+        // "Fornebuveien 50" <- removed/changed?
+        // "Fornebuveien 50 (Joint Cost c/o Semy AS)" <- changed again
+        "Fornebuveien 50 (under Semy Felleskost AS)": [
           "urn:adsk.wipemea:dm.lineage:ys5aGM_9S8S7mQQVGsSk1Q", //MEP
           "urn:adsk.wipemea:dm.lineage:HT_kw5D_SEyxCe84jqaASQ", //ARCHI
         ],
@@ -607,7 +610,9 @@ async function initApp() {
         "Nanna AS": "b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d",
         "Ole Deviks Vei 18 AS": "b.6623a4ce-ac71-4678-af1c-55a4030ff9d9",
         "Billingstadsletta 19 AS": "b.1c8224f1-b860-4a2b-821b-d393c94b190d",
-        "Fornebuveien 50": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f",
+        // "Fornebuveien 50": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f", // removed/changed?
+        // "Fornebuveien 50 (Joint Cost c/o Semy AS)": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f", // changed again
+        "Fornebuveien 50 (under Semy Felleskost AS)": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f",
         "Billingstadsletta 17 AS": "b.09751ad8-ce14-4f21-99c2-440312cd216f",
         "Trondheimsveien 135 AS": "b.39d3702e-4095-44d4-8c29-becf571a90aa",
       };
