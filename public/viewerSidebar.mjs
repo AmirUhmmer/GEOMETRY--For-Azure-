@@ -722,6 +722,51 @@ export async function sheets2DPanel() {
   listContainer.innerHTML = ""; // Clear old list
 
 
+all2DFiles.forEach((sheetData, index) => {
+  const listItem = document.createElement("li");
+
+  const row = document.createElement("div");
+  row.style.display = "flex";
+  row.style.justifyContent = "space-between";
+  row.style.alignItems = "center";
+
+  const nameSpan = document.createElement("span");
+  nameSpan.textContent = sheetData.name || `Sheet ${index + 1}`;
+  nameSpan.style.cursor = "pointer";
+
+  const downloadBtn = document.createElement("button");
+  downloadBtn.textContent = "⬇ PDF";
+  downloadBtn.style.cursor = "pointer";
+
+  row.appendChild(nameSpan);
+  row.appendChild(downloadBtn);
+  listItem.appendChild(row);
+
+  // ✅ Load sheet when name is clicked
+  nameSpan.addEventListener("click", () => {
+    listContainer.querySelectorAll("li").forEach(el => el.classList.remove("active"));
+    listItem.classList.add("active");
+
+    const modelUrn = window.urns[0];
+    const viewableID = sheetData.viewableID;
+    const access_token = localStorage.getItem("authToken");
+
+    Autodesk.Viewing.Document.load(
+      "urn:" + modelUrn,
+      async (doc) => {
+        const geometryItems = doc.getRoot().search({ type: "geometry" });
+        const viewableNode = geometryItems.find(
+          node => node.data.viewableID === viewableID
+        );
+
+        if (!viewableNode) {
+          console.error("❌ Viewable not found for ID:", viewableID);
+          return;
+        }
+
+        viewer.getVisibleModels().forEach(model =>
+          viewer.unloadModel(model)
+        );
   all2DFiles.forEach((sheetData, index) => {
     const listItem = document.createElement("li");
     listItem.textContent = sheetData.name || `Sheet ${index + 1}`;
@@ -734,6 +779,58 @@ export async function sheets2DPanel() {
 
       let found = false;
 
+        await viewer.loadDocumentNode(doc, viewableNode, loadOptions);
+      },
+      (err) => console.error(err),
+      { accessToken: access_token }
+    );
+  });
+
+  // 🔥 Download PDF button
+  downloadBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+
+    try {
+      const modelUrn = window.urns[0];
+      const access_token = localStorage.getItem("authToken");
+
+      Autodesk.Viewing.Document.load(
+        "urn:" + modelUrn,
+        async (doc) => {
+          const geometryItems = doc.getRoot().search({ type: "geometry" });
+          const viewableNode = geometryItems.find(
+            node => node.data.viewableID === sheetData.viewableID
+          );
+
+          if (!viewableNode) {
+            alert("Viewable not found");
+            return;
+          }
+
+          const guid = viewableNode.data.guid;
+
+          const response = await fetch("/export-pdf", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ urn: modelUrn, guid })
+          });
+
+          if (!response.ok) throw new Error("Export failed");
+
+          const blob = await response.blob();
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `${sheetData.name}.pdf`;
+          link.click();
+        },
+        (err) => console.error(err),
+        { accessToken: access_token }
+      );
+
+    } catch (err) {
+      console.error(err);
+      alert("PDF export failed");
+    }
       for (const urn of window.urns) {
         try {
           const doc = await loadDocumentAsync(urn, accessToken);
@@ -776,7 +873,9 @@ export async function sheets2DPanel() {
 
     listContainer.appendChild(listItem);
   });
-}
+
+  listContainer.appendChild(listItem);
+});
 
 
 
@@ -813,6 +912,9 @@ function findSheetsFilesDeep(node, results = new Set(), visited = new Set()) {
     findSheetsFilesDeep(node.parent, results, visited);
   }
 
+  return [...results];
+}}
+// #endregion
   // return [...results];
   return [...results].sort((a, b) =>
     a.name.localeCompare(b.name, undefined, {
