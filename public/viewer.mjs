@@ -265,9 +265,11 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
                 await prewarmFunctionalLocationCacheFromModel(models[1]);
 
+                // const models = viewer.impl.modelQueue().getModels();
+
                 viewer.addEventListener(
                     Autodesk.Viewing.GEOMETRY_LOADED_EVENT,
-                    () => hideGenericModels(viewer, models[1])
+                    () => hideGenericModels(viewer, models)
                 );
 
                 [
@@ -275,7 +277,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 Autodesk.Viewing.SHOW_ALL_EVENT
                 ].forEach(evt =>
                 viewer.addEventListener(evt, () =>
-                    hideGenericModels(viewer, models[1])
+                    hideGenericModels(viewer, models)
                 )
                 );
 
@@ -681,69 +683,64 @@ async function onDocumentLoadSuccess(doc) {
 }
 
 
-const lockedGenericDbIds = new Set();
 
-async function hideGenericModels(viewer, model) {
-  const instanceTree = await new Promise((resolve, reject) => {
-    model.getObjectTree(resolve, reject);
-  });
+async function hideGenericModels(viewer, models) {
+  if (!Array.isArray(models)) return;
 
-  const rootId = instanceTree.getRootId();
-  const allDbIds = [];
+  for (const model of models) {
 
-  instanceTree.enumNodeChildren(rootId, dbId => {
-    allDbIds.push(dbId);
-  }, true);
+    const instanceTree = await new Promise((resolve, reject) => {
+      model.getObjectTree(resolve, reject);
+    });
 
-  const checks = allDbIds.map(dbId => {
-    return new Promise(resolve => {
-      model.getProperties(dbId, props => {
-        if (!props?.properties) return resolve();
+    const rootId = instanceTree.getRootId();
+    const allDbIds = [];
 
-        const categoryProp = props.properties.find(
-          p => p.displayName === 'Category'
-        )?.displayValue;
+    instanceTree.enumNodeChildren(rootId, dbId => {
+      allDbIds.push(dbId);
+    }, true);
 
-        const zoneProp = props.properties.find(
-          p => p.displayName === 'NV3DZoneName'
-        )?.displayValue;
+    const lockedGenericDbIds = new Set();
 
-        const isGenericCategory =
-          categoryProp === 'Revit Generic Models' ||
-          categoryProp === 'Generic Models' ||
-          categoryProp === 'Revit Mass' ||
-          categoryProp === 'Mass';
+    const checks = allDbIds.map(dbId => {
+      return new Promise(resolve => {
+        model.getProperties(dbId, props => {
+          if (!props?.properties) return resolve();
 
-        // ✅ EXACT MATCH with prewarm
-        if (isGenericCategory && zoneProp) {
-          lockedGenericDbIds.add(dbId);
-        }
+          const categoryProp = props.properties.find(
+            p => p.displayName === 'Category'
+          )?.displayValue;
 
-        resolve();
+          const zoneProp = props.properties.find(
+            p => p.displayName === 'NV3DZoneName'
+          )?.displayValue;
+
+          const isGenericCategory =
+            categoryProp === 'Revit Generic Models' ||
+            categoryProp === 'Generic Models' ||
+            categoryProp === 'Revit Mass' ||
+            categoryProp === 'Mass';
+
+          if (isGenericCategory && zoneProp) {
+            lockedGenericDbIds.add(dbId);
+          }
+
+          resolve();
+        });
       });
     });
-  });
 
-  await Promise.all(checks);
+    await Promise.all(checks);
 
-  if (!lockedGenericDbIds.size) return;
+    if (!lockedGenericDbIds.size) continue;
 
-  const ids = [...lockedGenericDbIds];
+    const ids = [...lockedGenericDbIds];
 
-//   console.log('Ghosting Generic Models:', ids);
+    // console.log('Ghosting Generic Models:', ids);
 
-//   viewer.select(ids, model);
-  // 👻 Locked ghost mode
-  viewer.setGhosting(true);
-  viewer.hide(ids, model);
-//   viewer.lockSelection(ids, true, model);
-
-  // Prevent isolate / show from bringing them back
-//   viewer.impl.visibilityManager.setNodeOff(ids, true);
-
-//   viewer.impl.invalidate(true);
-
-//   console.log(`Locked ${ids.length} Generic Models`);
+    viewer.setGhosting(true);
+    viewer.hide(ids, model);
+  }
 }
 
 

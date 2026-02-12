@@ -509,7 +509,7 @@ export async function liveDataPanel() {
 }
 
 
-
+// #region: Fire Plans
 // Fire Drawing
 export async function firePlansPanel() {
   const viewer = window.viewerInstance;
@@ -591,18 +591,42 @@ export async function firePlansPanel() {
         // Unload existing models before loading
         viewer.getVisibleModels().forEach(model => viewer.unloadModel(model));
 
-        const loadOptions = {
-          keepCurrentModels: true,
-          globalOffset: { x: 0, y: 0, z: 0 },
-          applyRefPoint: true
-        };
+        // const loadOptions = {
+        //   keepCurrentModels: true,
+        //   globalOffset: { x: 0, y: 0, z: 0 },
+        //   applyRefPoint: true
+        // };
 
         try {
-          const model = await viewer.loadDocumentNode(doc, viewableNode, loadOptions);
-          console.log("✅ Loaded 2D view:", model);
+          const model = await viewer.loadDocumentNode(doc, viewableNode);
+
+          if (model.is2d()) {
+            // console.log(" 2D detected");
+
+            // Tell viewer this is 2D
+            viewer.navigation.setIs2D(true);
+
+            // Force Pan tool (this is the important part)
+            viewer.setActiveNavigationTool("pan");
+
+            // Optional cleanup
+            viewer.fitToView();
+            // viewer.setViewCube(null);
+
+          } else {
+
+            viewer.navigation.setIs2D(false);
+
+            // Restore orbit for 3D
+            viewer.setActiveNavigationTool("orbit");
+            viewer.setViewCube("front");
+          }
+
         } catch (err) {
           console.error("⚠️ Error loading model:", err);
         }
+
+
       }
 
       function onDocumentLoadFailure(code, message) {
@@ -648,7 +672,7 @@ function find2DFilesDeep(node, results = new Set(), visited = new Set()) {
 
   return [...results];
 }
-
+// #endregion
 
 
 
@@ -758,6 +782,44 @@ all2DFiles.forEach((sheetData, index) => {
       (err) => console.error(err),
       { accessToken: access_token }
     );
+
+    async function onDocumentLoadSuccess(doc, viewableID) {
+        const geometryItems = doc.getRoot().search({ type: "geometry" });
+        const viewableNode = geometryItems.find(node => node.data.viewableID === viewableID);
+
+        if (!viewableNode) {
+          console.error("❌ Viewable not found for ID:", viewableID);
+          return;
+        }
+
+        // Unload existing models before loading
+        viewer.getVisibleModels().forEach(model => viewer.unloadModel(model));
+
+        try {
+          const model = await viewer.loadDocumentNode(doc, viewableNode);
+
+          if (model.is2d()) {
+            // Tell viewer this is 2D
+            viewer.navigation.setIs2D(true);
+            // Force Pan tool (this is the important part)
+            viewer.setActiveNavigationTool("pan");
+            // Optional cleanup
+            viewer.fitToView();
+            // viewer.setViewCube(null);
+
+          } else {
+
+            viewer.navigation.setIs2D(false);
+
+            // Restore orbit for 3D
+            viewer.setActiveNavigationTool("orbit");
+            viewer.setViewCube("front");
+          }
+
+        } catch (err) {
+          console.error("⚠️ Error loading model:", err);
+        }
+      }
   });
 
   // 🔥 Download PDF button
@@ -800,6 +862,7 @@ all2DFiles.forEach((sheetData, index) => {
         (err) => console.error(err),
         { accessToken: access_token }
       );
+      
 
     } catch (err) {
       console.error(err);
