@@ -509,7 +509,7 @@ export async function liveDataPanel() {
 }
 
 
-
+// #region: Fire Drawing
 // Fire Drawing
 export async function firePlansPanel() {
   const viewer = window.viewerInstance;
@@ -519,12 +519,16 @@ export async function firePlansPanel() {
   const livedataPanel = document.getElementById("live-data-panel");
   const panel = document.getElementById("fire-plan-panel");
   const isVisible = panel.style.visibility === "visible";
+  let sidebar = toggleSidebar();
 
   browserPanel.style.visibility = "hidden";
   levelsPanel.style.visibility = "hidden";
   livedataPanel.style.visibility = "hidden";
   panel.style.visibility = isVisible ? "hidden" : "visible";
+  sidebar ? panel.style.right = "0px" : panel.style.right = "70px";
   document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
+
+
 
   setTimeout(() => {
     viewer.resize();
@@ -535,7 +539,7 @@ export async function firePlansPanel() {
 
     models.forEach((model) => {
       const docRoot = model.getDocumentNode();
-
+      console.log("Document Root:", docRoot);
       const promise = new Promise((resolveInner) => {
         setTimeout(() => {
           const twoDFiles = find2DFilesDeep(docRoot);
@@ -559,59 +563,68 @@ export async function firePlansPanel() {
   all2DFiles.forEach((sheetData, index) => {
     const listItem = document.createElement("li");
     listItem.textContent = sheetData.name || `Sheet ${index + 1}`;
-    listItem.addEventListener("click", () => {
+    listItem.addEventListener("click", async () => {
       listContainer.querySelectorAll("li").forEach(el => el.classList.remove("active"));
       listItem.classList.add("active");
 
-      let firstModel = viewer.impl.modelQueue().getModels();
-      // models[0].getDocumentNode().getDefaultGeometry().children[1].data.urn
-      let urn, modelUrn = window.urns[0]; // Get the URN of the first model
-      // const modelUrn = urn.split('fs.file:')[1].split('/')[0];
+      const accessToken = localStorage.getItem("authToken");
+      const sheetGuid = sheetData.guid || sheetData.viewableID;
 
-      // const modelUrn = sheetData.urn; // e.g., full URN like 'dXJuOmFkc2sud2lwZW1lY...'
-      const viewableID = sheetData.viewableID; // this must exist on sheetData
-      const access_token = localStorage.getItem("authToken");
+      let found = false;
 
-      Autodesk.Viewing.Document.load(
-        "urn:" + modelUrn,
-        (doc) => onDocumentLoadSuccess(doc, viewableID),
-        onDocumentLoadFailure,
-        { accessToken: access_token }
-      );
-
-      async function onDocumentLoadSuccess(doc, viewableID) {
-        const geometryItems = doc.getRoot().search({ type: "geometry" });
-        const viewableNode = geometryItems.find(node => node.data.viewableID === viewableID);
-
-        if (!viewableNode) {
-          console.error("❌ Viewable not found for ID:", viewableID);
-          return;
-        }
-
-        // Unload existing models before loading
-        viewer.getVisibleModels().forEach(model => viewer.unloadModel(model));
-
-        const loadOptions = {
-          keepCurrentModels: true,
-          globalOffset: { x: 0, y: 0, z: 0 },
-          applyRefPoint: true
-        };
-
+      for (const urn of window.urns) {
         try {
-          const model = await viewer.loadDocumentNode(doc, viewableNode, loadOptions);
-          console.log("✅ Loaded 2D view:", model);
+          const doc = await loadDocumentAsync(urn, accessToken);
+
+          const viewableNode = doc
+            .getRoot()
+            .search({ type: "geometry", role: "2d" })
+            .find(node =>
+              node.data.guid === sheetGuid ||
+              node.data.viewableID === sheetGuid
+            );
+
+          if (!viewableNode) continue;
+
+          // ✅ FOUND
+          found = true;
+
+          viewer.getVisibleModels().forEach(m => viewer.unloadModel(m));
+
+          await viewer.loadDocumentNode(doc, viewableNode, {
+            keepCurrentModels: false
+          });
+
+          console.log("✅ Loaded 2D sheet:", viewableNode.data.name);
+          localStorage.setItem("is2D", "true");
+          // console.log("is2D set to true in localStorage: ", localStorage.getItem("is2D"));
+          break;
+
         } catch (err) {
-          console.error("⚠️ Error loading model:", err);
+          console.warn("Skipping URN:", urn, err);
         }
       }
 
-      function onDocumentLoadFailure(code, message) {
-        console.error("❌ Failed to load document:", message);
-        alert("Could not load model. See console for details.");
+      if (!found) {
+        console.error("❌ Viewable not found in any URN:", sheetData);
+        alert("Viewable not found for this sheet.");
       }
     });
 
+
     listContainer.appendChild(listItem);
+  });
+}
+// #endregion
+
+function loadDocumentAsync(urn, accessToken) {
+  return new Promise((resolve, reject) => {
+    Autodesk.Viewing.Document.load(
+      "urn:" + urn,
+      doc => resolve(doc),
+      (code, msg) => reject(msg),
+      { accessToken }
+    );
   });
 }
 
@@ -628,6 +641,7 @@ function find2DFilesDeep(node, results = new Set(), visited = new Set()) {
     node.data.name.toLowerCase().includes("fire drawing")
   ) {
     // Optional: get URN if available
+    console.log("2D SHEET:", node);
     const doc = node.getDocument && node.getDocument(); // works in some viewer versions
     const urn = doc?.getRoot()?.data?.urn?.replace("urn:", "");
 
@@ -646,7 +660,13 @@ function find2DFilesDeep(node, results = new Set(), visited = new Set()) {
     find2DFilesDeep(node.parent, results, visited);
   }
 
-  return [...results];
+  // return [...results];
+  return [...results].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, {
+      numeric: true,
+      sensitivity: "base"
+    })
+  );
 }
 
 
@@ -663,6 +683,7 @@ export async function sheets2DPanel() {
   const livedataPanel = document.getElementById("live-data-panel");
   const panel = document.getElementById("sheets-2d-panel");
   const isVisible = panel.style.visibility === "visible";
+  let sidebar = toggleSidebar();
 
   browserPanel.style.visibility = "hidden";
   levelsPanel.style.visibility = "hidden";
@@ -670,7 +691,7 @@ export async function sheets2DPanel() {
   document.getElementById("fire-plan-panel").style.visibility = "hidden";
   panel.style.visibility = isVisible ? "hidden" : "visible";
   document.getElementById("preview").style.width = isVisible ? "97%" : "72%";
-
+  sidebar ? panel.style.right = "0px" : panel.style.right = "70px";
   setTimeout(() => {
     viewer.resize();
   }, 300);
@@ -747,6 +768,7 @@ all2DFiles.forEach((sheetData, index) => {
           console.error("❌ Viewable not found for ID:", viewableID);
           return;
         }
+<<<<<<< HEAD
  
         viewer.getVisibleModels().forEach(model => viewer.unloadModel(model));
  
@@ -756,6 +778,24 @@ all2DFiles.forEach((sheetData, index) => {
           applyRefPoint: true
         };
  
+=======
+
+        viewer.getVisibleModels().forEach(model =>
+          viewer.unloadModel(model)
+        );
+  all2DFiles.forEach((sheetData, index) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = sheetData.name || `Sheet ${index + 1}`;
+    listItem.addEventListener("click", async () => {
+      listContainer.querySelectorAll("li").forEach(el => el.classList.remove("active"));
+      listItem.classList.add("active");
+
+      const accessToken = localStorage.getItem("authToken");
+      const sheetGuid = sheetData.guid || sheetData.viewableID;
+
+      let found = false;
+
+>>>>>>> 5ca6f3b36f460c5b4dbb404c21791eee73d50563
         await viewer.loadDocumentNode(doc, viewableNode, loadOptions);
       },
       (err) => console.error(err),
@@ -782,12 +822,64 @@ const viewableID = sheetData.viewableID;
             "Authorization": `Bearer ${accessToken}`,
           "Content-Type": "application/vnd.api+json"
         },
+<<<<<<< HEAD
     body: JSON.stringify({
       urn: sheetData.urn,
       viewableID: sheetData.viewableID,
       sheetName: sheetData.name,
       sheetData:viewableID
     })
+=======
+        (err) => console.error(err),
+        { accessToken: access_token }
+      );
+
+    } catch (err) {
+      console.error(err);
+      alert("PDF export failed");
+    }
+      for (const urn of window.urns) {
+        try {
+          const doc = await loadDocumentAsync(urn, accessToken);
+
+          const viewableNode = doc
+            .getRoot()
+            .search({ type: "geometry", role: "2d" })
+            .find(node =>
+              node.data.guid === sheetGuid ||
+              node.data.viewableID === sheetGuid
+            );
+
+          if (!viewableNode) continue;
+
+          // ✅ FOUND
+          found = true;
+
+          viewer.getVisibleModels().forEach(m => viewer.unloadModel(m));
+
+          await viewer.loadDocumentNode(doc, viewableNode, {
+            keepCurrentModels: false
+          });
+
+          console.log("✅ Loaded 2D sheet:", viewableNode.data.name);
+          localStorage.setItem("is2D", "true");
+          
+          break;
+
+        } catch (err) {
+          console.warn("Skipping URN:", urn, err);
+        }
+      }
+
+      if (!found) {
+        console.error("❌ Viewable not found in any URN:", sheetData);
+        alert("Viewable not found for this sheet.");
+      }
+    });
+
+
+    listContainer.appendChild(listItem);
+>>>>>>> 5ca6f3b36f460c5b4dbb404c21791eee73d50563
   });
 
 
@@ -869,3 +961,59 @@ function findSheetsFilesDeep(node, results = new Set(), visited = new Set()) {
   return [...results];
 }}
 // #endregion
+  // return [...results];
+  return [...results].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, {
+      numeric: true,
+      sensitivity: "base"
+    })
+  );
+}
+// #endregion
+
+// #region: Close All Panels
+export async function closeInsidePanel() {
+  const viewer = window.viewerInstance;
+  const models = viewer.impl.modelQueue().getModels();
+  const livedataPanel = document.getElementById("live-data-panel");
+  const panel = document.getElementById("sheets-2d-panel");
+  const firePlansPanel = document.getElementById("fire-plan-panel");
+
+  livedataPanel.style.visibility = "hidden";
+  firePlansPanel.style.visibility = "hidden";
+  panel.style.visibility = "hidden";
+  document.getElementById("preview").style.width =  "100%";
+  setTimeout(() => {
+    viewer.resize();
+  }, 300);
+
+  if(localStorage.getItem("is2D") === "true"){
+    localStorage.setItem("is2D", "false");
+    location.reload();  
+  }
+}
+// #endregion
+
+
+
+
+
+// #region: sidebar off
+function toggleSidebar() {
+  let params = {};
+  let queryString = window.location.search.substring(1);
+  let queryParts = queryString.split("&");
+  for (let i = 0; i < queryParts.length; i++) {
+    let param = queryParts[i].split("=");
+    params[decodeURIComponent(param[0])] = decodeURIComponent(param[1]);
+  }
+  let sidebar = params["sidebar"]; // The sidebar, if it exists
+  if (sidebar === "off") {
+    return true;
+  } else {
+    return false;
+  }
+}
+// #endregion
+
+
