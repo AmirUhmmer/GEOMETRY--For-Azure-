@@ -1,4 +1,5 @@
 import * as functions from './viewerSidebar.mjs';
+import * as customFunctions from './CustomFunctions/workset.mjs';
 import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from './Live_Data/LiveData.mjs';
 import { HardAssetSearch } from './Hemy_Functions/HardAssets.mjs';
 import { ServiceZoneSearch, spaceInventorySearch } from './Hemy_Functions/ServiceZone.mjs';
@@ -280,6 +281,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                     hideGenericModels(viewer, models)
                 )
                 );
+
+                customFunctions.workset(viewer);
 
                 HardAssetSearch(viewer, HardAsset);
 
@@ -579,7 +582,7 @@ async function onDocumentLoadSuccess(doc) {
     }
 
     try {
-        console.log("Loading model with options:", loadOptions);
+        // console.log("Loading model with options:", loadOptions);
         const model = await viewer.loadDocumentNode(doc, viewables, loadOptions);
 
         // save offset from the *first* model
@@ -662,7 +665,7 @@ async function onDocumentLoadSuccess(doc) {
     
             // 🔄 Load each model sequentially
             for (let modelUrn of validUrns) {
-                console.log(`Attempting to load model with URN: urn:${modelUrn}`);
+                // console.log(`Attempting to load model with URN: urn:${modelUrn}`);
     
                 await new Promise((resolve, reject) => {
                     Autodesk.Viewing.Document.load(
@@ -742,183 +745,3 @@ async function hideGenericModels(viewer, models) {
     viewer.hide(ids, model);
   }
 }
-
-
-
-
-
-
-
-
-// ******************************* WORKING ************************
-
-
-// export function loadModel(viewer, urns) {
-//     function onDocumentLoadSuccess(doc) {
-//         // Load the model geometry
-//         let viewables = doc.getRoot().getDefaultGeometry();
-
-//         // Load the model and apply the placement transform
-//         return viewer.loadDocumentNode(doc, viewables, {
-//             globalOffset: { x: 0, y: 0, z: 0 },  // force all models to origin
-//             placementTransform: (new THREE.Matrix4()).setPosition({ x: 0, y: 0, z: 0 })  // Force placement to origin
-//         });
-//     }
-
-//     function onDocumentLoadFailure(code, message) {
-//         console.error('Could not load model. See console for more details.', message);
-//         alert('Could not load model. See console for more details.');
-//     }
-
-//     function loadModelSequentially(viewer, urns) {
-//         if (!urns || urns.length === 0) return;
-
-//         const loadDocument = (urn) => {
-//             return new Promise((resolve, reject) => {
-//                 Autodesk.Viewing.Document.load('urn:' + urn, (doc) => {
-//                     onDocumentLoadSuccess(doc)
-//                         .then(() => {
-//                             console.log(`Loaded model with URN: ${urn}`);
-//                             resolve();
-//                         })
-//                         .catch((error) => {
-//                             console.error(`Error loading model: ${urn}`, error);
-//                             reject(error);
-//                         });
-//                 }, onDocumentLoadFailure);
-//             });
-//         };
-
-//         // Sequentially load the models one after another
-//         urns.reduce((promise, urn) => {
-//             return promise.then(() => loadDocument(urn));
-//         }, Promise.resolve())
-//             .then(() => {
-//                 console.log("All models loaded successfully.");
-//             })
-//             .catch((error) => {
-//                 console.error("Error loading models:", error);
-//             });
-//     }
-
-//     // If no URNs are provided, use sample URNs for testing
-//     const sampleUrns = [
-//         { name: '3D - dsa3J29U', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMw' },
-//         { name: 'SMY-DB8-SITE', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnNSZk9sS1BJVE1HM3pTZ0JvZUYzV3c/dmVyc2lvbj00' },
-//         { name: 'SMY-DB8-xxx-SIT-R24', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg' }
-//     ];
-
-//     const modelsToLoad = urns.length > 0 ? urns : sampleUrns.map(model => model.urn); // Use provided URNs or fallback to sample URNs
-//     console.log(modelsToLoad);
-
-//     // Load models sequentially
-//     loadModelSequentially(viewer, modelsToLoad);
-// }
-
-
-// export function loadModel(viewer, urns = null) {
-//     function onDocumentLoadSuccess(doc) {
-//         // Load the model geometry
-//         viewer.loadDocumentNode(doc, doc.getRoot().getDefaultGeometry())
-//             .then(() => {
-//                 // Once the geometry is loaded, call surface shading setup
-//                 viewer.addEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function () {
-//                     if (viewer.model) {
-//                     }
-//                 });
-//             })
-//             .catch((error) => {
-//                 console.error("Error loading geometry:", error);
-//             });
-//     }
-    
-
-//     function onDocumentLoadFailure(code, message) {
-//         alert('Could not load model. See console for more details.');
-//         console.error(message);
-//     }
-
-//     // If no URNs are provided, use sample URNs for testing
-//     const sampleUrns = [
-//         { name: '3D - dsa3J29U', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLmN1eTlfS1FpU3lhZHFVdTJhSV9Cc2c/dmVyc2lvbj0xMw', xform: {x:50,y:0,z:100} },
-//         { name: 'SMY-DB8-xxx-SIT-R24', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnNSZk9sS1BJVE1HM3pTZ0JvZUYzV3c/dmVyc2lvbj00', xform: {x:50,y:0,z:-50} },
-//         { name: 'SMY-DB8-xxx-SIT-R24', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnhkWFJlcVYwVDFhem9XdWVFaVNuemc/dmVyc2lvbj0xNg', xform: {x:50,y:0,z:-50} }
-
-//         // { name: 'HG62 MEP', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLnZGZ01YNjRUVDBDcWU4THhZa2RvVUE/dmVyc2lvbj0xNw' },
-//         // { name: 'HG62 ARCHI', urn: 'dXJuOmFkc2sud2lwZW1lYTpmcy5maWxlOnZmLlV3aG1UYUU1UlEyMS0tbm1DUWQycEE/dmVyc2lvbj05OQ' }
-//     ];
-
-//     const modelsToLoad = sampleUrns; // Use provided URNs or fallback to sample URNs
-
-//     // Loop through each model and load them
-//     modelsToLoad.forEach((model) => {
-//         console.log(`Loading model: ${model.name || "Unnamed"} with URN: ${model.urn}`);
-//         Autodesk.Viewing.Document.load('urn:' + model.urn, onDocumentLoadSuccess, onDocumentLoadFailure);
-//     });
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//                                WORKING
-//added levels filter
-// async function getAccessToken(callback) {
-//     try {
-//         const resp = await fetch('/api/auth/token');
-//         if (!resp.ok)
-//             throw new Error(await resp.text());
-//         const { access_token, expires_in } = await resp.json();
-//         callback(access_token, expires_in);
-//     } catch (err) {
-//         alert('Could not obtain access token. See the console for more details.');
-//         console.error(err);        
-//     }
-// }
-
-// export function initViewer(container) {
-//     return new Promise(function (resolve, reject) {
-//         Autodesk.Viewing.Initializer({ env: 'AutodeskProduction', getAccessToken }, function () {
-//             const config = {
-//                 extensions: ['Autodesk.DocumentBrowser', 'Autodesk.AEC.LevelsExtension'] // Load custom extension here
-//             };
-//             const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
-//             viewer.start();
-//             viewer.setTheme('dark-theme');
-//             resolve(viewer);
-//         });
-//     });
-// }
-
-// export function loadModel(viewer, urn) {
-//     function onDocumentLoadSuccess(doc) {
-//         viewer.loadDocumentNode(doc, doc.getRoot().getDefaultGeometry());
-//     }
-//     function onDocumentLoadFailure(code, message) {
-//         alert('Could not load model. See console for more details.');
-//         console.error(message);
-//     }
-//     Autodesk.Viewing.Document.load('urn:' + urn, onDocumentLoadSuccess, onDocumentLoadFailure);
-// }
-
-
-// ******************************* WORKING ************************
-
-
-
-
-
-
-
-
-
-
