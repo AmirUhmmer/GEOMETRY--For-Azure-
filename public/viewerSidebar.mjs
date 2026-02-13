@@ -703,56 +703,59 @@ export async function sheets2DPanel() {
 
 all2DFiles.forEach((sheetData, index) => {
   const listItem = document.createElement("li");
-
+ 
   const row = document.createElement("div");
   row.style.display = "flex";
   row.style.justifyContent = "space-between";
   row.style.alignItems = "center";
-
+ 
   const nameSpan = document.createElement("span");
   nameSpan.textContent = sheetData.name || `Sheet ${index + 1}`;
   nameSpan.style.cursor = "pointer";
-
+ 
   const downloadBtn = document.createElement("button");
   downloadBtn.textContent = "⬇ PDF";
   downloadBtn.style.cursor = "pointer";
-
+ 
   row.appendChild(nameSpan);
   row.appendChild(downloadBtn);
   listItem.appendChild(row);
+  listContainer.appendChild(listItem);
 
-  // ✅ Load sheet when name is clicked
+
+
+
+
+  
+ 
+  // Load sheet when name is clicked
   nameSpan.addEventListener("click", () => {
     listContainer.querySelectorAll("li").forEach(el => el.classList.remove("active"));
     listItem.classList.add("active");
-
+ 
     const modelUrn = window.urns[0];
     const viewableID = sheetData.viewableID;
     const access_token = localStorage.getItem("authToken");
-
+ 
     Autodesk.Viewing.Document.load(
       "urn:" + modelUrn,
       async (doc) => {
         const geometryItems = doc.getRoot().search({ type: "geometry" });
-        const viewableNode = geometryItems.find(
-          node => node.data.viewableID === viewableID
-        );
-
+        const viewableNode = geometryItems.find(node => node.data.viewableID === viewableID);
+ 
         if (!viewableNode) {
           console.error("❌ Viewable not found for ID:", viewableID);
           return;
         }
-
-        viewer.getVisibleModels().forEach(model =>
-          viewer.unloadModel(model)
-        );
-
+ 
+        viewer.getVisibleModels().forEach(model => viewer.unloadModel(model));
+ 
         const loadOptions = {
           keepCurrentModels: true,
           globalOffset: { x: 0, y: 0, z: 0 },
           applyRefPoint: true
         };
-
+ 
         await viewer.loadDocumentNode(doc, viewableNode, loadOptions);
       },
       (err) => console.error(err),
@@ -760,55 +763,73 @@ all2DFiles.forEach((sheetData, index) => {
     );
   });
 
-  // 🔥 Download PDF button
-  downloadBtn.addEventListener("click", async (e) => {
-    e.stopPropagation();
 
-    try {
-      const modelUrn = window.urns[0];
-      const access_token = localStorage.getItem("authToken");
 
-      Autodesk.Viewing.Document.load(
-        "urn:" + modelUrn,
-        async (doc) => {
-          const geometryItems = doc.getRoot().search({ type: "geometry" });
-          const viewableNode = geometryItems.find(
-            node => node.data.viewableID === sheetData.viewableID
-          );
 
-          if (!viewableNode) {
-            alert("Viewable not found");
-            return;
-          }
 
-          const guid = viewableNode.data.guid;
+  
+//   // Download button uses backend
+downloadBtn.addEventListener("click", async (e) => {
+  e.stopPropagation();
+const accessToken = localStorage.getItem('authToken');
+const viewableID = sheetData.viewableID;
 
-          const response = await fetch("/export-pdf", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ urn: modelUrn, guid })
-          });
 
-          if (!response.ok) throw new Error("Export failed");
 
-          const blob = await response.blob();
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(blob);
-          link.download = `${sheetData.name}.pdf`;
-          link.click();
+  const response = await fetch("/export-pdf", {
+    method: "POST",
+    headers: {
+            "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/vnd.api+json"
         },
-        (err) => console.error(err),
-        { accessToken: access_token }
-      );
-
-    } catch (err) {
-      console.error(err);
-      alert("PDF export failed");
-    }
+    body: JSON.stringify({
+      urn: sheetData.urn,
+      viewableID: sheetData.viewableID,
+      sheetName: sheetData.name,
+      sheetData:viewableID
+    })
   });
 
-  listContainer.appendChild(listItem);
+
+ console.log(sheetData.viewableID)
+ console.log(sheetData.urn)
+ 
+
+ if (!response.ok) {
+    console.error(await response.text());
+    alert("Export failed");
+    return;
+  }
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${sheetData.name}.pdf`;
+  a.click();
+
+  URL.revokeObjectURL(url);
 });
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
