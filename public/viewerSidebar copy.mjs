@@ -557,87 +557,7 @@ export async function firePlansPanel() {
 
   all2DFiles.forEach((sheetData, index) => {
     const listItem = document.createElement("li");
-    listItem.classList.add("sheet-item");
-
-    const title = document.createElement("span");
-    title.textContent = sheetData.name || `Sheet ${index + 1}`;
-
-    const downloadBtn = document.createElement("button");
-downloadBtn.textContent = "⬇ PDF";
-downloadBtn.classList.add("download-btn");
-
-// Prevent click from triggering sheet load
-downloadBtn.addEventListener("click", async (e) => {
-  e.stopPropagation();
-
-  // Get token from localStorage (or wherever you stored it)
-  const accessToken = localStorage.getItem("authToken");
-  if (!accessToken) {
-    alert("No access token found. Please log in first.");
-    return;
-  }
-
- try {
-  const model = viewer.model;
-  const urn = model.getData().urn;
-
-  console.log("Sending payload:", {
-    urn: urn,
-    sheetName: sheetData?.name
-  });
-
-  console.log("Sending payload:", {
-  urn: urn,
-  sheetName: sheetData?.name
-});
-
-  const response = await fetch("export-pdf", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${accessToken}`,
-  },
-
-  body: JSON.stringify({
-    urn: urn,
-    sheetName: sheetData?.name
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      alert("Export failed: " + errorText);
-      return;
-    }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = sheetData.name + ".pdf";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    window.URL.revokeObjectURL(url);
-
-  } catch (err) {
-    console.error("❌ Export error:", err);
-  }
-});
-
-listItem.appendChild(title);
-listItem.appendChild(downloadBtn);
-
-
-
-
-
-
-
-
-
+    listItem.textContent = sheetData.name || `Sheet ${index + 1}`;
     listItem.addEventListener("click", () => {
       listContainer
         .querySelectorAll("li")
@@ -650,16 +570,6 @@ listItem.appendChild(downloadBtn);
 
       const viewableID = sheetData.viewableID; // this must exist on sheetData
       const access_token = localStorage.getItem("authToken");
-
-      
- 
-
-
-
-
-
-
-      
 
       window.urns.forEach((modelUrn) => {
         Autodesk.Viewing.Document.load(
@@ -806,113 +716,43 @@ export async function sheets2DPanel() {
 
   all2DFiles.forEach((sheetData, index) => {
     const listItem = document.createElement("li");
-    listItem.textContent = sheetData.name || `Sheet ${index + 1}`;
-    listItem.addEventListener("click", () => {
-      listContainer.querySelectorAll("li").forEach(el => el.classList.remove("active"));
-      listItem.classList.add("active");
 
-      let firstModel = viewer.impl.modelQueue().getModels();
-      // models[0].getDocumentNode().getDefaultGeometry().children[1].data.urn
-      let urn, modelUrn = window.urns[0]; // Get the URN of the first model
-      // const modelUrn = urn.split('fs.file:')[1].split('/')[0];
+    const row = document.createElement("div");
+    row.style.display = "flex";
+    row.style.justifyContent = "space-between";
+    row.style.alignItems = "center";
 
-      // const modelUrn = sheetData.urn; // e.g., full URN like 'dXJuOmFkc2sud2lwZW1lY...'
-      const viewableID = sheetData.viewableID; // this must exist on sheetData
-      const access_token = localStorage.getItem("authToken");
-
-       const title = document.createElement("span");
-    title.textContent = sheetData.name || `Sheet ${index + 1}`;
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = sheetData.name || `Sheet ${index + 1}`;
+    nameSpan.style.cursor = "pointer";
 
     const downloadBtn = document.createElement("button");
-downloadBtn.textContent = "⬇ PDF";
-downloadBtn.classList.add("download-btn");
+    downloadBtn.textContent = "⬇ PDF";
+    downloadBtn.style.cursor = "pointer";
 
-// Prevent click from triggering sheet load
-downloadBtn.addEventListener("click", async (e) => {
-  e.stopPropagation();
+    row.appendChild(nameSpan);
+    row.appendChild(downloadBtn);
+    listItem.appendChild(row);
 
-  // Get token from localStorage (or wherever you stored it)
-  const accessToken = localStorage.getItem("authToken");
-  if (!accessToken) {
-    alert("No access token found. Please log in first.");
-    return;
-  }
+    // ✅ Load sheet when name is clicked
+    nameSpan.addEventListener("click", () => {
+      listContainer
+        .querySelectorAll("li")
+        .forEach((el) => el.classList.remove("active"));
+      listItem.classList.add("active");
 
- try {
-  const model = viewer.model;
-  const urn = model.getData().urn;
+      const modelUrn = window.urns[0];
+      const viewableID = sheetData.viewableID;
+      const access_token = localStorage.getItem("authToken");
 
-  console.log("Sending payload:", {
-    urn: urn,
-    sheetName: sheetData?.name
-  });
-
-  console.log("Sending payload:", {
-  urn: urn,
-  sheetName: sheetData?.name
-});
-
-  const response = await fetch("export-pdf", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${accessToken}`,
-  },
-
-  body: JSON.stringify({
-    urn: urn,
-    sheetName: sheetData?.name
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      alert("Export failed: " + errorText);
-      return;
-    }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = sheetData.name + ".pdf";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    window.URL.revokeObjectURL(url);
-
-  } catch (err) {
-    console.error("❌ Export error:", err);
-  }
-});
-
-listItem.appendChild(title);
-listItem.appendChild(downloadBtn);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      Autodesk.Viewing.Document.load(
-        "urn:" + modelUrn,
-        (doc) => onDocumentLoadSuccess(doc, viewableID),
-        onDocumentLoadFailure,
-        { accessToken: access_token }
-      );
+      window.urns.forEach((modelUrn) => {
+        Autodesk.Viewing.Document.load(
+          "urn:" + modelUrn,
+          (doc) => onDocumentLoadSuccess(doc, viewableID),
+          onDocumentLoadFailure,
+          { accessToken: access_token },
+        );
+      });
 
       async function onDocumentLoadSuccess(doc, viewableID) {
         const geometryItems = doc.getRoot().search({ type: "geometry" });
@@ -926,35 +766,80 @@ listItem.appendChild(downloadBtn);
         }
 
         // Unload existing models before loading
-        viewer.getVisibleModels().forEach(model => viewer.unloadModel(model));
-
-        const loadOptions = {
-          keepCurrentModels: true,
-          globalOffset: { x: 0, y: 0, z: 0 },
-          applyRefPoint: true
-        };
+        viewer.getVisibleModels().forEach((model) => viewer.unloadModel(model));
 
         try {
-          const model = await viewer.loadDocumentNode(doc, viewableNode, loadOptions);
-          console.log("✅ Loaded 2D view:", model);
+          const model = await viewer.loadDocumentNode(doc, viewableNode);
+
+          if (model.is2d()) {
+            // Tell viewer this is 2D
+            viewer.navigation.setIs2D(true);
+            // Force Pan tool (this is the important part)
+            viewer.setActiveNavigationTool("pan");
+            // Optional cleanup
+            viewer.fitToView();
+            // viewer.setViewCube(null);
+          } else {
+            viewer.navigation.setIs2D(false);
+
+            // Restore orbit for 3D
+            viewer.setActiveNavigationTool("orbit");
+            viewer.setViewCube("front");
+          }
         } catch (err) {
           console.error("⚠️ Error loading model:", err);
         }
       }
+    });
 
-      function onDocumentLoadFailure(code, message) {
-        console.error("❌ Failed to load document:", message);
-        alert("Could not load model. See console for details.");
+    // 🔥 Download PDF button
+    downloadBtn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+
+      try {
+        const modelUrn = window.urns[0];
+        const access_token = localStorage.getItem("authToken");
+
+        Autodesk.Viewing.Document.load(
+          "urn:" + modelUrn,
+          async (doc) => {
+            const geometryItems = doc.getRoot().search({ type: "geometry" });
+            const viewableNode = geometryItems.find(
+              (node) => node.data.viewableID === sheetData.viewableID,
+            );
+
+            if (!viewableNode) {
+              alert("Viewable not found");
+              return;
+            }
+
+            const guid = viewableNode.data.guid;
+
+            const response = await fetch("/export-pdf", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ urn: modelUrn, guid }),
+            });
+
+            if (!response.ok) throw new Error("Export failed");
+
+            const blob = await response.blob();
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${sheetData.name}.pdf`;
+            link.click();
+          },
+          (err) => console.error(err),
+          { accessToken: access_token },
+        );
+      } catch (err) {
+        console.error(err);
+        alert("PDF export failed");
       }
     });
 
     listContainer.appendChild(listItem);
   });
-}
-
-
-
-
 
   function findSheetsFilesDeep(node, results = new Set(), visited = new Set()) {
     if (!node || !node.data || visited.has(node.id)) return results;
@@ -992,7 +877,7 @@ listItem.appendChild(downloadBtn);
 
     return [...results];
   }
-
+}
 // #endregion
 
 function onDocumentLoadFailure(code, message) {
