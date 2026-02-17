@@ -758,6 +758,8 @@ function find2DFilesDeep(node, results = new Set(), visited = new Set()) {
 
 // #region: 2D Sheets
 // 2D Sheets
+// #region: 2D Sheets
+// 2D Sheets
 export async function sheets2DPanel() {
   const viewer = window.viewerInstance;
   const models = viewer.impl.modelQueue().getModels();
@@ -820,6 +822,93 @@ export async function sheets2DPanel() {
       const viewableID = sheetData.viewableID; // this must exist on sheetData
       const access_token = localStorage.getItem("authToken");
 
+       const title = document.createElement("span");
+    title.textContent = sheetData.name || `Sheet ${index + 1}`;
+
+    const downloadBtn = document.createElement("button");
+downloadBtn.textContent = "⬇ PDF";
+downloadBtn.classList.add("download-btn");
+
+// Prevent click from triggering sheet load
+downloadBtn.addEventListener("click", async (e) => {
+  e.stopPropagation();
+
+  // Get token from localStorage (or wherever you stored it)
+  const accessToken = localStorage.getItem("authToken");
+  if (!accessToken) {
+    alert("No access token found. Please log in first.");
+    return;
+  }
+
+ try {
+  const model = viewer.model;
+  const urn = model.getData().urn;
+
+  console.log("Sending payload:", {
+    urn: urn,
+    sheetName: sheetData?.name
+  });
+
+  console.log("Sending payload:", {
+  urn: urn,
+  sheetName: sheetData?.name
+});
+
+  const response = await fetch("export-pdf", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${accessToken}`,
+  },
+
+  body: JSON.stringify({
+    urn: urn,
+    sheetName: sheetData?.name
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      alert("Export failed: " + errorText);
+      return;
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = sheetData.name + ".pdf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+
+  } catch (err) {
+    console.error("❌ Export error:", err);
+  }
+});
+
+listItem.appendChild(title);
+listItem.appendChild(downloadBtn);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       Autodesk.Viewing.Document.load(
         "urn:" + modelUrn,
         (doc) => onDocumentLoadSuccess(doc, viewableID),
@@ -868,6 +957,7 @@ export async function sheets2DPanel() {
 
 
 
+
   function findSheetsFilesDeep(node, results = new Set(), visited = new Set()) {
     if (!node || !node.data || visited.has(node.id)) return results;
 
@@ -904,7 +994,7 @@ export async function sheets2DPanel() {
 
     return [...results];
   }
-}
+
 // #endregion
 
 function onDocumentLoadFailure(code, message) {
