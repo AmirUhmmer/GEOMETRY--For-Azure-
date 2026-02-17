@@ -1,6 +1,8 @@
 const express = require('express');
 const Axios = require('axios');
 const cors = require('cors'); // Import CORS
+const router = express.Router();   
+
 // const bodyParser = require('body-parser');
 const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
 const { APS_CLIENT_ID, APS_CLIENT_SECRET } = require('../config.js');
@@ -31,7 +33,7 @@ const config = {
     connectionTimeout: 30000  // Increase connection timeout to 30 seconds
 };
 
-let router = express.Router();
+//let router = express.Router();
 
 // Enable CORS with specific origin (your Dynamics URL)
 router.use(cors());
@@ -563,5 +565,308 @@ router.get("/api/acc/getElementsByCategory", async (req, res) => {
 
 
 
+//app.use(require("./routes/auth.js"));
+router.use(cors());
+router.use(express.json());
+//app.use(require('./routes/auth.js'));
+// -----------------------------
+// Get 2-legged APS token
+// -----------------------------
+
+async function getAccessToken() {
+  const response = await fetch(
+    "https://developer.api.autodesk.com/authentication/v2/token",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: process.env.APS_CLIENT_ID,
+        client_secret: process.env.APS_CLIENT_SECRET,
+        scope: "data:read"
+      })
+    }
+  );
+
+  const text = await response.text();
+
+  try {
+    return JSON.parse(text).access_token;
+  } catch (err) {
+    console.error("❌ Token response not JSON:", text);
+    throw err;
+  }
+}
+
+
+function findPdfDerivative(manifest, sheetName) {
+  if (!manifest?.derivatives) return null;
+
+  function search(children) {
+    for (const child of children) {
+
+      // Match specific sheet name
+      if (
+        child.role === "pdf-page" &&
+        child.mime === "application/pdf"
+      ) {
+        if (!sheetName) return child;
+
+        // Match name inside URN
+        if (child.urn.includes(sheetName)) {
+          return child;
+        }
+      }
+
+      if (child.children) {
+        const found = search(child.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  for (const derivative of manifest.derivatives) {
+    if (derivative.children) {
+      const result = search(derivative.children);
+      if (result) return result;
+    }
+  }
+
+  return null;
+}
+
+
+
+
+
+// -----------------------------
+// Export PDF Route
+// -----------------------------
+router.post("/export-pdf", async (req, res) => {
+  try {
+    console.log("Headers:", req.headers);
+    console.log("Body received:", req.body);
+
+    const authToken = req.headers.authorization?.split(" ")[1];
+    if (!authToken) {
+      return res.status(401).send("Missing auth token");
+    }
+
+    const { urn, sheetName } = req.body;
+    if (!urn) {
+      return res.status(400).send("URN missing");
+    }
+
+    // ✅ 1. Submit PDF translation job ONCE
+    await fetch(
+      "https://developer.api.autodesk.com/modelderivative/v2/designdata/job",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          input: { urn },
+          output: {
+            formats: [
+              {
+                type: "pdf",
+                views: ["2d"]
+              }
+            ]
+          }
+        })
+      }
+    );
+
+    // ✅ 2. Poll MANIFEST endpoint (NOT /job)
+    const manifestUrl =
+      `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest`;
+
+    let manifest;
+    let ready = false;
+
+    for (let i = 0; i < 20; i++) {
+      const response = await fetch(manifestUrl, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      if (!response.ok) {
+        await new Promise(r => setTimeout(r, 3000));
+        continue;
+      }
+
+      manifest = await response.json();
+
+      console.log("Manifest status:", manifest?.status);
+
+      if (manifest?.status === "success") {
+        ready = true;
+        break;
+      }
+
+      if (manifest?.status === "failed") {
+        return res.status(500).send("Translation failed.");
+      }
+
+      await new Promise(r => setTimeout(r, 3000));
+    }
+
+    if (!ready) {
+      return res.status(400).send("Translation not finished yet.");
+    }
+
+    // ✅ 3. Find PDF derivative
+    console.log(JSON.stringify(manifest, null, 2));
+    const pdfDerivative = findPdfDerivative(manifest, sheetName);
+    if (!pdfDerivative) {
+      return res.status(400).send("No PDF derivative found.");
+    }
+
+    // ✅ 4. Download PDF
+    const fileRes = await fetch(
+      `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest/${pdfDerivative.urn}`,
+      {
+        headers: { Authorization: `Bearer ${authToken}` }
+      }
+    );
+
+    const buffer = await fileRes.arrayBuffer();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${sheetName || "sheet"}.pdf"`
+    );
+
+    res.send(Buffer.from(buffer));
+
+  } catch (err) {
+    console.error("❌ Export failed:", err);
+    res.status(500).send("Export failed");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+    
+
+//  const manifestRes = await fetch(
+//   `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest`,
+//   {
+//     headers: { Authorization: `Bearer ${authToken}` }
+//   }
+// );
+
+// const rawText = await manifestRes.text();
+
+// console.log("Manifest Status:", manifestRes.status);
+// console.log("Manifest Response:", rawText);
+
+// if (!manifestRes.ok) {
+//   return res.status(manifestRes.status).send(rawText);
+// }
+
+// //const manifest = JSON.parse(rawText);
+// // 🔄 Request PDF translation (if not already created)
+// await fetch(
+//   "https://developer.api.autodesk.com/modelderivative/v2/designdata/job",
+//   {
+//     method: "POST",
+//     headers: {
+//       Authorization: `Bearer ${authToken}`,
+//       "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify({
+//       input: { urn },
+//       output: {
+//         formats: [
+//           {
+//             type: "pdf",
+//             views: ["2d"]
+//           }
+//         ]
+//       }
+//     })
+//   }
+// );
+
+
+
+// if (!tokenRes.ok) {
+//   return res.status(tokenRes.status).send(tokenRaw);
+// }
+
+// const tokenData = JSON.parse(tokenRaw);
+
+
+
+
+
+
+
+// if (!manifestRes.ok) {
+//   return res.status(manifestRes.status).send(rawText);
+// }
+
+// const manifest = JSON.parse(rawText);
+    
+    
+
+//     if (!manifest.derivatives) {
+//       return res.status(400).send("No derivatives found. Was PDF generated?");
+//     }
+
+//     // 2️⃣ Find PDF derivative
+//     const pdfDerivative = findPdfDerivative(manifest);
+
+//     if (!pdfDerivative) {
+//       return res.status(400).send("No PDF derivative found. Re-translate model with PDF output.");
+//     }
+
+//     // 3️⃣ Download PDF
+//     const fileRes = await fetch(
+//       `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest/${pdfDerivative.urn}`,
+//       {
+//         headers: { Authorization: `Bearer ${authToken}` }
+//       }
+//     );
+
+//     const buffer = await fileRes.arrayBuffer();
+
+//     res.setHeader("Content-Type", "application/pdf");
+//     res.setHeader(
+//       "Content-Disposition",
+//       `attachment; filename="${sheetName || "sheet"}.pdf"`
+//     );
+
+//     res.send(Buffer.from(buffer));
+
+//   } catch (err) {
+//     console.error("❌ Export failed:", err);
+//     res.status(500).send("Export failed");
+//   }
+// });
+
+// // -----------------------------
+// // Helper: Find PDF in manifest
+// // -----------------------------
+// function findPdfDerivative(manifest) {
+//   for (const derivative of manifest.derivatives) {
+//     if (derivative.outputType === "pdf") {
+//       return derivative;
+//     }
+//   }
+//   return null;
+// }
 
 module.exports = router;
