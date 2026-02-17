@@ -565,8 +565,8 @@ export async function firePlansPanel() {
       listItem.classList.add("active");
 
       let firstModel = viewer.impl.modelQueue().getModels();
-      let urn,
-        modelUrn = window.urns[0]; // Get the URN of the first model
+      // console.log("URNs:", window.urns);
+      let urn, modelUrn = window.urns[0]; // Get the URN of the first model
 
       const viewableID = sheetData.viewableID; // this must exist on sheetData
       const access_token = localStorage.getItem("authToken");

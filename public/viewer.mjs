@@ -1,4 +1,5 @@
 import * as functions from './viewerSidebar.mjs';
+import * as customFunctions from './CustomFunctions/workset.mjs';
 import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from './Live_Data/LiveData.mjs';
 import { HardAssetSearch } from './Hemy_Functions/HardAssets.mjs';
 import { ServiceZoneSearch, spaceInventorySearch } from './Hemy_Functions/ServiceZone.mjs';
@@ -281,6 +282,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 )
                 );
 
+                customFunctions.workset(viewer);
+
                 HardAssetSearch(viewer, HardAsset);
 
                 ServiceZoneSearch(viewer, ServiceZone);
@@ -341,7 +344,8 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
                 });
 
                 window.urns = urns; // Store the URNs globally for access in other modules
-
+                // console.log("Model URNs:", window.urns);
+                
                 const canvas = viewer.impl.canvas;
 
                 let lastTap = 0;
@@ -683,7 +687,7 @@ async function onDocumentLoadSuccess(doc) {
 }
 
 
-
+// #region Hide Generic Models
 async function hideGenericModels(viewer, models) {
   if (!Array.isArray(models)) return;
 
@@ -715,6 +719,8 @@ async function hideGenericModels(viewer, models) {
             p => p.displayName === 'NV3DZoneName'
           )?.displayValue;
 
+        //   console.log(`Checking dbId ${dbId}: Category=${categoryProp}, NV3DZoneName=${zoneProp}`);
+
           const isGenericCategory =
             categoryProp === 'Revit Generic Models' ||
             categoryProp === 'Generic Models' ||
@@ -742,7 +748,7 @@ async function hideGenericModels(viewer, models) {
     viewer.hide(ids, model);
   }
 }
-
+// #endregion
 
 
 
