@@ -600,44 +600,33 @@ async function getAccessToken() {
 
 
 function findPdfDerivative(manifest, sheetName) {
-  if (!manifest?.derivatives) return null;
 
-  function search(children) {
-    for (const child of children) {
+  function search(nodes) {
+    if (!nodes) return null;
 
-      // Match specific sheet name
-      if (
-        child.role === "pdf-page" &&
-        child.mime === "application/pdf"
-      ) {
-        if (!sheetName) return child;
+    for (const node of nodes) {
 
-        // Match name inside URN
-        if (child.urn.includes(sheetName)) {
-          return child;
+      // If this node is the sheet geometry
+      if (node.role === "2d" && node.name === sheetName && node.children) {
+        for (const child of node.children) {
+          if (child.role === "pdf-page") {
+            return child;
+          }
         }
       }
 
-      if (child.children) {
-        const found = search(child.children);
+      if (node.children) {
+        const found = search(node.children);
         if (found) return found;
       }
     }
+
     return null;
   }
 
-  for (const derivative of manifest.derivatives) {
-    if (derivative.children) {
-      const result = search(derivative.children);
-      if (result) return result;
-    }
-  }
-
-  return null;
+  return search(manifest.derivatives);
 }
 
-
-//fix
 
 
 // -----------------------------
@@ -645,20 +634,21 @@ function findPdfDerivative(manifest, sheetName) {
 // -----------------------------
 router.post("/export-pdf", async (req, res) => {
   try {
-    console.log("Headers:", req.headers);
-    console.log("Body received:", req.body);
-
-    const authToken = req.headers.authorization?.split(" ")[1];
-    if (!authToken) {
-      return res.status(401).send("Missing auth token");
-    }
+    console.log("🚀 EXPORT ROUTE HIT");
 
     const { urn, sheetName } = req.body;
-    if (!urn) {
-      return res.status(400).send("URN missing");
-    }
+    const authToken = req.headers.authorization?.split(" ")[1];
 
-    // ✅ 1. Submit PDF translation job ONCE
+    if (!authToken) return res.status(401).send("Missing auth token");
+    if (!urn) return res.status(400).send("URN missing");
+    if (!sheetName) return res.status(400).send("Sheet name missing");
+
+    const encodedUrn = urn; // already base64 from frontend
+
+    // =====================================================
+    // 1️⃣ ENSURE MODEL TRANSLATION EXISTS (SVF)
+    // =====================================================
+
     await fetch(
       "https://developer.api.autodesk.com/modelderivative/v2/designdata/job",
       {
@@ -668,12 +658,12 @@ router.post("/export-pdf", async (req, res) => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          input: { urn },
+          input: { urn: encodedUrn },
           output: {
             formats: [
               {
-                type: "pdf",
-                views: ["2d"]
+                type: "svf",
+                views: ["2d", "3d"]
               }
             ]
           }
@@ -681,71 +671,166 @@ router.post("/export-pdf", async (req, res) => {
       }
     );
 
-    // ✅ 2. Poll MANIFEST endpoint (NOT /job)
     const manifestUrl =
-      `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest`;
+      `https://developer.api.autodesk.com/modelderivative/v2/designdata/${encodedUrn}/manifest`;
 
-    let manifest;
-    let ready = false;
+    let manifest = null;
 
-    for (let i = 0; i < 20; i++) {
-      const response = await fetch(manifestUrl, {
+    // =====================================================
+    // 2️⃣ WAIT UNTIL MODEL TRANSLATION SUCCESS
+    // =====================================================
+
+    for (let i = 0; i < 40; i++) {
+      const manifestRes = await fetch(manifestUrl, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
 
-      if (!response.ok) {
-        await new Promise(r => setTimeout(r, 3000));
-        continue;
-      }
+      console.log("Manifest status:", manifestRes.status);
 
-      manifest = await response.json();
+      if (manifestRes.status === 200) {
+        manifest = await manifestRes.json();
+        console.log("Manifest state:", manifest.status);
 
-      console.log("Manifest status:", manifest?.status);
-
-      if (manifest?.status === "success") {
-        ready = true;
-        break;
-      }
-
-      if (manifest?.status === "failed") {
-        return res.status(500).send("Translation failed.");
+        if (manifest.status === "success") break;
       }
 
       await new Promise(r => setTimeout(r, 3000));
     }
 
-    if (!ready) {
-      return res.status(400).send("Translation not finished yet.");
+    if (!manifest || manifest.status !== "success") {
+      return res.status(202).json({ status: "Model still translating" });
     }
 
-    // ✅ 3. Find PDF derivative
-    console.log(JSON.stringify(manifest, null, 2));
-    const pdfDerivative = findPdfDerivative(manifest, sheetName);
-    if (!pdfDerivative) {
-      return res.status(400).send("No PDF derivative found.");
-    }
+    // =====================================================
+    // 3️⃣ GET METADATA (NOW SAFE)
+    // =====================================================
 
-    // ✅ 4. Download PDF
-    const fileRes = await fetch(
-      `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest/${pdfDerivative.urn}`,
+    const metadataRes = await fetch(
+      `https://developer.api.autodesk.com/modelderivative/v2/designdata/${encodedUrn}/metadata`,
       {
         headers: { Authorization: `Bearer ${authToken}` }
       }
     );
 
+    if (!metadataRes.ok) {
+      const err = await metadataRes.text();
+      console.log("Metadata error:", err);
+      return res.status(500).send("Failed to get metadata");
+    }
+
+    const metadataJson = await metadataRes.json();
+
+    let sheetGuid = null;
+
+    for (const item of metadataJson.data.metadata) {
+      if (item.name === sheetName && item.role === "2d") {
+        sheetGuid = item.guid;
+        break;
+      }
+    }
+
+    if (!sheetGuid) {
+      return res.status(404).send("Sheet not found");
+    }
+
+    console.log("✅ sheetGuid:", sheetGuid);
+
+    // =====================================================
+    // 4️⃣ SUBMIT PDF JOB (NOW sheetGuid EXISTS)
+    // =====================================================
+
+    await fetch(
+      "https://developer.api.autodesk.com/modelderivative/v2/designdata/job",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          input: { urn: encodedUrn },
+          output: {
+            formats: [
+              {
+                type: "pdf",
+                views: ["2d"],   // 🔴 IMPORTANT
+                advanced: {
+                  sheetGuid: sheetGuid,
+                  includeAnnotations: true
+                }
+              }
+            ]
+          }
+        })
+      }
+    );
+
+    let pdfDerivative = null;
+
+    // =====================================================
+    // 5️⃣ WAIT UNTIL PDF READY
+    // =====================================================
+
+    for (let i = 0; i < 40; i++) {
+      const pollRes = await fetch(manifestUrl, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      const pollManifest = await pollRes.json();
+
+      pdfDerivative = findPdfDerivative(pollManifest, sheetName);
+
+      console.log("Checking derivatives...");
+      console.log(JSON.stringify(pollManifest, null, 2));
+
+      console.log("PDF status:", pdfDerivative?.status);
+
+      if (pdfDerivative && pdfDerivative.status === "success") break;
+
+      if (pdfDerivative && pdfDerivative.status === "failed") {
+        return res.status(500).send("PDF translation failed");
+      }
+
+      await new Promise(r => setTimeout(r, 3000));
+    }
+
+    if (!pdfDerivative || pdfDerivative.status !== "success") {
+      return res.status(202).json({ status: "PDF still processing" });
+    }
+
+    // =====================================================
+    // 6️⃣ DOWNLOAD REAL PDF
+    // =====================================================
+
+   const downloadUrl =
+  `https://developer.api.autodesk.com/modelderivative/v2/designdata/${encodedUrn}/manifest/${encodeURIComponent(pdfDerivative.urn)}`;
+
+
+    const fileRes = await fetch(downloadUrl, {
+      headers: { Authorization: `Bearer ${authToken}` }
+    });
+
+    if (!fileRes.ok) {
+      const err = await fileRes.text();
+      console.log("Download failed:", err);
+      return res.status(500).send("Failed to download PDF");
+    }
+
     const buffer = await fileRes.arrayBuffer();
+
+    console.log("📄 PDF size:", buffer.byteLength);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${sheetName || "sheet"}.pdf"`
+      `attachment; filename="${sheetName}.pdf"`
     );
 
-    res.send(Buffer.from(buffer));
+    return res.send(Buffer.from(buffer));
 
   } catch (err) {
     console.error("❌ Export failed:", err);
-    res.status(500).send("Export failed");
+    return res.status(500).send("Export failed");
   }
 });
 
@@ -753,7 +838,7 @@ router.post("/export-pdf", async (req, res) => {
 
 
 
-
+module.exports = router;
 
 
 
@@ -869,4 +954,3 @@ router.post("/export-pdf", async (req, res) => {
 //   return null;
 // }
 
-module.exports = router;
