@@ -710,3 +710,22 @@ body, html {
   background: #0078d4;
   color: #ffffff;
 }
+
+
+/* ----------------------------------------- SHEETS 2D ------------------------------------- */
+
+.sheet-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.download-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}

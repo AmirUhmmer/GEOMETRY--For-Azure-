@@ -42,7 +42,7 @@ function createWorksetButton(viewer) {
   buttonContainer.style.filter = "invert(1)";
   buttonContainer.style.hoverColor = "#555"; // Optional: Add a hover effect
 
-  showWorksetButton.setToolTip("Workset"); // Set the tooltip for the button
+  showWorksetButton.setToolTip("Levels"); // Set the tooltip for the button
 
   // Define the action when the button is clicked
   showWorksetButton.onClick = function () {
@@ -87,7 +87,7 @@ export function showWorksetPanel(viewer) {
       this.container.style.height = "325px";
       this.container.style.resize = "auto";
       this.container.style.backgroundColor = "#333";
-      this.container.style.title = "Workset";
+      this.container.style.title = "Levels";
 
       // Create and configure the scroll container
       this.createScrollContainer();
@@ -157,8 +157,8 @@ export function showWorksetPanel(viewer) {
   // Create a new panel with the title 'Service Task'
   viewer.WorksetPanel = new WorksetPanel(
     viewer,
-    "Workset",
-    "Workset",
+    "Levels",
+    "Levels",
     {}
   );
 }

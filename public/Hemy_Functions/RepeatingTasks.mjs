@@ -769,17 +769,93 @@ export function showTasks(viewer, RepeatingTask) {
   let alldbidAsset = [];
   let alldbidFunctionalLocation = [];
 
-  function processProps(props, dbID, model, expectedID, outputArray, type, selectionColor) {
+  // function processProps(props, dbID, model, expectedID, outputArray, type, selectionColor) {
+  //   let assetIDValue = null;
+  //   let assetLevel = null;
+  //   let name = props.name;
+  //   let category = props.Category;
+  //   // console.log('Processing properties for dbID:', dbID, props);
+
+  //   if (model.is2d() && (!name || !category)) {
+  //     const it = model.getInstanceTree();
+  //     const children = [];
+
+  //     it.enumNodeChildren(dbID, (childId) => {
+  //       children.push(childId);
+  //     });
+
+  //     // Process children instead
+  //     children.forEach(childId => {
+  //       model.getProperties(childId, (childProps) => {
+  //         processProps(
+  //           childProps,
+  //           childId,
+  //           model,
+  //           expectedID,
+  //           outputArray,
+  //           type,
+  //           selectionColor
+  //         );
+  //       });
+  //     });
+
+  //     return;
+  //   }
+
+  //   props.properties.forEach((prop) => {
+  //     const { displayName, displayValue, displayCategory } = prop;
+
+  //     if (displayName === "Asset ID (GUID)") { //displayName === "Asset ID" || 
+  //       assetIDValue = displayValue;
+  //     }
+
+  //     if (
+  //       (displayName === "Level" || displayName === "Schedule Level") &&
+  //       displayCategory === "Constraints"
+  //     ) {
+  //       assetLevel = displayValue;
+  //     }
+
+  //     if (displayName === "Category") {
+  //       category = displayValue;
+  //     }
+  //   });
+
+  //   if (category === "Revit Room" || category === "Revit Rooms") return;
+  //   console.log(`Checking dbID ${dbID} with Asset ID: ${assetIDValue}, Level: ${assetLevel}, Name: ${name}, Category: ${category} against expected ID: ${expectedID}`);
+  //   const match =
+  //     assetIDValue === expectedID &&
+  //     assetIDValue != null &&
+  //     name != null;
+
+  //   if (match) {
+  //     outputArray.push(dbID);
+  //     alldbid.push(dbID);
+  //     viewer.setThemingColor(dbID, null, model);
+  //     viewer.setThemingColor(dbID, selectionColor, model);
+  //   }
+  // }
+
+
+  function processProps(
+    props,
+    dbID,
+    model,
+    expectedID,
+    outputArray,
+    type,
+    selectionColor
+  ) {
     let assetIDValue = null;
     let assetLevel = null;
-    let name = props.name;
-    let category = props.Category;
-    // console.log('Processing properties for dbID:', dbID, props);
+    let name = null;
+    let category = null;
 
+    // 🔹 Extract real values from props.properties
     props.properties.forEach((prop) => {
       const { displayName, displayValue, displayCategory } = prop;
 
-      if (displayName === "Asset ID (GUID)") { //displayName === "Asset ID" || 
+      if (displayName === "Asset ID (GUID)") {
         assetIDValue = displayValue;
       }
 
@@ -793,31 +869,72 @@ export function showTasks(viewer, RepeatingTask) {
       if (displayName === "Category") {
         category = displayValue;
       }
+
+      if (displayName === "Name") {
+        name = displayValue;
+      }
     });
 
+    // ❌ Ignore Revit Rooms
     if (category === "Revit Room" || category === "Revit Rooms") return;
-    // console.log(`Checking dbID ${dbID} with Asset ID: ${assetIDValue}, Level: ${assetLevel}, Name: ${name}, Category: ${category} against expected ID: ${expectedID}`);
+
+    console.log(
+      `Checking dbID ${dbID} with Asset ID: ${assetIDValue}, Level: ${assetLevel}, Name: ${name}, Category: ${category} against expected ID: ${expectedID}`
+    );
+
     const match =
       assetIDValue === expectedID &&
-      assetIDValue != null &&
-      name != null;
+      assetIDValue != null;
 
-    if (match) {
-      outputArray.push(dbID);
-      alldbid.push(dbID);
-      viewer.setThemingColor(dbID, null, model);
-      viewer.setThemingColor(dbID, selectionColor, model);
+    if (!match) return;
+
+    // ======================================================
+    // 🟦 2D PDF PATH → resolve leaf geometry and SELECT
+    // ======================================================
+    if (model.is2d()) {
+      const it = model.getInstanceTree();
+
+      const collectLeafNodes = (id) => {
+        let hasChildren = false;
+
+        it.enumNodeChildren(id, (childId) => {
+          hasChildren = true;
+          collectLeafNodes(childId);
+        });
+
+        // Leaf = actual drawable geometry
+        if (!hasChildren) {
+          outputArray.push(id);
+          alldbid.push(id);
+
+          viewer.select(id, model); // ✅ only thing that works in 2D
+        }
+      };
+
+      collectLeafNodes(dbID);
+      return;
     }
+
+    // ======================================================
+    // 🟩 3D PATH → theming + selection
+    // ======================================================
+    outputArray.push(dbID);
+    alldbid.push(dbID);
+
+    viewer.setThemingColor(dbID, null, model);
+    viewer.setThemingColor(dbID, selectionColor, model);
   }
+
 
   function searchAndProcess(model, id, type, outputArray, selectionColor) {
     return new Promise((resolve) => {
       model.search(id, (dbIDs) => {
         if (!dbIDs || dbIDs.length === 0) {
-          // console.log(`No dbIDs found for ${type} ID: ${id} in model ${model.id}`);
+          console.log(`No dbIDs found for ${type} ID: ${id} in model ${model.id}`);
           return resolve();
         }
-        // console.log(`Found dbIDs for ${type} in model ${model.id}:`, dbIDs);
+        console.log(`Found dbIDs for ${type} in model ${model.id}:`, dbIDs);
+        console.log("Models in viewer:", models);
         const propPromises = dbIDs.map((dbID) => {
           return new Promise((propResolve) => {
             model.getProperties(dbID, (props) => {
@@ -841,14 +958,29 @@ export function showTasks(viewer, RepeatingTask) {
   );
 
   Promise.all([...assetSearches, ...funcLocSearches]).then(() => {
-    // console.log("All dbIDs:", alldbid);
+    console.log("All dbIDs:", alldbid);
     // console.log("Asset dbIDs:", alldbidAsset);
     // console.log("Functional Location dbIDs:", alldbidFunctionalLocation);
+
+    // ✅ FIRST: handle 2D and EXIT
+    const has2D = models.some(m => m.is2d());
+    if (has2D) {
+      models.forEach(model => {
+        if (!model.is2d()) return;
+
+        const selectableIds = alldbidAsset.map(dbID => dbID + 1);
+        console.log("2D selectable IDs:", selectableIds);
+
+        viewer.select(selectableIds, model);
+      });
+      return; // ⛔ stop here — no 3D logic
+    }
 
     const fitAndSelect = () => {
       if (alldbidFunctionalLocation.length > 0) {
         models.forEach((model) => {
           // viewer.fitToView(alldbidFunctionalLocation, model);
+          console.log("Models in viewer:", models);
           if (alldbidAsset.length === 0) {
             // viewer.isolate(alldbidFunctionalLocation, model);
           }
@@ -857,7 +989,9 @@ export function showTasks(viewer, RepeatingTask) {
 
       if (alldbidAsset.length > 0) {
         console.log("Fitting to Asset IDs");
-        
+        // const is2D = model.is2d();
+        // console.log("Models in viewer:", models);
+        // console.log("AlldbidAsset:", alldbidAsset);
         // Load the extension once, wait for it to finish
         viewer.loadExtension('Autodesk.ViewCubeUi').then((viewCube) => {
 
@@ -872,14 +1006,27 @@ export function showTasks(viewer, RepeatingTask) {
 
             // Start fit animation
             // viewer.fitToView(alldbidAsset, model);
-            viewCube.setViewCube('top');
+            // viewCube.setViewCube('top');
 
             // Wait until the fitToView camera animation completes
             const onCameraTransitionComplete = () => {
               console.log("Fit to view completed. Setting view cube...");
+              const nav = viewer.navigation;
+
+              const pos = nav.getPosition();
+              const target = nav.getTarget();
+
+              const dir = new THREE.Vector3()
+                .subVectors(pos, target)
+                .normalize();
+
+              // positive = zoom out, negative = zoom in
+              pos.add(dir.multiplyScalar(50));
+
+              nav.setPosition(pos);
+              nav.setTarget(target);
               // viewCube.setViewCube('front top');
               viewCube.setViewCube('top');
-              const nav = viewer.navigation;
               
               // Remove listener so it doesn't trigger again
               viewer.removeEventListener(
@@ -896,7 +1043,7 @@ export function showTasks(viewer, RepeatingTask) {
         });
       }
 
-
+      
       models.forEach((model) => viewer.select(alldbid, model));
     };
 
