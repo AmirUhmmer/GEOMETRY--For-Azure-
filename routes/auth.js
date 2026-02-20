@@ -771,7 +771,7 @@ router.post("/export-pdf", async (req, res) => {
     // 5️⃣ WAIT UNTIL PDF READY
     // =====================================================
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 80; i++) {
       const pollRes = await fetch(manifestUrl, {
         headers: { Authorization: `Bearer ${authToken}` }
       });

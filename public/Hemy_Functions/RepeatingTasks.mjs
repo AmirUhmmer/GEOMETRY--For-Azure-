@@ -910,7 +910,7 @@ export function showTasks(viewer, RepeatingTask) {
           viewer.select(id, model); // ✅ only thing that works in 2D
         }
       };
-
+      viewer.set2dSelectionColor(selectionColor);
       collectLeafNodes(dbID);
       return;
     }
@@ -970,10 +970,10 @@ export function showTasks(viewer, RepeatingTask) {
 
         const selectableIds = alldbidAsset.map(dbID => dbID + 1);
         console.log("2D selectable IDs:", selectableIds);
-
+        
         viewer.select(selectableIds, model);
       });
-      return; // ⛔ stop here — no 3D logic
+      return; // stop here — no 3D logic
     }
 
     const fitAndSelect = () => {
