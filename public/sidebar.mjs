@@ -8,7 +8,7 @@
 //     return resp.json();
 // }
 
-import { fetchAccessToken } from './main.mjs';
+import { fetchAccessToken } from './accessToken.mjs';
 
 async function getJSON(url) {
     const token = localStorage.getItem('authToken');

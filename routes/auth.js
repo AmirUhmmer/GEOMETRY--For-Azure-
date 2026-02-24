@@ -6,6 +6,7 @@ const router = express.Router();
 // const bodyParser = require('body-parser');
 const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
 const { APS_CLIENT_ID, APS_CLIENT_SECRET } = require('../config.js');
+const { DB8_LIVE_DATA_DB_SERVER, DB8_LIVE_DATA_DB_DB, DB8_LIVE_DATA_DB_USER, DB8_LIVE_DATA_DB_PASSWORD } = require('../config.js');
 
 var scopes = 'data:read data:write';
 const querystring = require('querystring');
@@ -15,10 +16,10 @@ const sql = require('mssql');
 //
 // Azure SQL configuration
 const config = {
-    user: 'sqlserverdb8_admin',
-    password: 'jCz91%z%FlS7',
-    server: 'sqlserverdb8.database.windows.net',
-    database: 'SQLDB_DB8',
+    user: DB8_LIVE_DATA_DB_USER,
+    password: DB8_LIVE_DATA_DB_PASSWORD,
+    server: DB8_LIVE_DATA_DB_SERVER,
+    database: DB8_LIVE_DATA_DB_DB,
     options: {
         encrypt: true,
         enableArithAbort: true,
@@ -839,118 +840,3 @@ router.post("/export-pdf", async (req, res) => {
 
 
 module.exports = router;
-
-
-
-
-    
-
-//  const manifestRes = await fetch(
-//   `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest`,
-//   {
-//     headers: { Authorization: `Bearer ${authToken}` }
-//   }
-// );
-
-// const rawText = await manifestRes.text();
-
-// console.log("Manifest Status:", manifestRes.status);
-// console.log("Manifest Response:", rawText);
-
-// if (!manifestRes.ok) {
-//   return res.status(manifestRes.status).send(rawText);
-// }
-
-// //const manifest = JSON.parse(rawText);
-// // 🔄 Request PDF translation (if not already created)
-// await fetch(
-//   "https://developer.api.autodesk.com/modelderivative/v2/designdata/job",
-//   {
-//     method: "POST",
-//     headers: {
-//       Authorization: `Bearer ${authToken}`,
-//       "Content-Type": "application/json"
-//     },
-//     body: JSON.stringify({
-//       input: { urn },
-//       output: {
-//         formats: [
-//           {
-//             type: "pdf",
-//             views: ["2d"]
-//           }
-//         ]
-//       }
-//     })
-//   }
-// );
-
-
-
-// if (!tokenRes.ok) {
-//   return res.status(tokenRes.status).send(tokenRaw);
-// }
-
-// const tokenData = JSON.parse(tokenRaw);
-
-
-
-
-
-
-
-// if (!manifestRes.ok) {
-//   return res.status(manifestRes.status).send(rawText);
-// }
-
-// const manifest = JSON.parse(rawText);
-    
-    
-
-//     if (!manifest.derivatives) {
-//       return res.status(400).send("No derivatives found. Was PDF generated?");
-//     }
-
-//     // 2️⃣ Find PDF derivative
-//     const pdfDerivative = findPdfDerivative(manifest);
-
-//     if (!pdfDerivative) {
-//       return res.status(400).send("No PDF derivative found. Re-translate model with PDF output.");
-//     }
-
-//     // 3️⃣ Download PDF
-//     const fileRes = await fetch(
-//       `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest/${pdfDerivative.urn}`,
-//       {
-//         headers: { Authorization: `Bearer ${authToken}` }
-//       }
-//     );
-
-//     const buffer = await fileRes.arrayBuffer();
-
-//     res.setHeader("Content-Type", "application/pdf");
-//     res.setHeader(
-//       "Content-Disposition",
-//       `attachment; filename="${sheetName || "sheet"}.pdf"`
-//     );
-
-//     res.send(Buffer.from(buffer));
-
-//   } catch (err) {
-//     console.error("❌ Export failed:", err);
-//     res.status(500).send("Export failed");
-//   }
-// });
-
-// // -----------------------------
-// // Helper: Find PDF in manifest
-// // -----------------------------
-// function findPdfDerivative(manifest) {
-//   for (const derivative of manifest.derivatives) {
-//     if (derivative.outputType === "pdf") {
-//       return derivative;
-//     }
-//   }
-//   return null;
-// }
-

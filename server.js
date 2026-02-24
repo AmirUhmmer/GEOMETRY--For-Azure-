@@ -105,7 +105,7 @@ wss.on('connection', (ws, request, userGuid) => {
   console.log(`🟢 WebSocket connected for user: ${userGuid}`);
   clients.set(userGuid, ws); // 📝 Store in notebook
 
-  // 🫀 Optional: heartbeat
+  // Optional: heartbeat
   const heartbeat = setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ type: 'heartbeat', message: 'keep-alive' }));

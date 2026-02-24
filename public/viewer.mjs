@@ -42,6 +42,7 @@ export function initViewer(container) {
             viewer.setGroundShadow(false);
             viewer.setGroundReflection(false);
             viewer.setProgressiveRendering(true);
+            viewer.setOptimizeNavigation(true);
 
 
 

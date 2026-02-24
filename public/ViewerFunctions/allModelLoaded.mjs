@@ -235,28 +235,28 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
             // ----- classification
             let isFunctionalLocation = false;
 
-            // CRM check (non-blocking)
-            (async () => {
-              try {
-                const crmResp = await fetch(
-                  `https://org47a0b99a.crm4.dynamics.com/api/data/v9.2/msdyn_functionallocations(${globalID})`,
-                  {
-                    headers: { Accept: "application/json;odata.metadata=none" },
-                  },
-                );
-                if (crmResp.ok) {
-                  isFunctionalLocation = true;
-                }
-              } catch {
-                /* ignore */
-              }
-            })();
+            // // CRM check (non-blocking)
+            // (async () => {
+            //   try {
+            //     const crmResp = await fetch(
+            //       `https://org47a0b99a.crm4.dynamics.com/api/data/v9.2/msdyn_functionallocations(${globalID})`,
+            //       {
+            //         headers: { Accept: "application/json;odata.metadata=none" },
+            //       },
+            //     );
+            //     if (crmResp.ok) {
+            //       isFunctionalLocation = true;
+            //     }
+            //   } catch {
+            //     /* ignore */
+            //   }
+            // })();
 
             // fallback logic
             if (!isFunctionalLocation) {
               const functionalKeywords = [
-                "room",
-                "rooms",
+                // "room",
+                // "rooms",
                 "space",
                 "spaces",
                 "area",
@@ -320,7 +320,7 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
 
               for (const prop of props.properties) {
                 const val = (prop.displayValue ?? "").toString().toLowerCase();
-
+                
                 if (prop.displayName === "Category") {
                   if (
                     ["revit mass", "rooms", "spaces", "areas"].includes(val)
@@ -333,7 +333,9 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
                 if (
                   ["Type Name", "Family", "Name"].includes(prop.displayName)
                 ) {
+                  console.log(`DBUG "${prop.displayName}": ${val}`);
                   if (functionalKeywords.some((k) => val.includes(k))) {
+                    console.log(`Heuristic match for Functional Location based on property "${prop.displayName}": ${val}`);
                     isFunctionalLocation = true;
                     break;
                   }
@@ -353,6 +355,7 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
               appId = "2019ee4f-38bc-ef11-b8e9-000d3ab86138";
             }
 
+            console.log("HArd Asset or Functional Location?", isHardAsset ? "Hard Asset" : "Functional Location");
             const entity = isHardAsset
               ? "msdyn_customerasset"
               : "msdyn_functionallocation";
