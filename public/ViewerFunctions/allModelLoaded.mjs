@@ -3,7 +3,7 @@ import * as customFunctions from './workset.mjs';
 import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from '../Live_Data/LiveData.mjs';
 import { HardAssetSearch } from '../Hemy_Functions/HardAssets.mjs';
 import { ServiceZoneSearch, spaceInventorySearch } from '../Hemy_Functions/ServiceZone.mjs';
-import { FunctionalLocationSearch, zoneFunctionalLocation, highlightFLByTask, prewarmFunctionalLocationCacheFromModel } from '../Hemy_Functions/FunctionalLocation.mjs';
+import { FunctionalLocationSearch, zoneFunctionalLocation, highlightFLByTask, prewarmFunctionalLocationCacheFromModel, zone360 } from '../Hemy_Functions/FunctionalLocation.mjs';
 import { RepeatingTasks, showTasks, showAllTasks } from '../Hemy_Functions/RepeatingTasks.mjs';
 import { WOServiceTask } from '../Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from '../SOL11_23/sol11360pics.mjs';
@@ -143,6 +143,9 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
           } else if (message.type === "showZone") {
             console.log("Received message [show all zones]:", event.data);
             zoneFunctionalLocation(viewer, message);
+          } else if (message.type === "zone360") {
+            console.log("Received message [show all 360 zones]:", event.data);
+            zone360(viewer, message);
           } else if (message.type === "completeTask") {
             console.log("Received message [complete task]:", message);
             console.log(
@@ -234,23 +237,6 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
 
             // ----- classification
             let isFunctionalLocation = false;
-
-            // // CRM check (non-blocking)
-            // (async () => {
-            //   try {
-            //     const crmResp = await fetch(
-            //       `https://org47a0b99a.crm4.dynamics.com/api/data/v9.2/msdyn_functionallocations(${globalID})`,
-            //       {
-            //         headers: { Accept: "application/json;odata.metadata=none" },
-            //       },
-            //     );
-            //     if (crmResp.ok) {
-            //       isFunctionalLocation = true;
-            //     }
-            //   } catch {
-            //     /* ignore */
-            //   }
-            // })();
 
             // fallback logic
             if (!isFunctionalLocation) {
@@ -485,7 +471,10 @@ export async function hideGenericModels(viewer, models) {
     const checks = allDbIds.map(dbId => {
       return new Promise(resolve => {
         model.getProperties(dbId, props => {
+          // console.log(`Checking dbId ${dbId}:`, props?.properties);
           if (!props?.properties) return resolve();
+
+          // console.log(`Checking dbId ${dbId}:`, props.properties);
 
           const categoryProp = props.properties.find(
             p => p.displayName === 'Category'
@@ -500,10 +489,12 @@ export async function hideGenericModels(viewer, models) {
           const isGenericCategory =
             categoryProp === 'Revit Generic Models' ||
             categoryProp === 'Generic Models' ||
+            categoryProp === 'Revit Generic Model' ||
+            categoryProp === 'Generic Model' ||
             categoryProp === 'Revit Mass' ||
             categoryProp === 'Mass';
 
-          if (isGenericCategory && zoneProp) {
+          if (isGenericCategory && categoryProp) {
             lockedGenericDbIds.add(dbId);
           }
 

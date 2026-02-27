@@ -101,7 +101,8 @@ body, html {
 }
 
 /* preview takes all space when iframe is collapsed */
-#preview {
+#preview,
+#preview2D {
   flex: 1;
   height: 100%;
   position: relative;

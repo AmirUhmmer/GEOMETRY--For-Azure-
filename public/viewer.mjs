@@ -96,6 +96,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
             // save offset from the *first* model
             if (modelsLoaded === 0) {
                 offset = model.getData().globalOffset || { x: 0, y: 0, z: 0 };
+                // window.modelOffset = offset; // Store the offset globally for access in other modules   
                 console.log("Saved offset from first model:", offset);
             }
 

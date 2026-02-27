@@ -121,7 +121,9 @@ export const geometryMapByProperty = {
   "Solbråveien 10 AS": [
     "urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A", //mep
     "urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA", //archi
-    "urn:adsk.wipemea:dm.lineage:9RzMYc2xRfu3IQ8Kzf3Cpg", //site
+    "urn:adsk.wipemea:dm.lineage:RWGD58PyQZ-scisQZB3IJQ", //360 realistic
+    // "urn:adsk.wipemea:dm.lineage:RWGD58PyQZ-scisQZB3IJQ" //360 realistic
+    // "urn:adsk.wipemea:dm.lineage:9RzMYc2xRfu3IQ8Kzf3Cpg", //site
   ],
 
   // SOL11
@@ -175,6 +177,10 @@ export const geometryMapByProperty = {
     // "urn:adsk.wipemea:dm.lineage:o9HaviQfQeimUj369y5d2Q", //ARCHI
     "urn:adsk.wipemea:dm.lineage:RQ0A1TdvSf-KNJ-WZ2b3Tw", //MEP
     "urn:adsk.wipemea:dm.lineage:M5roTczIQUOnle1X26vdUg", //ARCHI
+  ],
+
+  "historicaltest": [
+    "urn:adsk.wipemea:dm.lineage:fo0_lqzrSFCuN1COXk9WYg"
   ],
 };
 
@@ -300,6 +306,7 @@ export const propertyMap = {
   "Fornebuveien 50 (under Semy Felleskost AS)": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f",
   "Billingstadsletta 17 AS": "b.09751ad8-ce14-4f21-99c2-440312cd216f",
   "Trondheimsveien 135 AS": "b.39d3702e-4095-44d4-8c29-becf571a90aa",
+  "historicaltest": "b.e4cde0c5-7fd9-4974-9832-616f058478f9",
 };
 
 export const abbreviationToRecordId = {

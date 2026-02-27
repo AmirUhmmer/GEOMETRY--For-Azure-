@@ -830,11 +830,20 @@ async function load2DSheet(viewer, sheetData) {
       }
 
       viewer.getVisibleModels().forEach(m => viewer.unloadModel(m));
-
+      // console.log("Offset used for loading sheet:", window.modelOffset);  
       await viewer.loadDocumentNode(doc, viewableNode, {
-        keepCurrentModels: true,
-        globalOffset: { x: 0, y: 0, z: 0 },
-        applyRefPoint: true
+        keepCurrentModels: true
+      });
+
+      // push 2D slightly above 3D
+      viewer.impl.modelQueue().getModels().forEach(e => {
+        if (!e.is2d()) return;
+
+        // align2DTo3D(viewer, e);
+        const tx = new THREE.Matrix4().makeTranslation(window.modelOffset.x, window.modelOffset.y, 100); // MOVE IN XY
+        e.setPlacementTransform(tx);
+
+        console.log("✅ 2D moved");
       });
 
       console.log("✅ Loaded:", sheetData.name);
@@ -846,6 +855,342 @@ async function load2DSheet(viewer, sheetData) {
     { accessToken }
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // sideby side
+// async function load2DSheet(viewer, sheetData) {
+//   const accessToken = localStorage.getItem("authToken");
+//   if (!accessToken) return alert("No access token.");
+
+//   const config = {
+//     extensions: [
+//     ],
+//   };
+
+//   const viewer2D = new Autodesk.Viewing.GuiViewer3D(
+//     document.getElementById("preview2D"),
+//     config
+//   );
+
+//   viewer2D.start();
+//   viewer2D.setTheme("dark-theme");
+//   viewer2D.setOptimizeNavigation(true);
+//   viewer2D.setQualityLevel(false, false);
+//   viewer2D.setGroundShadow(false);
+//   viewer2D.setGroundReflection(false);
+//   viewer2D.setProgressiveRendering(true);
+//   viewer2D.setOptimizeNavigation(true);
+
+
+//   Autodesk.Viewing.Document.load(
+//     "urn:" + sheetData.urn,
+//     async (doc) => {
+//       const geometryItems = doc.getRoot().search({ type: "geometry" });
+
+//       const viewableNode = geometryItems.find(
+//         node => node.data.viewableID === sheetData.viewableID
+//       );
+
+//       if (!viewableNode) {
+//         console.error("❌ Viewable not found:", sheetData.viewableID);
+//         return;
+//       }
+
+//       // viewer.getVisibleModels().forEach(m => viewer.unloadModel(m));
+//       console.log("Offset used for loading sheet:", window.modelOffset);  
+//       const model2D = await viewer2D.loadDocumentNode(doc, viewableNode, {
+//         keepCurrentModels: true
+//       });
+
+//       console.log("✅ Loaded:", sheetData.name);
+//       localStorage.setItem("is2D", "true");
+
+//       // Enable click → 3D mapping
+//       const canvas = viewer2D.impl.canvas;
+//       canvas.addEventListener("click", async function (event) {
+//         console.log("🟢 CLICK detected in 2D viewer", event);
+//         enableSheetTo3DMapping(viewer, viewer2D, model2D);
+//       });
+//     },
+//     (code, message) => {
+//       console.error("❌ Load failed:", message);
+//     },
+//     { accessToken }
+//   );
+// }
+
+
+
+
+// function enableSheetTo3DMapping(viewer3D, viewer2D, sheetModel) {
+
+//   viewer2D.addEventListener(
+//     Autodesk.Viewing.SINGLE_CLICK_EVENT,
+//     (e) => {
+//       if (!sheetModel.is2d()) return;
+
+//       const sheetPoint = new THREE.Vector2(e.canvasX, e.canvasY);
+
+//       const viewport =
+//         Autodesk.AEC.AecModelData.findViewportAtPoint(
+//           sheetModel,
+//           sheetPoint
+//         );
+
+//       if (!viewport) return;
+
+//       const matrix =
+//         Autodesk.AEC.AecModelData.get2DTo3DMatrix(
+//           viewport,
+//           sheetModel.getUnitScale()
+//         );
+
+//       const worldPoint = new THREE.Vector3(sheetPoint.x, sheetPoint.y, 0)
+//         .applyMatrix4(matrix)
+//         .sub(
+//           viewer3D.getVisibleModels()
+//             .find(m => !m.is2d())
+//             .getData().globalOffset
+//         );
+
+//       // Move 3D camera
+//       viewer3D.navigation.setView(
+//         worldPoint.clone().add(new THREE.Vector3(10, 10, 10)),
+//         worldPoint
+//       );
+
+//       console.log("🎯 Sheet → 3D:", worldPoint);
+//     }
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+// async function load2DSheet(viewer, sheetData) {
+//   const accessToken = localStorage.getItem("authToken");
+//   if (!accessToken) return alert("No access token.");
+
+//   Autodesk.Viewing.Document.load(
+//     "urn:" + sheetData.urn,
+//     async (doc) => {
+
+//       // 🔑 Load AEC metadata
+//       await Autodesk.Viewing.Document.getAecModelData(doc.getRoot());
+
+//       const viewableNode = doc.getRoot()
+//         .search({ type: "geometry" })
+//         .find(n => n.data.viewableID === sheetData.viewableID);
+
+//       if (!viewableNode) {
+//         console.error("❌ Viewable not found");
+//         return;
+//       }
+
+//       const model2D = await viewer.loadDocumentNode(doc, viewableNode, {
+//         keepCurrentModels: true
+//       });
+
+//       // Enable click → 3D mapping
+//       enableSheetTo3DMapping(viewer, model2D);
+
+//       console.log("✅ 2D loaded (AEC ready)");
+//     },
+//     (code, message) => console.error("❌ Load failed:", message),
+//     { accessToken }
+//   );
+// }
+
+// function enableSheetTo3DMapping(viewer, sheetModel) {
+
+//   viewer.addEventListener(
+//     Autodesk.Viewing.SINGLE_CLICK_EVENT,
+//     (e) => {
+//       if (!sheetModel.is2d()) return;
+
+//       // 2D sheet coordinates
+//       const sheetPoint = new THREE.Vector2(e.canvasX, e.canvasY);
+
+//       // Find viewport under cursor
+//       const viewport =
+//         Autodesk.AEC.AecModelData.findViewportAtPoint(
+//           sheetModel,
+//           sheetPoint
+//         );
+
+//       if (!viewport) return;
+
+//       // 2D → 3D transform
+//       const matrix =
+//         Autodesk.AEC.AecModelData.get2DTo3DMatrix(
+//           viewport,
+//           sheetModel.getUnitScale()
+//         );
+
+//       // Convert to world coordinates
+//       const worldPoint = new THREE.Vector3(sheetPoint.x, sheetPoint.y, 0)
+//         .applyMatrix4(matrix)
+//         .sub(
+//           viewer.getVisibleModels()
+//             .find(m => !m.is2d())
+//             .getData().globalOffset
+//         );
+
+//       // ✅ USE IT (example: zoom in 3D)
+//       viewer.navigation.setView(
+//         worldPoint.clone().add(new THREE.Vector3(10, 10, 10)),
+//         worldPoint
+//       );
+
+//       console.log("🎯 Sheet → 3D point:", worldPoint);
+//     }
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// async function load2DSheet(viewer, sheetData) {
+//   const accessToken = localStorage.getItem("authToken");
+//   if (!accessToken) return alert("No access token.");
+
+//   const referenceDbId = getReferenceDbId(viewer);
+//   if (!referenceDbId) return;
+
+//   Autodesk.Viewing.Document.load(
+//     "urn:" + sheetData.urn,
+//     async (doc) => {
+//       const geometryItems = doc.getRoot().search({ type: "geometry" });
+
+//       const viewableNode = geometryItems.find(
+//         node => node.data.viewableID === sheetData.viewableID
+//       );
+
+//       if (!viewableNode) {
+//         console.error("❌ Viewable not found:", sheetData.viewableID);
+//         return;
+//       }
+
+//       // viewer.getVisibleModels().forEach(m => viewer.unloadModel(m));
+//       console.log("Offset used for loading sheet:", window.modelOffset);  
+//       await viewer.loadDocumentNode(doc, viewableNode, {
+//         keepCurrentModels: true
+//       });
+
+//       // push 2D slightly above 3D
+//       viewer.impl.modelQueue().getModels().forEach(e => {
+//         if (!e.is2d()) return;
+
+//         align2DTo3D(viewer, e);
+//         // const tx = new THREE.Matrix4().makeTranslation(window.modelOffset.x, window.modelOffset.y, 100); // MOVE IN XY
+//         // e.setPlacementTransform(tx);
+
+//         console.log("✅ 2D moved");
+//       });
+
+//       console.log("✅ Loaded:", sheetData.name);
+//       localStorage.setItem("is2D", "true");
+//     },
+//     (code, message) => {
+//       console.error("❌ Load failed:", message);
+//     },
+//     { accessToken }
+//   );
+// }
+
+
+// function getReferenceDbId(viewer) {
+//   const sel = viewer.getAggregateSelection();
+//   if (!sel.length) {
+//     console.warn("❌ Select ONE element in the 3D model first");
+//     return null;
+//   }
+//   return sel[0];
+// }
+
+
+// function align2DTo3D(viewer, model2D, referenceDbId) {
+//   const model3D = viewer.getVisibleModels().find(m => !m.is2d());
+//   if (!model3D) return;
+
+//   // 3D world center
+//   const P3D = getWorldCenter(referenceDbId, model3D);
+
+//   // Current 2D center
+//   const box2D = model2D.getBoundingBox(referenceDbId);
+//   if (!box2D) {
+//     console.warn("❌ Element not found in 2D");
+//     return;
+//   }
+
+//   const P2D = new THREE.Vector2(
+//     (box2D.min.x + box2D.max.x) / 2,
+//     (box2D.min.y + box2D.max.y) / 2
+//   );
+
+//   // Delta (XY only)
+//   const deltaX = P3D.x - P2D.x;
+//   const deltaY = P3D.y - P2D.y;
+
+//   const tx = new THREE.Matrix4().makeTranslation(deltaX, deltaY, 0);
+//   model2D.setPlacementTransform(tx);
+
+//   console.log("✅ 2D aligned using 3D reference");
+// }
+
+
+// function getWorldCenter(dbId, model) {
+//   const box = new THREE.Box3();
+//   const fragIds = [];
+
+//   model.getData().instanceTree.enumNodeFragments(dbId, id => fragIds.push(id));
+//   fragIds.forEach(fragId =>
+//     model.getFragmentList().getWorldBounds(fragId, box)
+//   );
+
+//   return box.getCenter(new THREE.Vector3());
+// }
+
 
 
 

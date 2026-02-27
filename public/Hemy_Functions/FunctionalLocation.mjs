@@ -336,87 +336,9 @@ export async function highlightFLByTask(viewer, message) {
 
 
 // #region Zone FL
-// export async function zoneFunctionalLocation(viewer, message) {
-//   viewer.clearSelection();
-//   const zoneData = JSON.parse(message.JSONPayload || "[]");
-//   console.log("Parsed zone data:", zoneData);
 
-//   const models = viewer.impl.modelQueue().getModels();
-
-//   // Clear all theming at start
-//   models.forEach(model => viewer.clearThemingColors(model));
-
-//   if (!models?.length || !Array.isArray(zoneData) || zoneData.length === 0) return;
-
-//   // Colors
-//   const red = new THREE.Vector4(1, 0, 0, 1);
-//   const green = new THREE.Vector4(0, 1, 0, 1);
-//   const redSel = new THREE.Color(1, 0, 0);
-//   const greenSel = new THREE.Color(0, 1, 0);
-
-//   // Group FunctionalLocations by Tenant
-//   const tenantGroups = [...new Set(zoneData.map(z => z.Tenant))].map(t => ({
-//     tenant: t,
-//     locations: zoneData.filter(z => z.Tenant === t).map(z => z.FunctionalLocation),
-//   }));
-
-//   const model2 = models[1];
-//   if (!model2) {
-//     console.warn("Second model not found!");
-//     return;
-//   }
-
-//   // 🔥 Loop stays EXACTLY the same — only small async fix inside
-//   for (const { tenant, locations } of tenantGroups) {
-
-//     const tenantColor = tenant === "Unoccupied" ? red : green;
-//     const selectionColor = tenant === "Unoccupied" ? redSel : greenSel;
-
-//     let allDbIds = [];
-
-//     // 🔥 ONLY change: wrap each search in a Promise
-//     const searches = locations.map(loc => {
-//       return new Promise(resolve => {
-//         model2.search(
-//           loc,
-//           dbIDs => {
-//             if (dbIDs?.length) {
-
-//               allDbIds.push(...dbIDs);
-
-//               dbIDs.forEach(id => viewer.setThemingColor(id, tenantColor, model2));
-
-//               // Progressive selection (you keep this)
-//               viewer.select(dbIDs, model2);
-//               viewer.setSelectionColor(selectionColor);
-
-//               console.log(`Tenant "${tenant}" → ${dbIDs.length} matches in model ${model2.id}`);
-//             }
-//             resolve();
-//           },
-//           err => {
-//             console.warn("Search error:", err);
-//             resolve();
-//           }
-//         );
-//       });
-//     });
-
-//     // 🔥 Only new line: wait for all search callbacks
-//     await Promise.all(searches);
-
-//     // NOW allDbIds is filled → this finally works
-//     console.log("Selecting all matched dbIds:", allDbIds);
-//     viewer.select(allDbIds, model2);
-//   }
-// }
-
-
-
-// CACHE TEST
+// CACHE
 const functionalLocationCache = new Map();
-// key: modelId
-// value: Map<FunctionalLocationName, dbId[]>
 
 export async function zoneFunctionalLocation(viewer, message) {
   viewer.clearSelection();
@@ -502,28 +424,6 @@ export async function zoneFunctionalLocation(viewer, message) {
   ------------------------------*/
   let finalSelection = [];
 
-  // for (const { tenant, locations } of tenantGroups) {
-  //   const themeColor = tenant === "Unoccupied" ? red : pink;
-  //   const selectColor = tenant === "Unoccupied" ? redSel : pinkSel;
-
-  //   let tenantDbIds = [];
-
-  //   for (const loc of locations) {
-  //     const ids = locationMap.get(loc);
-  //     if (ids?.length) tenantDbIds.push(...ids);
-  //   }
-
-  //   tenantDbIds.forEach(id =>
-  //     viewer.setThemingColor(id, themeColor, model2)
-  //   );
-
-  //   if (tenantDbIds.length) {
-  //     viewer.setSelectionColor(selectColor);
-  //     finalSelection.push(...tenantDbIds);
-  //   }
-  // }
-
-
   tenantGroups.forEach(({ tenant, locations }, index) => {
     const isLast = index === tenantGroups.length - 1;
 
@@ -553,48 +453,165 @@ export async function zoneFunctionalLocation(viewer, message) {
   viewer.impl.invalidate(true);
   viewer.setGhosting(true);
   viewer.select(finalSelection, model2);
+}
+// #endregion
 
-  
 
-  // /* -----------------------------
-  //   3. Apply theming & selection
-  // ------------------------------*/
 
-  // let selectionDbIds = [];
-  // const activeTenant = "Unoccupied";
 
-  // for (const { tenant, locations } of tenantGroups) {
-  //   const isActive = tenant === activeTenant;
-  //   const themeColor = tenant === "Unoccupied" ? red : green;
 
-  //   let tenantDbIds = [];
 
-  //   for (const loc of locations) {
-  //     const ids = locationMap.get(loc);
-  //     if (ids?.length) tenantDbIds.push(...ids);
-  //   }
 
-  //   // Apply theming to ALL
-  //   tenantDbIds.forEach(id =>
-  //     viewer.setThemingColor(id, themeColor, model2)
-  //   );
 
-  //   // ✅ ONLY push dbIds for the active group
-  //   if (isActive) {
-  //     selectionDbIds.push(...tenantDbIds);
-  //     viewer.setSelectionColor(
-  //       tenant === "Unoccupied" ? redSel : greenSel
-  //     );
-  //   }
-  // }
 
-  // // Force repaint
-  // viewer.impl.invalidate(true);
+// #region 360 Zones
+export async function zone360(viewer, message) {
+  viewer.clearSelection();
 
-  // // Select ONLY the active tenant group
-  // viewer.select(selectionDbIds, model2);
+    const models = viewer.impl.modelQueue().getModels();
+  // models.forEach(m => viewer.clearThemingColors(m));
+  models.forEach(model => viewer.clearThemingColors(model));
 
-  
+  const zoneData = JSON.parse(message.JSONPayload);
+  if (!Array.isArray(zoneData) || zoneData.length === 0) return;
+
+  const model3 = models[2];
+  if (!model3) {
+    console.warn("Third model not found");
+    return;
+  }
+
+  // Colors
+  const red = new THREE.Vector4(1, 0, 0, 1);
+  // const green = new THREE.Vector4(0, 1, 0, 1);
+  const pink = new THREE.Vector4(0.902, 0.451, 0.890, 1);
+
+  const redSel = new THREE.Color(1, 0, 0);
+  // const greenSel = new THREE.Color(0, 1, 0);
+  const pinkSel = new THREE.Color(0.902, 0.451, 0.890);
+  /* -----------------------------
+     1. Build cache (SEARCH BY ID)
+  ------------------------------*/
+  console.log("Building / using FL cache for model:", functionalLocationCache);
+  if (!functionalLocationCache.has(model3.id)) {
+    functionalLocationCache.set(model3.id, new Map());
+  }
+
+  const locationMap = functionalLocationCache.get(model3.id);
+
+  // Unique FunctionalLocation IDs
+  // const uniqueLocations = [...new Set(zoneData.map(z => z.FunctionalLocation))];
+
+  const uniqueLocations = [
+    ...new Set(
+      zoneData
+        .map(z => z.FunctionalLocation)
+        .filter(loc => typeof loc === "string" && loc.trim() !== "")
+    )
+  ];
+
+
+  // Run searches ONLY for uncached IDs
+  const searches = uniqueLocations
+    .filter(loc => !locationMap.has(loc))
+    .map(loc => {
+      return new Promise(resolve => {
+        model3.search(
+          loc,
+          dbIds => {
+            locationMap.set(loc, dbIds || []);
+            resolve();
+          },
+          err => {
+            console.warn("Search error for", loc, err);
+            locationMap.set(loc, []);
+            resolve();
+          }
+        );
+      });
+    });
+
+  // Wait for missing searches only
+  await Promise.all(searches);
+
+  /* -----------------------------
+     2. Group by tenant
+  ------------------------------*/
+  const tenantGroups = [...new Set(zoneData.map(z => z.Tenant))].map(t => ({
+    tenant: t,
+    locations: zoneData
+      .filter(z => z.Tenant === t)
+      .map(z => z.FunctionalLocation)
+  }));
+
+  /* -----------------------------
+     3. Apply theming & selection
+  ------------------------------*/
+  let finalSelection = [];
+
+  tenantGroups.forEach(({ tenant, locations }, index) => {
+    const isLast = index === tenantGroups.length - 1;
+
+    const themeColor =
+      tenant === "Unoccupied"
+        ? red
+        : tenantToThemeColor(tenant);
+
+    const selectColor =
+      tenant === "Unoccupied"
+        ? redSel
+        : new THREE.Color(themeColor.x, themeColor.y, themeColor.z);
+
+    let tenantDbIds = [];
+
+    for (const loc of locations) {
+      const ids = locationMap.get(loc);
+      if (ids?.length) tenantDbIds.push(...ids);
+    }
+
+    tenantDbIds.forEach(id =>
+      viewer.setThemingColor(id, themeColor, model3)
+    );
+
+    // ONLY push selection if this is the last tenantGroup
+    if (isLast && tenantDbIds.length) {
+      viewer.setSelectionColor(selectColor);
+      finalSelection.push(...tenantDbIds);
+    }
+  });
+
+
+  // Force repaint (important)
+  viewer.impl.invalidate(true);
+  viewer.setGhosting(true);
+  viewer.select(finalSelection, model3);
+}
+
+
+function hashString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0; // force 32-bit
+  }
+  return Math.abs(hash);
+}
+
+function tenantToThemeColor(tenant) {
+  const hash = hashString(tenant);
+
+  // Golden ratio to spread hues evenly
+  const goldenRatio = 0.618033988749895;
+  const hue = (hash * goldenRatio) % 1;
+
+  const color = new THREE.Color();
+  color.setHSL(
+    hue,     // 0–1
+    0.55,    // saturation
+    0.60     // lightness
+  );
+
+  return new THREE.Vector4(color.r, color.g, color.b, 1);
 }
 // #endregion
 

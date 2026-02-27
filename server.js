@@ -82,6 +82,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 app.use(require('./routes/auth.js'));
 app.use(require('./routes/hubs.js'));
+app.use(require('./routes/hemyTaskRoutes.js'));
 
 // Inject WebSocket clients into your custom route (for Power Automate)
 const createWebSocketRoutes = require('./routes/websocket.js');
