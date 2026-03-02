@@ -359,14 +359,46 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
         } else {
           if (aggregateSelection && aggregateSelection.length > 0) {
             // Check if aggregateSelection is defined and has items
-            aggregateSelection.forEach((selection) => {
-              // console.log("Processing selection:", selection); // Log the selection details
+            aggregateSelection.forEach(async (selection) => {
 
               const model = selection.model; // Get the selected model
-              // console.log("Model:", model);            // Log the model
 
               const dbIdArray = selection.selection; // Get the selected object IDs from the selection array
-              // console.log("dbIdArray:", dbIdArray);    // Log the dbIdArray
+
+              // ---- get properties (async)
+              const props = await new Promise((resolve) => {
+                model.getProperties(dbIdArray[0], (p) => resolve(p));
+              });
+
+              // ---- extract Asset ID (GUID)
+              let assetId = null;
+              for (const prop of props.properties) {
+                if (
+                  (prop.displayName === "Asset ID" ||
+                  prop.displayName === "Asset ID (GUID)") &&
+                  prop.displayValue
+                ) {
+                  assetId = prop.displayValue;
+                  break;
+                }
+              }
+
+              if (!assetId) {
+                console.warn("No Asset ID found for dbId:", dbId);
+              }
+
+              const params = new URLSearchParams(window.location.search);
+
+              if (params.has("dbId")) {
+                params.set("dbId", assetId);
+
+                window.history.replaceState(
+                  {},
+                  "",
+                  `${location.pathname}?${params.toString()}`
+                );
+              }
+
 
               if (dbIdArray && dbIdArray.length > 0) {
                 // Ensure dbIdArray is defined and has objects
