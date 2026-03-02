@@ -607,8 +607,8 @@ function tenantToThemeColor(tenant) {
   const color = new THREE.Color();
   color.setHSL(
     hue,     // 0–1
-    0.55,    // saturation
-    0.60     // lightness
+    0.45,    // saturation
+    0.70     // lightness
   );
 
   return new THREE.Vector4(color.r, color.g, color.b, 1);
