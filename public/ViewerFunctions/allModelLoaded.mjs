@@ -354,7 +354,7 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
             setTimeout(() => viewer.resize(), 300);
 
             // notify container
-            window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
+            // window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
           }
         } else {
           if (aggregateSelection && aggregateSelection.length > 0) {
@@ -387,16 +387,21 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
                 console.warn("No Asset ID found for dbId:", dbId);
               }
 
+              window.parent.postMessage(
+                  JSON.stringify({ type: "assetSelected", assetId }),
+                  "*"
+              );
+
               const params = new URLSearchParams(window.location.search);
 
               if (params.has("dbId")) {
                 params.set("dbId", assetId);
 
-                window.history.replaceState(
-                  {},
-                  "",
-                  `${location.pathname}?${params.toString()}`
-                );
+                // window.history.replaceState(
+                //   {},
+                //   "",
+                //   `${location.pathname}?${params.toString()}`
+                // );
               }
 
 
