@@ -597,21 +597,43 @@ function hashString(str) {
   return Math.abs(hash);
 }
 
+// function tenantToThemeColor(tenant) {
+//   const hash = hashString(tenant);
+
+//   // Golden ratio to spread hues evenly
+//   const goldenRatio = 0.618033988749895;
+//   const hue = (hash * goldenRatio) % 1;
+
+//   const color = new THREE.Color();
+//   color.setHSL(
+//     hue,     // 0–1
+//     0.45,    // saturation
+//     0.70     // lightness
+//   );
+
+//   return new THREE.Vector4(color.r, color.g, color.b, 1);
+// }
+
 function tenantToThemeColor(tenant) {
-  const hash = hashString(tenant);
+  const alphabet =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-  // Golden ratio to spread hues evenly
-  const goldenRatio = 0.618033988749895;
-  const hue = (hash * goldenRatio) % 1;
+  let hash = 0;
 
-  const color = new THREE.Color();
-  color.setHSL(
-    hue,     // 0–1
-    0.45,    // saturation
-    0.70     // lightness
-  );
+  for (let i = 0; i < tenant.length; i++) {
+    const char = tenant[i];
+    const index = alphabet.indexOf(char);
+    if (index !== -1) {
+      hash += index + 1; // +1 because Find() in Power Apps is 1-based
+    }
+  }
 
-  return new THREE.Vector4(color.r, color.g, color.b, 1);
+  // SAME math as Power Apps
+  const r = (hash * 37) % 255;
+  const g = (hash * 57) % 255;
+  const b = (hash * 97) % 255;
+
+  return new THREE.Vector4(r / 255, g / 255, b / 255, 1);
 }
 // #endregion
 
