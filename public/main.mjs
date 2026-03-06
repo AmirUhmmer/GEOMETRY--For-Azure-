@@ -65,6 +65,9 @@ async function initApp() {
       let userType = params["user"];
       const userGuid = params["userGuid"];
       let sidebar = params["sidebar"]; // The sidebar, if it exists
+      let PIMEntity = params["PIMEntity"];
+      let PIMFolder = params["PIMFolder"];
+      let PIMProject = params["PIMProject"];
       window.userGuid = userGuid; // Store userGuid in the global window object
 
       if (sidebar === "off") {
@@ -78,14 +81,12 @@ async function initApp() {
       }
 
       if (userType == "tenant" || userType == "supplier") {
-        // document.getElementById("3D-button").style.display = "none";
         document.getElementById("2D-sheets-item").style.display = "none";
         document.getElementById("live-data-button-item").style.display = "none";
         document.getElementById("zones-button-item").style.display = "none";
         document.getElementById("model-browser-button-item").style.display = "none";
         document.getElementById("levels-item").style.display = "none";
       } else if (userType == "supplier") {
-        // document.getElementById("3D-button").style.display = "none";
         document.getElementById("2D-sheets").style.display = "none";
         document.getElementById("live-data").style.display = "none";
         document.getElementById("zones-button").style.display = "none";
@@ -148,12 +149,27 @@ async function initApp() {
         localStorage.setItem("LiveData", liveData);
       }
 
-      if (!geometry) {
+      if (!geometry && !PIMEntity && !PIMFolder && !PIMProject) {
         geometry = defaultGeometry;
         projectId = "b.bf8f603c-7e37-4367-9900-69e279377191";
         folderId = "urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw";
         liveData = "DB8";
         model = "DB8";
+        hardAsset = "No Hard Asset";
+        localStorage.setItem("LiveData", liveData);
+        localStorage.removeItem("ASSET");
+
+        document.getElementById("noModel").style.display = "flex";
+        document.getElementById("noModelText").style.display = "block";
+
+      } 
+
+      if (PIMEntity && PIMFolder && PIMProject) {
+        geometry = [PIMEntity];
+        projectId = "b." + PIMProject;
+        folderId = "urn:adsk.wipemea:fs.folder:co." + PIMFolder;
+        liveData = "PIM";
+        model = "PIM";
         hardAsset = "No Hard Asset";
         localStorage.setItem("LiveData", liveData);
         localStorage.removeItem("ASSET");
