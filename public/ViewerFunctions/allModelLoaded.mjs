@@ -241,90 +241,35 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
             // fallback logic
             if (!isFunctionalLocation) {
               const functionalKeywords = [
-                // "room",
-                // "rooms",
-                "space",
-                "spaces",
-                "area",
-                "areas",
-                "corridor",
-                "hallway",
-                "hall",
-                "passage",
-                "lobby",
-                "vestibule",
-                "foyer",
-                "gallery",
-                "concourse",
-                "stair",
-                "stairs",
-                "staircase",
-                "stairwell",
-                "escalator",
-                "lift lobby",
-                "elevator lobby",
-                "shaft",
-                "riser",
-                "mechanical room",
-                "electrical room",
-                "communication room",
-                "server room",
-                "telco",
-                "riser room",
-                "pump room",
-                "fire pump room",
-                "control room",
-                "plant room",
-                "boiler room",
-                "chiller room",
-                "toilet",
-                "washroom",
-                "bathroom",
-                "lavatory",
-                "wc",
-                "shower",
-                "pantry",
-                "kitchen",
-                "storage",
-                "storeroom",
-                "janitor",
-                "cleaner",
-                "archive",
-                "file room",
-                "meeting room",
-                "conference room",
-                "boardroom",
-                "office",
-                "zone",
-                "zones",
-                "mass",
-                "revit mass",
-                "fire zone",
-                "hvac zone",
-                "text",
+                "space","spaces","area","areas","corridor","hallway","hall","passage",
+                "lobby","vestibule","foyer","gallery","concourse",
+                "stair","stairs","staircase","stairwell","escalator",
+                "lift lobby","elevator lobby","shaft","riser",
+                "mechanical room","electrical room","communication room","server room",
+                "telco","riser room","pump room","fire pump room","control room",
+                "plant room","boiler room","chiller room",
+                "toilet","washroom","bathroom","lavatory","wc","shower",
+                "pantry","kitchen","storage","storeroom","janitor","cleaner",
+                "archive","file room","meeting room","conference room","boardroom",
+                "office","zone","zones","mass","revit mass","fire zone","hvac zone","text"
               ];
 
-              for (const prop of props.properties) {
-                const val = (prop.displayValue ?? "").toString().toLowerCase();
-                
-                if (prop.displayName === "Category") {
-                  if (
-                    ["revit mass", "rooms", "spaces", "areas"].includes(val)
-                  ) {
-                    isFunctionalLocation = true;
-                    break;
-                  }
+              const categoryMatch = ["revit mass", "rooms", "spaces", "areas"];
+              const nameFields = ["Type Name", "Family", "Name"];
+
+              for (const { displayName, displayValue } of props.properties) {
+                const val = (displayValue ?? "").toString().toLowerCase();
+
+                if (displayName === "Category" && categoryMatch.includes(val)) {
+                  isFunctionalLocation = true;
+                  break;
                 }
 
-                if (
-                  ["Type Name", "Family", "Name"].includes(prop.displayName)
-                ) {
-                  console.log(`DBUG "${prop.displayName}": ${val}`);
-                  if (functionalKeywords.some((k) => val.includes(k))) {
-                    console.log(`Heuristic match for Functional Location based on property "${prop.displayName}": ${val}`);
-                    isFunctionalLocation = true;
-                    break;
-                  }
+                if (nameFields.includes(displayName) &&
+                    functionalKeywords.some(k => val.includes(k))) {
+                  console.log(`Heuristic match: ${displayName} → ${val}`);
+                  isFunctionalLocation = true;
+                  break;
                 }
               }
             }
@@ -387,23 +332,61 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
                 console.warn("No Asset ID found for dbId:", dbId);
               }
 
-              window.parent.postMessage(
-                  JSON.stringify({ type: "assetSelected", assetId }),
-                  "*"
-              );
+                // ----- classification
+              let isFunctionalLocation = false;
 
-              const params = new URLSearchParams(window.location.search);
+              // fallback logic
+              if (!isFunctionalLocation) {
+                const functionalKeywords = [
+                  "space","spaces","area","areas","corridor","hallway","hall","passage",
+                  "lobby","vestibule","foyer","gallery","concourse",
+                  "stair","stairs","staircase","stairwell","escalator",
+                  "lift lobby","elevator lobby","shaft","riser",
+                  "mechanical room","electrical room","communication room","server room",
+                  "telco","riser room","pump room","fire pump room","control room",
+                  "plant room","boiler room","chiller room",
+                  "toilet","washroom","bathroom","lavatory","wc","shower",
+                  "pantry","kitchen","storage","storeroom","janitor","cleaner",
+                  "archive","file room","meeting room","conference room","boardroom",
+                  "office","zone","zones","mass","revit mass","fire zone","hvac zone","text"
+                ];
 
-              if (params.has("dbId")) {
-                params.set("dbId", assetId);
+                const categoryMatch = ["revit mass", "rooms", "spaces", "areas"];
+                const nameFields = ["Type Name", "Family", "Name"];
 
-                // window.history.replaceState(
-                //   {},
-                //   "",
-                //   `${location.pathname}?${params.toString()}`
-                // );
+                for (const { displayName, displayValue } of props.properties) {
+                  const val = (displayValue ?? "").toString().toLowerCase();
+
+                  if (displayName === "Category" && categoryMatch.includes(val)) {
+                    isFunctionalLocation = true;
+                    break;
+                  }
+
+                  if (nameFields.includes(displayName) &&
+                      functionalKeywords.some(k => val.includes(k))) {
+                      console.log(`Heuristic match: ${displayName} → ${val}`);
+                      isFunctionalLocation = true;
+                    break;
+                  }
+                }
               }
 
+
+              if (!isFunctionalLocation) {
+                  window.parent.postMessage(
+                    JSON.stringify({ type: "assetSelected", assetId }),
+                    "*"
+                  );
+              } else {
+                  window.parent.postMessage(
+                    JSON.stringify({ type: "functionalLocationSelected", assetId }),
+                    "*"
+                  );
+              }
+
+
+
+              const params = new URLSearchParams(window.location.search);
 
               if (dbIdArray && dbIdArray.length > 0) {
                 // Ensure dbIdArray is defined and has objects

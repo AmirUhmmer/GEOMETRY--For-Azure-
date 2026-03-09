@@ -989,10 +989,6 @@ export function showTasks(viewer, RepeatingTask) {
 
       if (alldbidAsset.length > 0) {
         console.log("Fitting to Asset IDs");
-        // const is2D = model.is2d();
-        // console.log("Models in viewer:", models);
-        // console.log("AlldbidAsset:", alldbidAsset);
-        // Load the extension once, wait for it to finish
         viewer.loadExtension('Autodesk.ViewCubeUi').then((viewCube) => {
 
           models.forEach((model, index) => {
@@ -1003,31 +999,33 @@ export function showTasks(viewer, RepeatingTask) {
               return;
             }
 
-
+            // #region FIT TO VIEW 
             // Start fit animation
-            // viewer.fitToView(alldbidAsset, model);
+            viewer.fitToView(alldbidAsset, model);
             // viewCube.setViewCube('top');
 
             // Wait until the fitToView camera animation completes
             const onCameraTransitionComplete = () => {
               console.log("Fit to view completed. Setting view cube...");
-              const nav = viewer.navigation;
-
-              const pos = nav.getPosition();
-              const target = nav.getTarget();
-
-              const dir = new THREE.Vector3()
-                .subVectors(pos, target)
-                .normalize();
-
-              // positive = zoom out, negative = zoom in
-              pos.add(dir.multiplyScalar(50));
-
-              nav.setPosition(pos);
-              nav.setTarget(target);
               // viewCube.setViewCube('front top');
               viewCube.setViewCube('top');
-              
+
+              setTimeout(() => {
+
+                const camera = viewer.getCamera();
+                const position = camera.position.clone();
+                const target = viewer.navigation.getTarget().clone();
+
+                const dir = new THREE.Vector3();
+                dir.subVectors(position, target).normalize();
+
+                position.add(dir.multiplyScalar(15));
+
+                viewer.navigation.setView(position, target);
+
+                console.log("Camera position adjusted:", viewer.getCamera().position);
+
+              }, 500);
               // Remove listener so it doesn't trigger again
               viewer.removeEventListener(
                 Autodesk.Viewing.CAMERA_TRANSITION_COMPLETED,
