@@ -1,10 +1,10 @@
 import * as mainFunction from "./main.mjs";
 
-import { SPRITES } from "../DB8/DB8Sprites.mjs";
-import { HEATMAP } from "../DB8/DB8SurfaceShading.mjs";
-import { LightSPRITES } from "../DB8/DB8LightsSprites.mjs";
-import { HG62HEATMAP } from "../HG62/HG62SurfaceShading.mjs";
-import { HG62SPRITES } from "../HG62/HG62Sprites.mjs";
+import { SPRITES } from "./DB8/DB8Sprites.mjs";
+import { HEATMAP } from "./DB8/DB8SurfaceShading.mjs";
+import { LightSPRITES } from "./DB8/DB8LightsSprites.mjs";
+import { HG62HEATMAP } from "./HG62/HG62SurfaceShading.mjs";
+import { HG62SPRITES } from "./HG62/HG62Sprites.mjs";
 
 // ***************************** sidebar button to open the model browser panel **************************
 document
@@ -284,64 +284,67 @@ async function modelBrowserPanel() {
 
 // #region: 3D Model
 export async function button3D() {
-  const viewer = window.viewerInstance;
-  // const models = viewer.impl.modelQueue().getModels();
-  // const urns = []
-  // models.forEach(model => {
-  //     urns.push(model.getSeedUrn());
+
+  window.location.reload();
+
+  // const viewer = window.viewerInstance;
+  // // const models = viewer.impl.modelQueue().getModels();
+  // // const urns = []
+  // // models.forEach(model => {
+  // //     urns.push(model.getSeedUrn());
+  // // });
+  // // Optional: unload current models before loading new ones
+  // viewer.getVisibleModels().forEach((model) => {
+  //   viewer.unloadModel(model);
   // });
-  // Optional: unload current models before loading new ones
-  viewer.getVisibleModels().forEach((model) => {
-    viewer.unloadModel(model);
-  });
-  const access_token = localStorage.getItem("authToken");
+  // const access_token = localStorage.getItem("authToken");
 
-  async function loadModels() {
-    try {
-      // Load each model sequentially
-      for (let modelUrn of window.urns) {
-        await new Promise((resolve, reject) => {
-          Autodesk.Viewing.Document.load(
-            "urn:" + modelUrn,
-            async (doc) => {
-              try {
-                await onDocumentLoadSuccess(doc);
-                resolve();
-              } catch (err) {
-                reject(err);
-              }
-            },
-            onDocumentLoadFailure,
-            { accessToken: access_token },
-          );
-        });
-      }
-    } catch (error) {
-      console.error("Unexpected error in loadModels:", error);
-    }
-  }
+  // async function loadModels() {
+  //   try {
+  //     // Load each model sequentially
+  //     for (let modelUrn of window.urns) {
+  //       await new Promise((resolve, reject) => {
+  //         Autodesk.Viewing.Document.load(
+  //           "urn:" + modelUrn,
+  //           async (doc) => {
+  //             try {
+  //               await onDocumentLoadSuccess(doc);
+  //               resolve();
+  //             } catch (err) {
+  //               reject(err);
+  //             }
+  //           },
+  //           onDocumentLoadFailure,
+  //           { accessToken: access_token },
+  //         );
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Unexpected error in loadModels:", error);
+  //   }
+  // }
 
-  async function onDocumentLoadSuccess(doc) {
-    const loadOptions = {
-      keepCurrentModels: true,
-      globalOffset: { x: 0, y: 0, z: 0 },
-      applyRefPoint: true,
-    };
+  // async function onDocumentLoadSuccess(doc) {
+  //   const loadOptions = {
+  //     keepCurrentModels: true,
+  //     globalOffset: { x: 0, y: 0, z: 0 },
+  //     applyRefPoint: true,
+  //   };
 
-    const defaultGeometry = doc.getRoot().getDefaultGeometry();
-    const model = await viewer.loadDocumentNode(
-      doc,
-      defaultGeometry,
-      loadOptions,
-    );
-  }
+  //   const defaultGeometry = doc.getRoot().getDefaultGeometry();
+  //   const model = await viewer.loadDocumentNode(
+  //     doc,
+  //     defaultGeometry,
+  //     loadOptions,
+  //   );
+  // }
 
-  function onDocumentLoadFailure(code, message) {
-    console.error("Failed to load model:", message);
-    alert("Could not load model. See console for details.");
-  }
+  // function onDocumentLoadFailure(code, message) {
+  //   console.error("Failed to load model:", message);
+  //   alert("Could not load model. See console for details.");
+  // }
 
-  await loadModels();
+  // await loadModels();
 }
 // #endregion
 
@@ -638,6 +641,14 @@ export async function firePlansPanel() {
       const viewableID = sheetData.viewableID; // this must exist on sheetData
       const access_token = localStorage.getItem("authToken");
 
+      const dataVizExtn = viewer.unloadExtension("Autodesk.DataVisualization");
+
+      // console.log("data viz: ",dataVizExtn)
+
+      // if (dataVizExtn && dataVizExtn._viewables) {
+      //     dataVizExtn._viewables.length = 0;
+      // }
+
       window.urns.forEach((modelUrn) => {
         Autodesk.Viewing.Document.load(
           "urn:" + modelUrn,
@@ -662,17 +673,10 @@ export async function firePlansPanel() {
         // Unload existing models before loading
         viewer.getVisibleModels().forEach((model) => viewer.unloadModel(model));
 
-        // const loadOptions = {
-        //   keepCurrentModels: true,
-        //   globalOffset: { x: 0, y: 0, z: 0 },
-        //   applyRefPoint: true
-        // };
-
         try {
           const model = await viewer.loadDocumentNode(doc, viewableNode);
 
           if (model.is2d()) {
-            // console.log(" 2D detected");
 
             // Tell viewer this is 2D
             viewer.navigation.setIs2D(true);
@@ -682,7 +686,7 @@ export async function firePlansPanel() {
 
             // Optional cleanup
             viewer.fitToView();
-            // viewer.setViewCube(null);
+            viewer.navigation.setRequestHomeView(true);
           } else {
             viewer.navigation.setIs2D(false);
 
@@ -815,6 +819,14 @@ async function load2DSheet(viewer, sheetData) {
   const accessToken = localStorage.getItem("authToken");
   if (!accessToken) return alert("No access token.");
 
+  const dataVizExtn = viewer.getExtension("Autodesk.DataVisualization");
+  console.log("data viz: ",dataVizExtn)
+  if (dataVizExtn && dataVizExtn._viewables) {
+      dataVizExtn._viewables.length = 0;
+  }
+
+  viewer.impl.invalidate(true);
+
   Autodesk.Viewing.Document.load(
     "urn:" + sheetData.urn,
     async (doc) => {
@@ -829,6 +841,7 @@ async function load2DSheet(viewer, sheetData) {
         return;
       }
 
+      viewer.unloadExtension("Autodesk.DataVisualization");
       viewer.getVisibleModels().forEach(m => viewer.unloadModel(m));
       // console.log("Offset used for loading sheet:", window.modelOffset);  
       await viewer.loadDocumentNode(doc, viewableNode, {
@@ -843,10 +856,8 @@ async function load2DSheet(viewer, sheetData) {
         const tx = new THREE.Matrix4().makeTranslation(window.modelOffset.x, window.modelOffset.y, 100); // MOVE IN XY
         e.setPlacementTransform(tx);
 
-        console.log("✅ 2D moved");
       });
 
-      console.log("✅ Loaded:", sheetData.name);
       localStorage.setItem("is2D", "true");
     },
     (code, message) => {

@@ -1019,7 +1019,7 @@ export function showTasks(viewer, RepeatingTask) {
                 const dir = new THREE.Vector3();
                 dir.subVectors(position, target).normalize();
 
-                position.add(dir.multiplyScalar(15));
+                position.add(dir.multiplyScalar(70));
 
                 viewer.navigation.setView(position, target);
 
@@ -1315,16 +1315,20 @@ export async function showAllTasks(viewer, RepeatingTask) {
 
   // Process properties only for HardAssetIDs
   function processProps(props, dbID, model, expectedID, color) {
+    // console.log('Expected ID:', expectedID);
     let assetIDValue = null;
     let category = props.Category;
 
     props.properties.forEach(({ displayName, displayValue }) => {
-      if (displayName === "Asset ID" || displayName === "Asset ID (GUID)") assetIDValue = (displayValue || "").trim();
+      // console.log(`Property for dbID ${dbID}:`, displayName, displayValue);
+      if (displayName === "Asset ID (GUID)") assetIDValue = (displayValue || "").trim();
       if (displayName === "Category") category = displayValue;
     });
 
     if (props.name === undefined || props.name === null) return;
     if (category === "Revit Room" || category === "Revit Rooms") return;
+
+    // console.log(`Checking dbID ${dbID} with Asset ID: ${assetIDValue} against expected ID: ${expectedID}`);
 
     if (assetIDValue === expectedID && assetIDValue != null) {
       alldbid.push(dbID);
@@ -1495,11 +1499,17 @@ export async function showAllTasks(viewer, RepeatingTask) {
       if (!viewable || !viewable.customData) return;
 
       // normalize data fields
-      const { dbid, model, assetId, tasks, pointId, objectDBID } = viewable.customData;
+      const { dbid, model, assetId, tasks, pointId, objectDBID } =
+        viewable.customData;
       const targetDbId = dbid || objectDBID || spriteId;
       const targetModel = model || dbIdModelMap?.get(targetDbId);
 
-      console.log("🟣 Sprite clicked:", assetId ?? pointId ?? spriteId, targetDbId, tasks);
+      console.log(
+        "🟣 Sprite clicked:",
+        assetId ?? pointId ?? spriteId,
+        targetDbId,
+        tasks,
+      );
 
       if (!targetModel || !targetDbId) return;
 
@@ -1512,22 +1522,46 @@ export async function showAllTasks(viewer, RepeatingTask) {
       }
 
       // --- 2️⃣ wait for camera transition (smooth) ---
+      // #region note
       await waitForCameraTransition(viewer, 1000);
 
+      setTimeout(() => {
+        const camera = viewer.getCamera();
+        const position = camera.position.clone();
+        const target = viewer.navigation.getTarget().clone();
+
+        const dir = new THREE.Vector3();
+        dir.subVectors(position, target).normalize();
+
+        position.add(dir.multiplyScalar(70));
+
+        viewer.navigation.setView(position, target);
+
+        console.log("Camera position adjusted:", viewer.getCamera().position);
+      }, 1000);
+
+      
       // --- 3️⃣ switch to correct Level if found ---
       targetModel.getProperties(targetDbId, async (props) => {
         try {
           console.log("Asset properties for level switch:", props);
-          const levelProp = props.properties.find((p) =>
-            ["Level", "Schedule Level"].includes(p.displayName) && p.displayCategory === "Constraints"
+          const levelProp = props.properties.find(
+            (p) =>
+              ["Level", "Schedule Level"].includes(p.displayName) &&
+              p.displayCategory === "Constraints",
           );
           console.log("Found level property:", levelProp);
           if (levelProp && levelProp.displayValue) {
             const assetLevel = levelProp.displayValue;
-            const levelsExt = await viewer.loadExtension("Autodesk.AEC.LevelsExtension");
+            const levelsExt = await viewer.loadExtension(
+              "Autodesk.AEC.LevelsExtension",
+            );
             const levels = levelsExt.floorSelector?._floors || [];
             console.log("Switching to asset level:", levels);
-            console.log("Available levels:", levels.map(lv => lv.name));
+            console.log(
+              "Available levels:",
+              levels.map((lv) => lv.name),
+            );
             const matched = levels.find((lvl) => lvl.name === assetLevel);
             if (matched) {
               console.log("🔹 Switching to level:", matched.name);
@@ -1548,7 +1582,7 @@ export async function showAllTasks(viewer, RepeatingTask) {
       }
 
       // --- 5️⃣ show task panel ---
-      showTaskPanel(viewer, viewable.customData.tasks)
+      // showTaskPanel(viewer, viewable.customData.tasks)
     } catch (err) {
       console.error("❌ Sprite click handler error:", err);
     }
