@@ -1,4 +1,5 @@
 // constants.mjs - extracted maps and configuration values
+// #region By geom ID
 export const geometryMapById = {
   "2e85182d-a8b7-ef11-b8e8-7c1e5275e0ca": [
     "urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg", // archi
@@ -97,11 +98,23 @@ export const geometryMapById = {
     "urn:adsk.wipemea:dm.lineage:RQ0A1TdvSf-KNJ-WZ2b3Tw", //MEP
   ],
 
+  //LGN
+  "b850e672-1c1d-f111-8342-000d3adbd313": [
+    "urn:adsk.wipemea:dm.lineage:CDk1qY7NTsalkX7EJSosSg", //MEP
+    "urn:adsk.wipemea:dm.lineage:g8t7QgyGQwuah1ZJNPgquw", 
+    "urn:adsk.wipemea:dm.lineage:jF-wcthIQoqnxsW8DvXePA",
+    "urn:adsk.wipemea:dm.lineage:TeeYJqseSFSQsIe5ByOSyw",
+    "urn:adsk.wipemea:dm.lineage:Fanz_oubSM2LWwfVac7H5Q",
+    "urn:adsk.wipemea:dm.lineage:e9AMFH3uTEOQt8dBTnFIXA"
+  ],
+
   test: [
     "urn:adsk.wipemea:dm.lineage:4IgkioXcR0iOVcS9QPdQUw", //rcp files
   ],
 };
 
+
+// #region BY Name
 export const geometryMapByProperty = {
   // DB8
   "Drengsrudbekken 8 AS": [
@@ -179,8 +192,23 @@ export const geometryMapByProperty = {
     "urn:adsk.wipemea:dm.lineage:M5roTczIQUOnle1X26vdUg", //ARCHI
   ],
 
+    //LGN
+  "Lillo Gård Næring AS": [
+    "urn:adsk.wipemea:dm.lineage:CDk1qY7NTsalkX7EJSosSg", //MEP
+    "urn:adsk.wipemea:dm.lineage:g8t7QgyGQwuah1ZJNPgquw", 
+    "urn:adsk.wipemea:dm.lineage:jF-wcthIQoqnxsW8DvXePA",
+    // "urn:adsk.wipemea:dm.lineage:TeeYJqseSFSQsIe5ByOSyw",
+    // "urn:adsk.wipemea:dm.lineage:Fanz_oubSM2LWwfVac7H5Q",
+    // "urn:adsk.wipemea:dm.lineage:e9AMFH3uTEOQt8dBTnFIXA",
+    // "urn:adsk.wipemea:dm.lineage:4RPwv7n3R-G1jCzlaIHvIA",
+    // "urn:adsk.wipemea:dm.lineage:wzryzX3lRSq64uKJePaubg",
+    // "urn:adsk.wipemea:dm.lineage:RdIjauOhQuqiQNM_C84QSA",
+    // "urn:adsk.wipemea:dm.lineage:4eiGsGmTRLK4pUxWwrAtNw"
+  ],
+
   "historicaltest": [
-    "urn:adsk.wipemea:dm.lineage:fo0_lqzrSFCuN1COXk9WYg"
+    "urn:adsk.wipemea:dm.lineage:fo0_lqzrSFCuN1COXk9WYg",
+    "urn:adsk.wipemea:dm.lineage:KFAzWYZMQKex5oNJ-cp3gQ"
   ],
 };
 
@@ -285,6 +313,12 @@ export const projectMap = {
     hardAsset: "No Hard Asset",
     model: "TI135",
   },
+  // LGN
+  "b850e672-1c1d-f111-8342-000d3adbd313": {
+    projectId: "b.54c64b3e-15b0-4a62-91c2-947765195c67",
+    hardAsset: "No Hard Asset",
+    model: "LGN",
+  },
   test: {
     projectId: "b.3bc132ce-feb3-463a-850e-397e66d38aea",
     hardAsset: "No Hard Asset",
@@ -306,6 +340,7 @@ export const propertyMap = {
   "Fornebuveien 50 (under Semy Felleskost AS)": "b.ad45ddb0-25b9-451d-9c3a-61c7a6e0232f",
   "Billingstadsletta 17 AS": "b.09751ad8-ce14-4f21-99c2-440312cd216f",
   "Trondheimsveien 135 AS": "b.39d3702e-4095-44d4-8c29-becf571a90aa",
+  "Lillo Gård Næring AS": "b.54c64b3e-15b0-4a62-91c2-947765195c67",
   "historicaltest": "b.e4cde0c5-7fd9-4974-9832-616f058478f9",
 };
 
@@ -320,4 +355,7 @@ export const abbreviationToRecordId = {
   BS19: "7ccd91a6-ce66-ef11-bfe2-000d3ab1d1c2",
   FV50: "b8c950e3-ca66-ef11-bfe2-000d3ab1d1c2",
   BS17: "fc7d5d21-3506-f011-bae3-000d3ab487b3",
+  J2: "31203385-0ce3-ef11-8eea-000d3a674a78",
+  TI135: "cc023922-5405-f011-bae2-6045bde167c3",
+  LGN: "b850e672-1c1d-f111-8342-000d3adbd313",
 };
