@@ -209,7 +209,8 @@ export const geometryMapByProperty = {
     "urn:adsk.wipemea:dm.lineage:tJcoST-5SN68J12N4WZh9g", //B2 garasje
     "urn:adsk.wipemea:dm.lineage:TeeYJqseSFSQsIe5ByOSyw", //B2 Hus 2
     "urn:adsk.wipemea:dm.lineage:e9AMFH3uTEOQt8dBTnFIXA", //B2 hus 3
-    "urn:adsk.wipemea:dm.lineage:wzryzX3lRSq64uKJePaubg" //B2 Hus 4
+    "urn:adsk.wipemea:dm.lineage:wzryzX3lRSq64uKJePaubg", //B2 Hus 4
+    "urn:adsk.wipemea:dm.lineage:-cfC_3vMR82BW0bW10lGiw" //site
   ],
 
   "historicaltest": [
