@@ -211,7 +211,12 @@ function extractWorkset(viewer, callback) {
 }
 // #endregion
 
+
+
+
 const worksetCache = new Map(); 
+
+
 // #region Filter by Workset
 function filterByWorkset(worksetName) {
   const viewer = window.viewerInstance;
@@ -219,19 +224,24 @@ function filterByWorkset(worksetName) {
   viewer.clearSelection();
   viewer.setGhosting(false);
 
+  const models = viewer.impl.modelQueue().getModels();
+
+  // 🔴 STEP 1: Hide EVERYTHING first
+  models.forEach(model => {
+    viewer.hide(model.getRootId(), model);
+  });
+
+  // 🟢 STEP 2: Show only matching dbIds
   worksetCache.forEach((modelMap, model) => {
     const dbIds = modelMap.get(worksetName);
 
     if (dbIds && dbIds.length > 0) {
-      // isolate matching elements
-      viewer.isolate(dbIds, model);
-    } else {
-      // ❗ NO MATCHES → HIDE ENTIRE MODEL
-      viewer.hide(model.getRootId(), model);
+      viewer.show(dbIds, model);
     }
   });
 }
 // #endregion
+
 
 // #region Build Workset Cache
 function buildWorksetCache(viewer, onDone) {
@@ -254,6 +264,18 @@ function buildWorksetCache(viewer, onDone) {
         const workset = props.properties?.find(
           p => p.displayName === "Workset"
         );
+
+        // 👉 ADD THIS
+        const zoneProp = props.properties?.find(
+          p => p.displayName === "NV3DZoneName"
+        )?.displayValue;
+
+        // ❗ skip if it's a zone
+        if (zoneProp) {
+          pending--;
+          if (pending === 0 && onDone) onDone();
+          return;
+        }
 
         if (workset?.displayValue) {
           if (!modelMap.has(workset.displayValue)) {
