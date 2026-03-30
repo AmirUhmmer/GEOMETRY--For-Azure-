@@ -42,29 +42,63 @@ export async function AgreementFunctionalLocationSearch(viewer, functionalLocati
   // Wait for all searches to complete
   await Promise.all(searchPromises);
 
-  // Now apply coloring and selection to all collected dbIDs
-  if (allDbIds.length > 0) {
-    // console.log(`Total dbIDs found: ${allDbIds.length}`);
+  // // Now apply coloring and selection to all collected dbIDs
+  // if (allDbIds.length > 0) {
+  //   // console.log(`Total dbIDs found: ${allDbIds.length}`);
     
-    // Group dbIDs by model for efficient processing
+  //   // Group dbIDs by model for efficient processing
+  //   const dbIdsByModel = {};
+  //   allDbIds.forEach(({ dbId, model }) => {
+  //     const modelId = model.id || model.getData().instanceTree.nodeAccess.dbIdToIndex.length;
+  //     if (!dbIdsByModel[modelId]) {
+  //       dbIdsByModel[modelId] = { model: model, dbIds: [] };
+  //     }
+  //     dbIdsByModel[modelId].dbIds.push(dbId);
+  //   });
+
+  //   // Apply coloring and selection for each model
+  //   Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
+  //     console.log(`Highlighting ${dbIds.length} objects in model:`, dbIds);
+  //     for (const id of dbIds) {
+  //       viewer.setThemingColor(id, color, models[1]);
+  //       viewer.setThemingColor(id, color, models[0]);
+  //     }
+  //     viewer.select(dbIds, model);
+  //     viewer.impl.highlightObjectNode(model, id, true);  
+  //   });
+  // } else {
+  //   console.log("No objects found for any functional locations");
+  // }
+
+
+  if (allDbIds.length > 0) {
+
     const dbIdsByModel = {};
+
     allDbIds.forEach(({ dbId, model }) => {
-      const modelId = model.id || model.getData().instanceTree.nodeAccess.dbIdToIndex.length;
+      const modelId = model.id || model.guid;
+
       if (!dbIdsByModel[modelId]) {
-        dbIdsByModel[modelId] = { model: model, dbIds: [] };
+        dbIdsByModel[modelId] = { model, dbIds: [] };
       }
+
       dbIdsByModel[modelId].dbIds.push(dbId);
     });
 
-    // Apply coloring and selection for each model
     Object.values(dbIdsByModel).forEach(({ model, dbIds }) => {
-      console.log(`Highlighting ${dbIds.length} objects in model:`, dbIds);
-      for (const id of dbIds) {
-        viewer.setThemingColor(id, color, models[1]);
-        viewer.setThemingColor(id, color, models[0]);
-      }
+      console.log(`Highlighting ${dbIds.length} objects`);
+
+      dbIds.forEach((id) => {
+        viewer.setThemingColor(id, color, model);
+
+        // ✅ correct usage
+        viewer.impl.highlightObjectNode(model, id, true);
+      });
+
+      // selection per model
       viewer.select(dbIds, model);
     });
+
   } else {
     console.log("No objects found for any functional locations");
   }
