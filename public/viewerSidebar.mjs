@@ -426,6 +426,8 @@ function levelsPanel() {
 
 // ***************************** levels panel functionality **************************
 
+
+//#region Live Data Panel
 export async function liveDataPanel() {
   const viewer = window.viewerInstance;
   const dataVizExtn = await viewer.loadExtension("Autodesk.DataVisualization");
@@ -491,11 +493,13 @@ export async function liveDataPanel() {
 
       // Activate the selected view
       if (label === "temperature") {
+        console.log("Activating temperature view for:", window.LiveData);
+        console.log("Current Heatmap:", window.heatmapSprites);
         if (window.LiveData === "DB8") {
           HEATMAP(viewer, 0);
           window.heatmapSprites = SPRITES(viewer, 0);
         } else if (window.LiveData === "HG62") {
-          HG62HEATMAP(viewer, 0);
+          // HG62HEATMAP(viewer, 0);
           window.heatmapSprites = HG62SPRITES(viewer, 0);
         }
 
@@ -510,6 +514,10 @@ export async function liveDataPanel() {
     });
   });
 }
+// #endregion
+
+
+
 
 // #region: Fire Plans
 // Fire Drawing

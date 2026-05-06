@@ -139,7 +139,8 @@ async function initApp() {
         ({ projectId, folderId = "", liveData = "", hardAsset, model } = projectMap[recordId]);
         localStorage.setItem("LiveData", liveData);
       } else if (propertyMap[property]) {
-        projectId = propertyMap[property];
+        // projectId = propertyMap[property];
+        ({ projectId, liveData = "", hardAsset, model } = propertyMap[property]);
         localStorage.setItem("LiveData", liveData);
       }
 
@@ -153,8 +154,8 @@ async function initApp() {
         geometry = defaultGeometry;
         projectId = "b.bf8f603c-7e37-4367-9900-69e279377191";
         folderId = "urn:adsk.wipemea:fs.folder:co.fMNGzoIyQyiq5KhAEpvDHw";
-        liveData = "DB8";
-        model = "DB8";
+        liveData = "DB8 TEST";
+        model = "DB8 TEST";
         hardAsset = "No Hard Asset";
         localStorage.setItem("LiveData", liveData);
         localStorage.removeItem("ASSET");

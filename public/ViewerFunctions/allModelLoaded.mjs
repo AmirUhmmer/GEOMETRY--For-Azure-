@@ -9,464 +9,383 @@ import { WOServiceTask } from '../Hemy_Functions/WOServiceTask.mjs';
 import { Sol11PicsSPRITES } from '../SOL11_23/sol11360pics.mjs';
 import { AgreementFunctionalLocationSearch } from '../Hemy_Functions/Agreement.mjs';
 import { markTaskDone } from '../Hemy_Functions/RepeatingTasks.mjs';
-
-export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, ServiceZone, FunctionalLocation, RepeatingTask) {
-  // console.log("CHECK: " + modelsLoaded);
-    let model = window.LiveData;
-  if (modelsLoaded === modelsToLoad.length) {
-    const models = viewer.impl.modelQueue().getModels();
-    // Perform actions only when all models are loaded
-
-    // if (allModelsInitialized) return;
-    if (viewer.model) {
-      // allModelsInitialized = true; // 🔐 HARD STOP
-      viewer.loadExtension("Autodesk.DataVisualization").then(() => {
-        console.log("Autodesk.DataVisualization loaded.");
-      });
-
-      viewer.loadExtension("Autodesk.DocumentBrowser").then(() => {
-        console.log("Autodesk.DocumentBrowser loaded.");
-      });
-
-      viewer.loadExtension("Autodesk.AEC.LevelsExtension").then((levelsExt) => {
-        console.log("Autodesk.AEC.LevelsExtension loaded.");
-      });
-
-      viewer.loadExtension("Autodesk.FullScreen").then(() => {
-        console.log("Autodesk.FullScreen loaded.");
-      });
-
-      viewer.loadExtension("Autodesk.AEC.Minimap3DExtension").then(() => {
-        console.log("Autodesk.Minimap3DExtension loaded.");
-      });
-
-      viewer.unloadExtension("Autodesk.Explode");
-
-      const navTools = viewer.toolbar.getControl("navTools");
-      navTools.removeControl("toolbar-orbitTools");
-      navTools.removeControl("toolbar-panTool");
-      navTools.removeControl("toolbar-zoomTool");
-      navTools.removeControl("toolbar-cameraSubmenuTool");
-
-      if (model === "DB8" || model === "HG62") {
-        showLiveDataPanel(viewer);
-        showLiveDataListPanel(viewer, model);
-        createToolbarLiveDataListButton(viewer, model);
-      } else if (model === "SOL11") {
-        Sol11PicsSPRITES(viewer);
-      }
-
-      // Call surface shading setup or any other actions here
-      viewer
-        .loadExtension("Autodesk.AEC.LevelsExtension")
-        .then(function (levelsExt) {
-          if (levelsExt && levelsExt.floorSelector) {
-            levelsExt.floorSelector.addEventListener(
-              Autodesk.AEC.FloorSelector.SELECTED_FLOOR_CHANGED,
-              function (event) {
-                const selectedLevelIndex = event.levelIndex; // Get the level index from the event
-                console.log(`Selected Floor Index: ${selectedLevelIndex}`);
-
-                // Check if the loaded model is named "DB8"
-                //let LiveData = localStorage.getItem('LiveData');
-                let LiveData = model;
-                console.log(LiveData);
-                if (
-                  LiveData === "DB8" ||
-                  (LiveData === "HG62" &&
-                    selectedLevelIndex !== undefined &&
-                    selectedLevelIndex >= 0)
-                ) {
-                  viewer.LiveDataListPanel.changedfloor(
-                    viewer,
-                    selectedLevelIndex,
-                    LiveData,
-                  ); // Call LiveDataListPanel
-                }
-              },
-            );
-
-          } else {
-            console.error(
-              "Levels Extension or floorSelector is not available.",
-            );
-          }
-        });
-
-      let HardAsset = localStorage.getItem("HardAssetChecker");
-
-      // #region FUNCTIONS
-
-      localStorage.setItem("is2D", "false");
-
-      await prewarmFunctionalLocationCacheFromModel(models[1]);
-
-      viewer.addEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT, () =>
-        hideGenericModels(viewer, models),
-      );
-
-      [Autodesk.Viewing.ISOLATE_EVENT, Autodesk.Viewing.SHOW_ALL_EVENT].forEach(
-        (evt) =>
-          viewer.addEventListener(evt, () => hideGenericModels(viewer, models)),
-      );
-
-      customFunctions.workset(viewer);
-
-      HardAssetSearch(viewer, HardAsset);
-
-      ServiceZoneSearch(viewer, ServiceZone);
-
-      FunctionalLocationSearch(viewer, FunctionalLocation);
-
-      RepeatingTasks(viewer, RepeatingTask);
-
-      WOServiceTask(viewer);
-
-      AgreementFunctionalLocationSearch(viewer, window.agreementFL);
-
-      highlightFLByTask(viewer, window.serviceZone);
-
-      spaceInventorySearch(viewer, window.spaceInventory);
-
-      // #endregion
-
-      // TASK colors highlight websocket
-      if (window.socket) {
-        window.socket.onmessage = async (event) => {
-          const message = JSON.parse(event.data);
-          if (message.type === "showTask") {
-            console.log("Received message:", event.data);
-            showTasks(viewer, message);
-          } else if (message.type === "showAllTask") {
-            console.log("Received message [show all task]:", event.data);
-            showAllTasks(viewer, message);
-          } else if (message.type === "showZone") {
-            console.log("Received message [show all zones]:", event.data);
-            zoneFunctionalLocation(viewer, message);
-          } else if (message.type === "zone360") {
-            console.log("Received message [show all 360 zones]:", event.data);
-            zone360(viewer, message);
-          } else if (message.type === "completeTask") {
-            console.log("Received message [complete task]:", message);
-            console.log(
-              "Marking task as done for Hard Asset:",
-              message.hardAsset,
-              "Task Name:",
-              message.taskName,
-            );
-            markTaskDone(viewer, message.hardAsset, message.taskName);
-          } else if (message.type === "showFirePlan") {
-            functions.firePlansPanel();
-          } else if (message.type === "showSheets2D") {
-            functions.sheets2DPanel();
-          } else if (message.type === "showLiveData") {
-            functions.liveDataPanel();
-          } else if (message.type === "closeInsidePanel") {
-            functions.closeInsidePanel();
-          } else {
-            console.log("Unknown message type received:", message.type);
-          }
-        };
-      }
-
-      let urn,
-        modelUrn,
-        urns = [];
-      models.forEach((model) => {
-        urn = model.getDocumentNode().getDefaultGeometry().children[1].data.urn; // Get the URN of the first model
-        modelUrn = urn.split("fs.file:")[1].split("/")[0];
-        urns.push(modelUrn);
-      });
-
-      window.urns = urns; // Store the URNs globally for access in other modules
-      // console.log("Model URNs:", window.urns);
-
-      const canvas = viewer.impl.canvas;
-
-      let lastTap = 0;
-      canvas.addEventListener("click", async function (event) {
-        const now = Date.now();
-        const aggregateSelection = viewer.getAggregateSelection();
-        if (now - lastTap < 300) {
-          // console.log("🔥 DOUBLE TAP FIRED ON MOBILE!");
-          lastTap = 0;
-
-          if (!aggregateSelection?.length) return;
-
-          const iframe = document.getElementById("iframeTest");
-          const closeBtn = document.getElementById("closeIframeBtn");
-
-          // only bind close once
-          if (!closeBtn._bound) {
-            closeBtn._bound = true;
-            closeBtn.addEventListener("click", () => {
-              iframe.classList.remove("show");
-              iframe.src = "";
-              closeBtn.style.visibility = "hidden";
-              setTimeout(() => viewer.resize(), 300);
-            });
-          }
-
-          // parse userType once
-          const params = new URLSearchParams(window.location.search);
-          const userType = params.get("user");
-
-          for (const selection of aggregateSelection) {
-            const model = selection.model;
-            const dbId = selection.selection?.[0];
-            if (!dbId) continue;
-
-            // ----- getProperties (wrap in Promise)
-            const props = await new Promise((resolve) => {
-              model.getProperties(dbId, (p) => resolve(p));
-            });
-
-            // ----- extract GlobalID
-            let globalID = null;
-            for (const prop of props.properties) {
-              if (
-                (prop.displayName === "Asset ID" ||
-                  prop.displayName === "Asset ID (GUID)") &&
-                prop.displayValue
-              ) {
-                globalID = prop.displayValue;
-                break;
-              }
-            }
-            if (!globalID) continue;
-
-            // ----- classification
-            let isFunctionalLocation = false;
-
-            // fallback logic
-            if (!isFunctionalLocation) {
-              const functionalKeywords = [
-                "space","spaces","area","areas","corridor","hallway","hall","passage",
-                "lobby","vestibule","foyer","gallery","concourse",
-                "stair","stairs","staircase","stairwell","escalator",
-                "lift lobby","elevator lobby","shaft","riser",
-                "mechanical room","electrical room","communication room","server room",
-                "telco","riser room","pump room","fire pump room","control room",
-                "plant room","boiler room","chiller room",
-                "toilet","washroom","bathroom","lavatory","wc","shower",
-                "pantry","kitchen","storage","storeroom","janitor","cleaner",
-                "archive","file room","meeting room","conference room","boardroom",
-                "office","zone","zones","mass","revit mass","fire zone","hvac zone","text"
-              ];
-
-              const categoryMatch = ["revit mass", "rooms", "spaces", "areas"];
-              const nameFields = ["Type Name", "Family", "Name"];
-
-              for (const { displayName, displayValue } of props.properties) {
-                const val = (displayValue ?? "").toString().toLowerCase();
-
-                if (displayName === "Category" && categoryMatch.includes(val)) {
-                  isFunctionalLocation = true;
-                  break;
-                }
-
-                if (nameFields.includes(displayName) &&
-                    functionalKeywords.some(k => val.includes(k))) {
-                  console.log(`Heuristic match: ${displayName} → ${val}`);
-                  isFunctionalLocation = true;
-                  break;
-                }
-              }
-            }
-
-            const isHardAsset = !isFunctionalLocation;
-
-            // ----- Build URL
-            let appId;
-            if (userType === "tenant") {
-              appId = "63879c3c-5060-f011-bec1-7c1e527684d6";
-            } else if (userType === "supplier") {
-              appId = "230c5e7c-1bd1-ef11-8eea-000d3ab86138";
-            } else {
-              appId = "2019ee4f-38bc-ef11-b8e9-000d3ab86138";
-            }
-
-            console.log("HArd Asset or Functional Location?", isHardAsset ? "Hard Asset" : "Functional Location");
-            const entity = isHardAsset
-              ? "msdyn_customerasset"
-              : "msdyn_functionallocation";
-            const newUrl = `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=${appId}&pagetype=entityrecord&etn=${entity}&id=${globalID}`;
-
-            // ----- Show iframe instantly
-            iframe.src = newUrl;
-            iframe.classList.add("show");
-            closeBtn.style.visibility = "visible";
-            setTimeout(() => viewer.resize(), 300);
-
-            // notify container
-            // window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
-          }
-        } else {
-          if (aggregateSelection && aggregateSelection.length > 0) {
-            // Check if aggregateSelection is defined and has items
-            aggregateSelection.forEach(async (selection) => {
-
-              const model = selection.model; // Get the selected model
-
-              const dbIdArray = selection.selection; // Get the selected object IDs from the selection array
-
-              // ---- get properties (async)
-              const props = await new Promise((resolve) => {
-                model.getProperties(dbIdArray[0], (p) => resolve(p));
-              });
-
-              // ---- extract Asset ID (GUID)
-              let assetId = null;
-              for (const prop of props.properties) {
-                if (
-                  (prop.displayName === "Asset ID" ||
-                  prop.displayName === "Asset ID (GUID)") &&
-                  prop.displayValue
-                ) {
-                  assetId = prop.displayValue;
-                  break;
-                }
-              }
-
-              if (!assetId) {
-                console.warn("No Asset ID found for dbId:", dbId);
-              }
-
-                // ----- classification
-              let isFunctionalLocation = false;
-
-              // fallback logic
-              if (!isFunctionalLocation) {
-                const functionalKeywords = [
-                  "space","spaces","area","areas","corridor","hallway","hall","passage",
-                  "lobby","vestibule","foyer","gallery","concourse",
-                  "stair","stairs","staircase","stairwell","escalator",
-                  "lift lobby","elevator lobby","shaft","riser",
-                  "mechanical room","electrical room","communication room","server room",
-                  "telco","riser room","pump room","fire pump room","control room",
-                  "plant room","boiler room","chiller room",
-                  "toilet","washroom","bathroom","lavatory","wc","shower",
-                  "pantry","kitchen","storage","storeroom","janitor","cleaner",
-                  "archive","file room","meeting room","conference room","boardroom",
-                  "office","zone","zones","mass","revit mass","fire zone","hvac zone","text"
-                ];
-
-                const categoryMatch = ["revit mass", "rooms", "spaces", "areas"];
-                const nameFields = ["Type Name", "Family", "Name"];
-
-                for (const { displayName, displayValue } of props.properties) {
-                  const val = (displayValue ?? "").toString().toLowerCase();
-
-                  if (displayName === "Category" && categoryMatch.includes(val)) {
-                    isFunctionalLocation = true;
-                    break;
-                  }
-
-                  if (nameFields.includes(displayName) &&
-                      functionalKeywords.some(k => val.includes(k))) {
-                      console.log(`Heuristic match: ${displayName} → ${val}`);
-                      isFunctionalLocation = true;
-                    break;
-                  }
-                }
-              }
-
-
-              if (!isFunctionalLocation) {
-                  window.parent.postMessage(
-                    JSON.stringify({ type: "assetSelected", assetId }),
-                    "*"
-                  );
-              } else {
-                  window.parent.postMessage(
-                    JSON.stringify({ type: "functionalLocationSelected", assetId }),
-                    "*"
-                  );
-              }
-
-
-
-              const params = new URLSearchParams(window.location.search);
-
-              if (dbIdArray && dbIdArray.length > 0) {
-                // Ensure dbIdArray is defined and has objects
-                const dbId = dbIdArray[0]; // Assume the first selected object for demonstration
-                console.log("Selected dbId:", dbId); // Log the selected dbId
-
-                const instanceTree = model.getInstanceTree();
-                // console.log("InstanceTree:", instanceTree); // Log the instance tree to ensure it's available
-
-                if (instanceTree) {
-                  instanceTree.enumNodeFragments(dbId, (fragId) => {
-                    const fragList = model.getFragmentList(); // Use the correct model's fragment list
-                    const matrix = new THREE.Matrix4();
-                    fragList.getWorldMatrix(fragId, matrix);
-
-                    const position = new THREE.Vector3();
-                    position.setFromMatrixPosition(matrix);
-
-                    console.log(
-                      `World Coordinates (Model ${model.id}): x=${position.x}, y=${position.y}, z=${position.z}`,
-                    );
-                  });
-                } else {
-                  console.log("InstanceTree not available for model:", model);
-                }
-              } else {
-                console.log("No objects selected in dbIdArray.");
-              }
-            });
-          } else {
-            console.log(
-              "No objects selected or aggregate selection is undefined.",
-            );
-          }
+import { initGaussianSplatRenderer } from './GaussianSplatRenderer.mjs';
+
+const EXTENSIONS_TO_LOAD = [
+  'Autodesk.DataVisualization',
+  'Autodesk.DocumentBrowser',
+  'Autodesk.AEC.LevelsExtension',
+  'Autodesk.FullScreen',
+  'Autodesk.AEC.Minimap3DExtension',
+];
+
+const GENERIC_MODEL_CATEGORIES = new Set([
+  'Revit Generic Models',
+  'Generic Models',
+  'Revit Generic Model',
+  'Generic Model',
+  'Revit Mass',
+  'Mass',
+]);
+
+const FUNCTIONAL_LOCATION_KEYWORDS = [
+  'space', 'spaces', 'area', 'areas', 'corridor', 'hallway', 'hall', 'passage',
+  'lobby', 'vestibule', 'foyer', 'gallery', 'concourse',
+  'stair', 'stairs', 'staircase', 'stairwell', 'escalator',
+  'lift lobby', 'elevator lobby', 'shaft', 'riser',
+  'mechanical room', 'electrical room', 'communication room', 'server room',
+  'telco', 'riser room', 'pump room', 'fire pump room', 'control room',
+  'plant room', 'boiler room', 'chiller room',
+  'toilet', 'washroom', 'bathroom', 'lavatory', 'wc', 'shower',
+  'pantry', 'kitchen', 'storage', 'storeroom', 'janitor', 'cleaner',
+  'archive', 'file room', 'meeting room', 'conference room', 'boardroom',
+  'office', 'zone', 'zones', 'mass', 'revit mass', 'fire zone', 'hvac zone', 'text',
+];
+
+const FUNCTIONAL_LOCATION_CATEGORIES = new Set(['revit mass', 'rooms', 'spaces', 'areas']);
+const FUNCTIONAL_LOCATION_NAME_FIELDS = new Set(['Type Name', 'Family', 'Name']);
+
+const APP_IDS_BY_USER_TYPE = {
+  tenant: '63879c3c-5060-f011-bec1-7c1e527684d6',
+  supplier: '230c5e7c-1bd1-ef11-8eea-000d3ab86138',
+  default: '2019ee4f-38bc-ef11-b8e9-000d3ab86138',
+};
+
+function loadViewerExtensions(viewer) {
+  EXTENSIONS_TO_LOAD.forEach((extensionId) => {
+    viewer.loadExtension(extensionId).then(() => {
+      console.log(`${extensionId} loaded.`);
+    });
+  });
+}
+
+function cleanupNavigationToolbar(viewer) {
+  const navTools = viewer.toolbar?.getControl('navTools');
+  if (!navTools) {
+    return;
+  }
+
+  [
+    'toolbar-orbitTools',
+    'toolbar-panTool',
+    'toolbar-zoomTool',
+    'toolbar-cameraSubmenuTool',
+  ].forEach((controlId) => navTools.removeControl(controlId));
+}
+
+function setupModelSpecificUi(viewer, liveDataModel) {
+  if (liveDataModel === 'DB8' || liveDataModel === 'HG62') {
+    showLiveDataPanel(viewer);
+    showLiveDataListPanel(viewer, liveDataModel);
+    createToolbarLiveDataListButton(viewer, liveDataModel);
+    return;
+  }
+
+  if (liveDataModel === 'SOL11') {
+    Sol11PicsSPRITES(viewer);
+  }
+}
+
+function setupFloorSelectorListener(viewer, liveDataModel) {
+  viewer.loadExtension('Autodesk.AEC.LevelsExtension').then((levelsExt) => {
+    if (!levelsExt?.floorSelector) {
+      console.error('Levels Extension or floorSelector is not available.');
+      return;
+    }
+
+    levelsExt.floorSelector.addEventListener(
+      Autodesk.AEC.FloorSelector.SELECTED_FLOOR_CHANGED,
+      (event) => {
+        const selectedLevelIndex = event.levelIndex;
+        console.log(`Selected Floor Index: ${selectedLevelIndex}`);
+
+        if (
+          liveDataModel === 'DB8' ||
+          (liveDataModel === 'HG62' && selectedLevelIndex !== undefined && selectedLevelIndex >= 0)
+        ) {
+          viewer.LiveDataListPanel.changedfloor(viewer, selectedLevelIndex, liveDataModel);
         }
-        lastTap = now;
-      });
+      },
+    );
+  });
+}
 
-      // ENABLE IF WANT TO SEARCH OBJECT IN MODEL
+function getProperties(model, dbId) {
+  return new Promise((resolve) => {
+    model.getProperties(dbId, resolve);
+  });
+}
 
-      // const overlay = document.getElementById('overlay');
-
-      // overlay.style.visibility = 'visible';
-
-      // document.getElementById("search").addEventListener("click", function first() {
-      //     // viewer.search(
-      //     //   document.getElementById("filter").value,
-      //     //   function (dbIDs) {
-      //     //     viewer.isolate(dbIDs);
-      //     //     viewer.fitToView(dbIDs);
-      //     // });
-
-      //     viewer.search(document.getElementById("filter").value, function(dbIDs) {
-
-      //         // Loop through the models only once
-      //         models.forEach(model => {
-      //             // Hide all objects first
-      //             viewer.isolate([], model);
-
-      //             // Isolate the found objects
-      //             viewer.isolate(dbIDs, model);
-      //         });
-
-      //         // Fit to view and highlight the found objects
-      //         viewer.fitToView(dbIDs);
-
-      //         const color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
-      //         viewer.setThemingColor(dbIDs, color);  // Optionally highlight the objects
-
-      //         viewer.setSelectionColor(new THREE.Color(1, 0, 0));  // RGB: red, green, blue
-      //         viewer.select(dbIDs);  // Optionally highlight the objects
-
-      //         // Disable further selections after this point
-
-      //     }, function(error) {
-      //         console.error('Search error:', error);  // Handle any potential search errors
-      //     });
-      // });
+function getAssetId(properties = []) {
+  for (const prop of properties) {
+    if (
+      (prop.displayName === 'Asset ID' || prop.displayName === 'Asset ID (GUID)') &&
+      prop.displayValue
+    ) {
+      return prop.displayValue;
     }
   }
+  return null;
+}
+
+function isFunctionalLocation(properties = []) {
+  for (const { displayName, displayValue } of properties) {
+    const value = (displayValue ?? '').toString().toLowerCase();
+
+    if (displayName === 'Category' && FUNCTIONAL_LOCATION_CATEGORIES.has(value)) {
+      return true;
+    }
+
+    if (
+      FUNCTIONAL_LOCATION_NAME_FIELDS.has(displayName) &&
+      FUNCTIONAL_LOCATION_KEYWORDS.some((keyword) => value.includes(keyword))
+    ) {
+      console.log(`Heuristic match: ${displayName} -> ${value}`);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function getUserTypeFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('user');
+}
+
+function getAppIdForUserType(userType) {
+  return APP_IDS_BY_USER_TYPE[userType] ?? APP_IDS_BY_USER_TYPE.default;
+}
+
+function bindCloseIframeButton(closeBtn, iframe, viewer) {
+  if (!closeBtn || closeBtn._bound) {
+    return;
+  }
+
+  closeBtn._bound = true;
+  closeBtn.addEventListener('click', () => {
+    iframe.classList.remove('show');
+    iframe.src = '';
+    closeBtn.style.visibility = 'hidden';
+    setTimeout(() => viewer.resize(), 300);
+  });
+}
+
+function openDynamicsEntityRecord(iframe, closeBtn, viewer, entity, appId, globalId) {
+  const url = `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=${appId}&pagetype=entityrecord&etn=${entity}&id=${globalId}`;
+  iframe.src = url;
+  iframe.classList.add('show');
+  closeBtn.style.visibility = 'visible';
+  setTimeout(() => viewer.resize(), 300);
+}
+
+async function handleDoubleTap(viewer, aggregateSelection) {
+  if (!aggregateSelection?.length) {
+    return;
+  }
+
+  const iframe = document.getElementById('iframeTest');
+  const closeBtn = document.getElementById('closeIframeBtn');
+  if (!iframe || !closeBtn) {
+    return;
+  }
+
+  bindCloseIframeButton(closeBtn, iframe, viewer);
+  const appId = getAppIdForUserType(getUserTypeFromQuery());
+
+  for (const selection of aggregateSelection) {
+    const model = selection.model;
+    const dbId = selection.selection?.[0];
+    if (!dbId) {
+      continue;
+    }
+
+    const props = await getProperties(model, dbId);
+    const properties = props?.properties ?? [];
+    const globalId = getAssetId(properties);
+    if (!globalId) {
+      continue;
+    }
+
+    const functionalLocation = isFunctionalLocation(properties);
+    const entity = functionalLocation ? 'msdyn_functionallocation' : 'msdyn_customerasset';
+
+    console.log(
+      'Hard Asset or Functional Location?',
+      functionalLocation ? 'Functional Location' : 'Hard Asset',
+    );
+
+    openDynamicsEntityRecord(iframe, closeBtn, viewer, entity, appId, globalId);
+  }
+}
+
+function logSelectedObjectCoordinates(model, dbId) {
+  const instanceTree = model.getInstanceTree();
+  if (!instanceTree) {
+    console.log('InstanceTree not available for model:', model);
+    return;
+  }
+
+  instanceTree.enumNodeFragments(dbId, (fragId) => {
+    const fragList = model.getFragmentList();
+    const matrix = new THREE.Matrix4();
+    fragList.getWorldMatrix(fragId, matrix);
+
+    const position = new THREE.Vector3();
+    position.setFromMatrixPosition(matrix);
+
+    console.log(
+      `World Coordinates (Model ${model.id}): x=${position.x}, y=${position.y}, z=${position.z}`,
+    );
+  });
+}
+
+async function handleSingleTap(viewer, aggregateSelection) {
+  if (!aggregateSelection?.length) {
+    console.log('No objects selected or aggregate selection is undefined.');
+    return;
+  }
+
+  aggregateSelection.forEach(async (selection) => {
+    const model = selection.model;
+    const dbId = selection.selection?.[0];
+    if (!dbId) {
+      console.log('No objects selected in dbIdArray.');
+      return;
+    }
+
+    const props = await getProperties(model, dbId);
+    const properties = props?.properties ?? [];
+    const assetId = getAssetId(properties);
+
+    if (!assetId) {
+      console.warn('No Asset ID found for dbId:', dbId);
+      return;
+    }
+
+    const functionalLocation = isFunctionalLocation(properties);
+    window.parent.postMessage(
+      JSON.stringify({
+        type: functionalLocation ? 'functionalLocationSelected' : 'assetSelected',
+        assetId,
+      }),
+      '*',
+    );
+
+    console.log('Selected dbId:', dbId);
+    logSelectedObjectCoordinates(model, dbId);
+  });
+}
+
+function setupSelectionClickHandler(viewer) {
+  const canvas = viewer.impl.canvas;
+  let lastTap = 0;
+
+  canvas.addEventListener('click', async () => {
+    const now = Date.now();
+    const aggregateSelection = viewer.getAggregateSelection();
+
+    if (now - lastTap < 300) {
+      lastTap = 0;
+      await handleDoubleTap(viewer, aggregateSelection);
+    } else {
+      await handleSingleTap(viewer, aggregateSelection);
+      lastTap = now;
+    }
+  });
+}
+
+function setupSocketListeners(viewer) {
+  if (!window.socket) {
+    return;
+  }
+
+  const handlers = {
+    showTask: (message) => showTasks(viewer, message),
+    showAllTask: (message) => showAllTasks(viewer, message),
+    showZone: (message) => zoneFunctionalLocation(viewer, message),
+    zone360: (message) => zone360(viewer, message),
+    completeTask: (message) => {
+      console.log('Marking task as done for Hard Asset:', message.hardAsset, 'Task Name:', message.taskName);
+      markTaskDone(viewer, message.hardAsset, message.taskName);
+    },
+    showFirePlan: () => functions.firePlansPanel(),
+    showSheets2D: () => functions.sheets2DPanel(),
+    showLiveData: () => functions.liveDataPanel(),
+    closeInsidePanel: () => functions.closeInsidePanel(),
+  };
+
+  window.socket.onmessage = async (event) => {
+    const message = JSON.parse(event.data);
+    const handler = handlers[message.type];
+
+    if (!handler) {
+      console.log('Unknown message type received:', message.type);
+      return;
+    }
+
+    console.log(`Received message [${message.type}]:`, event.data);
+    handler(message);
+  };
+}
+
+function collectModelUrns(models) {
+  const urns = [];
+  models.forEach((model) => {
+    const urn = model.getDocumentNode().getDefaultGeometry().children[1].data.urn;
+    const modelUrn = urn.split('fs.file:')[1].split('/')[0];
+    urns.push(modelUrn);
+  });
+  window.urns = urns;
+}
+
+export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, ServiceZone, FunctionalLocation, RepeatingTask) {
+  const liveDataModel = window.LiveData;
+  if (modelsLoaded !== modelsToLoad.length || !viewer.model) {
+    return;
+  }
+
+  const models = viewer.impl.modelQueue().getModels();
+  const hardAsset = localStorage.getItem('HardAssetChecker');
+
+  loadViewerExtensions(viewer);
+  // viewer.unloadExtension('Autodesk.Explode');
+  cleanupNavigationToolbar(viewer);
+  setupModelSpecificUi(viewer, liveDataModel);
+  setupFloorSelectorListener(viewer, liveDataModel);
+  console.log('All models loaded. Viewer extensions initialized and UI set up.');
+  console.log('LiveData Model:', liveDataModel);
+  // if (liveDataModel == "DB8 TEST") {
+  //   initGaussianSplatRenderer(viewer);
+  // }
+
+
+  localStorage.setItem('is2D', 'false');
+  await prewarmFunctionalLocationCacheFromModel(models[1]);
+
+  viewer.addEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT, () =>
+    hideGenericModels(viewer, models),
+  );
+  [Autodesk.Viewing.ISOLATE_EVENT, Autodesk.Viewing.SHOW_ALL_EVENT].forEach((eventName) => {
+    viewer.addEventListener(eventName, () => hideGenericModels(viewer, models));
+  });
+
+  // #region FUNCTIONS
+  customFunctions.workset(viewer);
+
+  HardAssetSearch(viewer, hardAsset);
+  ServiceZoneSearch(viewer, ServiceZone);
+  FunctionalLocationSearch(viewer, FunctionalLocation);
+  RepeatingTasks(viewer, RepeatingTask);
+  WOServiceTask(viewer);
+  AgreementFunctionalLocationSearch(viewer, window.agreementFL);
+  highlightFLByTask(viewer, window.serviceZone);
+  spaceInventorySearch(viewer, window.spaceInventory);
+
+  setupSocketListeners(viewer);
+  collectModelUrns(models);
+  setupSelectionClickHandler(viewer);
+  // #endregion
 }
 
 // #region Hide Generic Models
@@ -500,21 +419,7 @@ export async function hideGenericModels(viewer, models) {
             p => p.displayName === 'Category'
           )?.displayValue;
 
-          const zoneProp = props.properties.find(
-            p => p.displayName === 'NV3DZoneName'
-          )?.displayValue;
-
-        //   console.log(`Checking dbId ${dbId}: Category=${categoryProp}, NV3DZoneName=${zoneProp}`);
-
-          const isGenericCategory =
-            categoryProp === 'Revit Generic Models' ||
-            categoryProp === 'Generic Models' ||
-            categoryProp === 'Revit Generic Model' ||
-            categoryProp === 'Generic Model' ||
-            categoryProp === 'Revit Mass' ||
-            categoryProp === 'Mass';
-
-          if (isGenericCategory && categoryProp) {
+          if (GENERIC_MODEL_CATEGORIES.has(categoryProp)) {
             lockedGenericDbIds.add(dbId);
           }
 
@@ -536,3 +441,573 @@ export async function hideGenericModels(viewer, models) {
   }
 }
 // #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import * as functions from '../viewerSidebar.mjs';
+// import * as customFunctions from './workset.mjs';
+// import { showLiveDataPanel, createToolbarLiveDataButton, createToolbarLiveDataListButton, showLiveDataListPanel } from '../Live_Data/LiveData.mjs';
+// import { HardAssetSearch } from '../Hemy_Functions/HardAssets.mjs';
+// import { ServiceZoneSearch, spaceInventorySearch } from '../Hemy_Functions/ServiceZone.mjs';
+// import { FunctionalLocationSearch, zoneFunctionalLocation, highlightFLByTask, prewarmFunctionalLocationCacheFromModel, zone360 } from '../Hemy_Functions/FunctionalLocation.mjs';
+// import { RepeatingTasks, showTasks, showAllTasks } from '../Hemy_Functions/RepeatingTasks.mjs';
+// import { WOServiceTask } from '../Hemy_Functions/WOServiceTask.mjs';
+// import { Sol11PicsSPRITES } from '../SOL11_23/sol11360pics.mjs';
+// import { AgreementFunctionalLocationSearch } from '../Hemy_Functions/Agreement.mjs';
+// import { markTaskDone } from '../Hemy_Functions/RepeatingTasks.mjs';
+
+// export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, ServiceZone, FunctionalLocation, RepeatingTask) {
+//   // console.log("CHECK: " + modelsLoaded);
+//     let model = window.LiveData;
+//   if (modelsLoaded === modelsToLoad.length) {
+//     const models = viewer.impl.modelQueue().getModels();
+//     // Perform actions only when all models are loaded
+
+//     // if (allModelsInitialized) return;
+//     if (viewer.model) {
+//       // allModelsInitialized = true; // 🔐 HARD STOP
+//       viewer.loadExtension("Autodesk.DataVisualization").then(() => {
+//         console.log("Autodesk.DataVisualization loaded.");
+//       });
+
+//       viewer.loadExtension("Autodesk.DocumentBrowser").then(() => {
+//         console.log("Autodesk.DocumentBrowser loaded.");
+//       });
+
+//       viewer.loadExtension("Autodesk.AEC.LevelsExtension").then((levelsExt) => {
+//         console.log("Autodesk.AEC.LevelsExtension loaded.");
+//       });
+
+//       viewer.loadExtension("Autodesk.FullScreen").then(() => {
+//         console.log("Autodesk.FullScreen loaded.");
+//       });
+
+//       viewer.loadExtension("Autodesk.AEC.Minimap3DExtension").then(() => {
+//         console.log("Autodesk.Minimap3DExtension loaded.");
+//       });
+
+//       viewer.unloadExtension("Autodesk.Explode");
+
+//       const navTools = viewer.toolbar.getControl("navTools");
+//       navTools.removeControl("toolbar-orbitTools");
+//       navTools.removeControl("toolbar-panTool");
+//       navTools.removeControl("toolbar-zoomTool");
+//       navTools.removeControl("toolbar-cameraSubmenuTool");
+
+//       if (model === "DB8" || model === "HG62") {
+//         showLiveDataPanel(viewer);
+//         showLiveDataListPanel(viewer, model);
+//         createToolbarLiveDataListButton(viewer, model);
+//       } else if (model === "SOL11") {
+//         Sol11PicsSPRITES(viewer);
+//       }
+
+//       // Call surface shading setup or any other actions here
+//       viewer
+//         .loadExtension("Autodesk.AEC.LevelsExtension")
+//         .then(function (levelsExt) {
+//           if (levelsExt && levelsExt.floorSelector) {
+//             levelsExt.floorSelector.addEventListener(
+//               Autodesk.AEC.FloorSelector.SELECTED_FLOOR_CHANGED,
+//               function (event) {
+//                 const selectedLevelIndex = event.levelIndex; // Get the level index from the event
+//                 console.log(`Selected Floor Index: ${selectedLevelIndex}`);
+
+//                 // Check if the loaded model is named "DB8"
+//                 //let LiveData = localStorage.getItem('LiveData');
+//                 let LiveData = model;
+//                 console.log(LiveData);
+//                 if (
+//                   LiveData === "DB8" ||
+//                   (LiveData === "HG62" &&
+//                     selectedLevelIndex !== undefined &&
+//                     selectedLevelIndex >= 0)
+//                 ) {
+//                   viewer.LiveDataListPanel.changedfloor(
+//                     viewer,
+//                     selectedLevelIndex,
+//                     LiveData,
+//                   ); // Call LiveDataListPanel
+//                 }
+//               },
+//             );
+
+//           } else {
+//             console.error(
+//               "Levels Extension or floorSelector is not available.",
+//             );
+//           }
+//         });
+
+//       let HardAsset = localStorage.getItem("HardAssetChecker");
+
+//       // #region FUNCTIONS
+
+//       localStorage.setItem("is2D", "false");
+
+//       await prewarmFunctionalLocationCacheFromModel(models[1]);
+
+//       viewer.addEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT, () =>
+//         hideGenericModels(viewer, models),
+//       );
+
+//       [Autodesk.Viewing.ISOLATE_EVENT, Autodesk.Viewing.SHOW_ALL_EVENT].forEach(
+//         (evt) =>
+//           viewer.addEventListener(evt, () => hideGenericModels(viewer, models)),
+//       );
+
+//       customFunctions.workset(viewer);
+
+//       HardAssetSearch(viewer, HardAsset);
+
+//       ServiceZoneSearch(viewer, ServiceZone);
+
+//       FunctionalLocationSearch(viewer, FunctionalLocation);
+
+//       RepeatingTasks(viewer, RepeatingTask);
+
+//       WOServiceTask(viewer);
+
+//       AgreementFunctionalLocationSearch(viewer, window.agreementFL);
+
+//       highlightFLByTask(viewer, window.serviceZone);
+
+//       spaceInventorySearch(viewer, window.spaceInventory);
+
+//       // #endregion
+
+//       // TASK colors highlight websocket
+//       if (window.socket) {
+//         window.socket.onmessage = async (event) => {
+//           const message = JSON.parse(event.data);
+//           if (message.type === "showTask") {
+//             console.log("Received message:", event.data);
+//             showTasks(viewer, message);
+//           } else if (message.type === "showAllTask") {
+//             console.log("Received message [show all task]:", event.data);
+//             showAllTasks(viewer, message);
+//           } else if (message.type === "showZone") {
+//             console.log("Received message [show all zones]:", event.data);
+//             zoneFunctionalLocation(viewer, message);
+//           } else if (message.type === "zone360") {
+//             console.log("Received message [show all 360 zones]:", event.data);
+//             zone360(viewer, message);
+//           } else if (message.type === "completeTask") {
+//             console.log("Received message [complete task]:", message);
+//             console.log(
+//               "Marking task as done for Hard Asset:",
+//               message.hardAsset,
+//               "Task Name:",
+//               message.taskName,
+//             );
+//             markTaskDone(viewer, message.hardAsset, message.taskName);
+//           } else if (message.type === "showFirePlan") {
+//             functions.firePlansPanel();
+//           } else if (message.type === "showSheets2D") {
+//             functions.sheets2DPanel();
+//           } else if (message.type === "showLiveData") {
+//             functions.liveDataPanel();
+//           } else if (message.type === "closeInsidePanel") {
+//             functions.closeInsidePanel();
+//           } else {
+//             console.log("Unknown message type received:", message.type);
+//           }
+//         };
+//       }
+
+//       let urn,
+//         modelUrn,
+//         urns = [];
+//       models.forEach((model) => {
+//         urn = model.getDocumentNode().getDefaultGeometry().children[1].data.urn; // Get the URN of the first model
+//         modelUrn = urn.split("fs.file:")[1].split("/")[0];
+//         urns.push(modelUrn);
+//       });
+
+//       window.urns = urns; // Store the URNs globally for access in other modules
+//       // console.log("Model URNs:", window.urns);
+
+//       const canvas = viewer.impl.canvas;
+
+//       let lastTap = 0;
+//       canvas.addEventListener("click", async function (event) {
+//         const now = Date.now();
+//         const aggregateSelection = viewer.getAggregateSelection();
+//         if (now - lastTap < 300) {
+//           // console.log("🔥 DOUBLE TAP FIRED ON MOBILE!");
+//           lastTap = 0;
+
+//           if (!aggregateSelection?.length) return;
+
+//           const iframe = document.getElementById("iframeTest");
+//           const closeBtn = document.getElementById("closeIframeBtn");
+
+//           // only bind close once
+//           if (!closeBtn._bound) {
+//             closeBtn._bound = true;
+//             closeBtn.addEventListener("click", () => {
+//               iframe.classList.remove("show");
+//               iframe.src = "";
+//               closeBtn.style.visibility = "hidden";
+//               setTimeout(() => viewer.resize(), 300);
+//             });
+//           }
+
+//           // parse userType once
+//           const params = new URLSearchParams(window.location.search);
+//           const userType = params.get("user");
+
+//           for (const selection of aggregateSelection) {
+//             const model = selection.model;
+//             const dbId = selection.selection?.[0];
+//             if (!dbId) continue;
+
+//             // ----- getProperties (wrap in Promise)
+//             const props = await new Promise((resolve) => {
+//               model.getProperties(dbId, (p) => resolve(p));
+//             });
+
+//             // ----- extract GlobalID
+//             let globalID = null;
+//             for (const prop of props.properties) {
+//               if (
+//                 (prop.displayName === "Asset ID" ||
+//                   prop.displayName === "Asset ID (GUID)") &&
+//                 prop.displayValue
+//               ) {
+//                 globalID = prop.displayValue;
+//                 break;
+//               }
+//             }
+//             if (!globalID) continue;
+
+//             // ----- classification
+//             let isFunctionalLocation = false;
+
+//             // fallback logic
+//             if (!isFunctionalLocation) {
+//               const functionalKeywords = [
+//                 "space","spaces","area","areas","corridor","hallway","hall","passage",
+//                 "lobby","vestibule","foyer","gallery","concourse",
+//                 "stair","stairs","staircase","stairwell","escalator",
+//                 "lift lobby","elevator lobby","shaft","riser",
+//                 "mechanical room","electrical room","communication room","server room",
+//                 "telco","riser room","pump room","fire pump room","control room",
+//                 "plant room","boiler room","chiller room",
+//                 "toilet","washroom","bathroom","lavatory","wc","shower",
+//                 "pantry","kitchen","storage","storeroom","janitor","cleaner",
+//                 "archive","file room","meeting room","conference room","boardroom",
+//                 "office","zone","zones","mass","revit mass","fire zone","hvac zone","text"
+//               ];
+
+//               const categoryMatch = ["revit mass", "rooms", "spaces", "areas"];
+//               const nameFields = ["Type Name", "Family", "Name"];
+
+//               for (const { displayName, displayValue } of props.properties) {
+//                 const val = (displayValue ?? "").toString().toLowerCase();
+
+//                 if (displayName === "Category" && categoryMatch.includes(val)) {
+//                   isFunctionalLocation = true;
+//                   break;
+//                 }
+
+//                 if (nameFields.includes(displayName) &&
+//                     functionalKeywords.some(k => val.includes(k))) {
+//                   console.log(`Heuristic match: ${displayName} → ${val}`);
+//                   isFunctionalLocation = true;
+//                   break;
+//                 }
+//               }
+//             }
+
+//             const isHardAsset = !isFunctionalLocation;
+
+//             // ----- Build URL
+//             let appId;
+//             if (userType === "tenant") {
+//               appId = "63879c3c-5060-f011-bec1-7c1e527684d6";
+//             } else if (userType === "supplier") {
+//               appId = "230c5e7c-1bd1-ef11-8eea-000d3ab86138";
+//             } else {
+//               appId = "2019ee4f-38bc-ef11-b8e9-000d3ab86138";
+//             }
+
+//             console.log("HArd Asset or Functional Location?", isHardAsset ? "Hard Asset" : "Functional Location");
+//             const entity = isHardAsset
+//               ? "msdyn_customerasset"
+//               : "msdyn_functionallocation";
+//             const newUrl = `https://org47a0b99a.crm4.dynamics.com/main.aspx?appid=${appId}&pagetype=entityrecord&etn=${entity}&id=${globalID}`;
+
+//             // ----- Show iframe instantly
+//             iframe.src = newUrl;
+//             iframe.classList.add("show");
+//             closeBtn.style.visibility = "visible";
+//             setTimeout(() => viewer.resize(), 300);
+
+//             // notify container
+//             // window.parent.postMessage({ type: "openUrl", url: newUrl }, "*");
+//           }
+//         } else {
+//           if (aggregateSelection && aggregateSelection.length > 0) {
+//             // Check if aggregateSelection is defined and has items
+//             aggregateSelection.forEach(async (selection) => {
+
+//               const model = selection.model; // Get the selected model
+
+//               const dbIdArray = selection.selection; // Get the selected object IDs from the selection array
+
+//               // ---- get properties (async)
+//               const props = await new Promise((resolve) => {
+//                 model.getProperties(dbIdArray[0], (p) => resolve(p));
+//               });
+
+//               // ---- extract Asset ID (GUID)
+//               let assetId = null;
+//               for (const prop of props.properties) {
+//                 if (
+//                   (prop.displayName === "Asset ID" ||
+//                   prop.displayName === "Asset ID (GUID)") &&
+//                   prop.displayValue
+//                 ) {
+//                   assetId = prop.displayValue;
+//                   break;
+//                 }
+//               }
+
+//               if (!assetId) {
+//                 console.warn("No Asset ID found for dbId:", dbId);
+//               }
+
+//                 // ----- classification
+//               let isFunctionalLocation = false;
+
+//               // fallback logic
+//               if (!isFunctionalLocation) {
+//                 const functionalKeywords = [
+//                   "space","spaces","area","areas","corridor","hallway","hall","passage",
+//                   "lobby","vestibule","foyer","gallery","concourse",
+//                   "stair","stairs","staircase","stairwell","escalator",
+//                   "lift lobby","elevator lobby","shaft","riser",
+//                   "mechanical room","electrical room","communication room","server room",
+//                   "telco","riser room","pump room","fire pump room","control room",
+//                   "plant room","boiler room","chiller room",
+//                   "toilet","washroom","bathroom","lavatory","wc","shower",
+//                   "pantry","kitchen","storage","storeroom","janitor","cleaner",
+//                   "archive","file room","meeting room","conference room","boardroom",
+//                   "office","zone","zones","mass","revit mass","fire zone","hvac zone","text"
+//                 ];
+
+//                 const categoryMatch = ["revit mass", "rooms", "spaces", "areas"];
+//                 const nameFields = ["Type Name", "Family", "Name"];
+
+//                 for (const { displayName, displayValue } of props.properties) {
+//                   const val = (displayValue ?? "").toString().toLowerCase();
+
+//                   if (displayName === "Category" && categoryMatch.includes(val)) {
+//                     isFunctionalLocation = true;
+//                     break;
+//                   }
+
+//                   if (nameFields.includes(displayName) &&
+//                       functionalKeywords.some(k => val.includes(k))) {
+//                       console.log(`Heuristic match: ${displayName} → ${val}`);
+//                       isFunctionalLocation = true;
+//                     break;
+//                   }
+//                 }
+//               }
+
+
+//               if (!isFunctionalLocation) {
+//                   window.parent.postMessage(
+//                     JSON.stringify({ type: "assetSelected", assetId }),
+//                     "*"
+//                   );
+//               } else {
+//                   window.parent.postMessage(
+//                     JSON.stringify({ type: "functionalLocationSelected", assetId }),
+//                     "*"
+//                   );
+//               }
+
+
+
+//               const params = new URLSearchParams(window.location.search);
+
+//               if (dbIdArray && dbIdArray.length > 0) {
+//                 // Ensure dbIdArray is defined and has objects
+//                 const dbId = dbIdArray[0]; // Assume the first selected object for demonstration
+//                 console.log("Selected dbId:", dbId); // Log the selected dbId
+
+//                 const instanceTree = model.getInstanceTree();
+//                 // console.log("InstanceTree:", instanceTree); // Log the instance tree to ensure it's available
+
+//                 if (instanceTree) {
+//                   instanceTree.enumNodeFragments(dbId, (fragId) => {
+//                     const fragList = model.getFragmentList(); // Use the correct model's fragment list
+//                     const matrix = new THREE.Matrix4();
+//                     fragList.getWorldMatrix(fragId, matrix);
+
+//                     const position = new THREE.Vector3();
+//                     position.setFromMatrixPosition(matrix);
+
+//                     console.log(
+//                       `World Coordinates (Model ${model.id}): x=${position.x}, y=${position.y}, z=${position.z}`,
+//                     );
+//                   });
+//                 } else {
+//                   console.log("InstanceTree not available for model:", model);
+//                 }
+//               } else {
+//                 console.log("No objects selected in dbIdArray.");
+//               }
+//             });
+//           } else {
+//             console.log(
+//               "No objects selected or aggregate selection is undefined.",
+//             );
+//           }
+//         }
+//         lastTap = now;
+//       });
+
+//       // ENABLE IF WANT TO SEARCH OBJECT IN MODEL
+
+//       // const overlay = document.getElementById('overlay');
+
+//       // overlay.style.visibility = 'visible';
+
+//       // document.getElementById("search").addEventListener("click", function first() {
+//       //     // viewer.search(
+//       //     //   document.getElementById("filter").value,
+//       //     //   function (dbIDs) {
+//       //     //     viewer.isolate(dbIDs);
+//       //     //     viewer.fitToView(dbIDs);
+//       //     // });
+
+//       //     viewer.search(document.getElementById("filter").value, function(dbIDs) {
+
+//       //         // Loop through the models only once
+//       //         models.forEach(model => {
+//       //             // Hide all objects first
+//       //             viewer.isolate([], model);
+
+//       //             // Isolate the found objects
+//       //             viewer.isolate(dbIDs, model);
+//       //         });
+
+//       //         // Fit to view and highlight the found objects
+//       //         viewer.fitToView(dbIDs);
+
+//       //         const color = new THREE.Vector4(1, 0, 0, 1);  // Red color with full intensity (RGBA)
+//       //         viewer.setThemingColor(dbIDs, color);  // Optionally highlight the objects
+
+//       //         viewer.setSelectionColor(new THREE.Color(1, 0, 0));  // RGB: red, green, blue
+//       //         viewer.select(dbIDs);  // Optionally highlight the objects
+
+//       //         // Disable further selections after this point
+
+//       //     }, function(error) {
+//       //         console.error('Search error:', error);  // Handle any potential search errors
+//       //     });
+//       // });
+//     }
+//   }
+// }
+
+// // #region Hide Generic Models
+// export async function hideGenericModels(viewer, models) {
+//   if (!Array.isArray(models)) return;
+
+//   for (const model of models) {
+
+//     const instanceTree = await new Promise((resolve, reject) => {
+//       model.getObjectTree(resolve, reject);
+//     });
+
+//     const rootId = instanceTree.getRootId();
+//     const allDbIds = [];
+
+//     instanceTree.enumNodeChildren(rootId, dbId => {
+//       allDbIds.push(dbId);
+//     }, true);
+
+//     const lockedGenericDbIds = new Set();
+
+//     const checks = allDbIds.map(dbId => {
+//       return new Promise(resolve => {
+//         model.getProperties(dbId, props => {
+//           // console.log(`Checking dbId ${dbId}:`, props?.properties);
+//           if (!props?.properties) return resolve();
+
+//           // console.log(`Checking dbId ${dbId}:`, props.properties);
+
+//           const categoryProp = props.properties.find(
+//             p => p.displayName === 'Category'
+//           )?.displayValue;
+
+//           const zoneProp = props.properties.find(
+//             p => p.displayName === 'NV3DZoneName'
+//           )?.displayValue;
+
+//         //   console.log(`Checking dbId ${dbId}: Category=${categoryProp}, NV3DZoneName=${zoneProp}`);
+
+//           const isGenericCategory =
+//             categoryProp === 'Revit Generic Models' ||
+//             categoryProp === 'Generic Models' ||
+//             categoryProp === 'Revit Generic Model' ||
+//             categoryProp === 'Generic Model' ||
+//             categoryProp === 'Revit Mass' ||
+//             categoryProp === 'Mass';
+
+//           if (isGenericCategory && categoryProp) {
+//             lockedGenericDbIds.add(dbId);
+//           }
+
+//           resolve();
+//         });
+//       });
+//     });
+
+//     await Promise.all(checks);
+
+//     if (!lockedGenericDbIds.size) continue;
+
+//     const ids = [...lockedGenericDbIds];
+
+//     // console.log('Ghosting Generic Models:', ids);
+
+//     viewer.setGhosting(true);
+//     viewer.hide(ids, model);
+//   }
+// }
+// // #endregion
