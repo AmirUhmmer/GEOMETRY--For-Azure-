@@ -10,6 +10,9 @@ let {
   DB8_LIVE_DATA_DB_DB,
   DB8_LIVE_DATA_DB_USER,
   DB8_LIVE_DATA_DB_PASSWORD,
+  TENANT_ID,
+  CLIENT_ID,
+  CLIENT_SECRET
 } = process.env;
 if ( !APS_CLIENT_ID || !APS_CLIENT_SECRET || !APS_CALLBACK_URL || !SERVER_SESSION_SECRET) {
   console.warn("Missing some of the environment variables.");
@@ -30,7 +33,10 @@ module.exports = {
     DB8_LIVE_DATA_DB_SERVER,
     DB8_LIVE_DATA_DB_DB,
     DB8_LIVE_DATA_DB_USER,
-    DB8_LIVE_DATA_DB_PASSWORD
+    DB8_LIVE_DATA_DB_PASSWORD,
+    TENANT_ID,
+    CLIENT_ID,
+    CLIENT_SECRET
 };
 
 

@@ -4,21 +4,17 @@ const express = require('express');
 const { ClientSecretCredential } = require('@azure/identity');
 const router = express.Router();   
 
+const { TENANT_ID, CLIENT_ID, CLIENT_SECRET } = require('../config.js');
+
 router.get('/hemytask/HA', async function (req, res, next) {
     const selectedHA = await getUserProfile(authToken);
     res.json({ selectedHA });
 });
 
-// const credential = new ClientSecretCredential(
-//   "ead65215-ebfd-4a8d-9e73-b403a85a7e04", //tenant ID
-//   "7df2d113-3271-4834-94da-e2863e199099", //client ID
-//   "OZl8Q~K7gwzP635a5uQLg7ljI1-mZWgFxluCGaUF" //client secret
-// );
-
 const credential = new ClientSecretCredential(
-  "ead65215-ebfd-4a8d-9e73-b403a85a7e04", //tenant ID
-  "b00ac193-8f63-40bf-a5fc-adc239651238", //client ID
-  "NWA8Q~H2G4GF5CH1nsLCP~GZPlLNt.L5KgPiPbLM" //client secret
+  TENANT_ID, //tenant ID
+  CLIENT_ID, //client ID
+  CLIENT_SECRET //client secret
 );
 
 const FABRIC_SCOPE = "https://analysis.windows.net/powerbi/api/.default";
