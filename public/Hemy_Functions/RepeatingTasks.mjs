@@ -1019,7 +1019,7 @@ export function showTasks(viewer, RepeatingTask) {
                 const dir = new THREE.Vector3();
                 dir.subVectors(position, target).normalize();
 
-                position.add(dir.multiplyScalar(70));
+                position.add(dir.multiplyScalar(40));
 
                 viewer.navigation.setView(position, target);
 

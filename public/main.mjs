@@ -140,7 +140,7 @@ async function initApp() {
         localStorage.setItem("LiveData", liveData);
       } else if (propertyMap[property]) {
         // projectId = propertyMap[property];
-        ({ projectId, liveData = "", hardAsset, model } = propertyMap[property]);
+        ({ projectId, liveData = "", model } = propertyMap[property]);
         localStorage.setItem("LiveData", liveData);
       }
 
