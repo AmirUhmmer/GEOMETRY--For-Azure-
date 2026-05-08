@@ -836,6 +836,177 @@ router.post("/export-pdf", async (req, res) => {
 });
 
 
+// --------------------------------------------------------------------------- ACC LCC FILES ---------------------------------------------------------------------------
+// #region ACC LCC FILES
+router.get("/api/acc/lcc-files", async (req, res) => {
+  const authToken = req.headers.authorization?.split(" ")[1];
+  const folderUrn = req.query.folderUrn;
+
+  if (!authToken) {
+    return res.status(401).json({ error: "Missing authorization token" });
+  }
+
+  if (!folderUrn) {
+    return res.status(400).json({ error: "Missing folderUrn query parameter" });
+  }
+
+  try {
+    const query = `
+      query GetFolderContents($folderUrn: String!) {
+        folder(urn: $folderUrn) {
+          displayName
+          items {
+            nodes {
+              id
+              displayName
+              urn
+            }
+          }
+        }
+      }
+    `;
+
+    const gqlResponse = await fetch(
+      "https://developer.api.autodesk.com/hubs/v1/graphql",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+          "x-ads-region": "EMEA"
+        },
+        body: JSON.stringify({
+          query,
+          variables: { folderUrn },
+          operationName: "GetFolderContents"
+        })
+      }
+    );
+
+    const data = await gqlResponse.json();
+
+    console.log("API Response:", JSON.stringify(data, null, 2));
+
+    if (data.errors) {
+      console.error("GraphQL Error:", data.errors);
+      return res.status(400).json({ error: "Failed to fetch folder contents", details: data.errors });
+    }
+
+    const files = data.data?.folder?.items?.nodes || [];
+    const lccFiles = files.filter(file => file.displayName?.toLowerCase().endsWith('.lcc'));
+
+    console.log(`Total files in folder: ${files.length}`);
+    console.log(`LCC files found: ${lccFiles}`);
+    console.log(`Found ${lccFiles.length} LCC files in folder`);
+
+    res.json({
+      folderName: data.data?.folder?.displayName,
+      count: lccFiles.length,
+      files: lccFiles.map(file => ({
+        id: file.id,
+        name: file.displayName,
+        urn: file.urn,
+        mediaType: file.mediaType,
+        size: file.storageSize
+      }))
+    });
+
+  } catch (err) {
+    console.error("Error fetching LCC files:", err);
+    res.status(500).json({ error: "Failed to fetch LCC files", details: err.message });
+  }
+});
+
+router.get("/api/acc/file-download-url", async (req, res) => {
+  const authToken = req.headers.authorization?.split(" ")[1];
+  const fileUrn = req.query.fileUrn;
+
+  if (!authToken) {
+    return res.status(401).json({ error: "Missing authorization token" });
+  }
+
+  if (!fileUrn) {
+    return res.status(400).json({ error: "Missing fileUrn query parameter" });
+  }
+
+  try {
+    const query = `
+      query GetFileDownloadUrl($fileUrn: String!) {
+        file(urn: $fileUrn) {
+          displayName
+          signedUrl
+        }
+      }
+    `;
+
+    const gqlResponse = await fetch(
+      "https://developer.api.autodesk.com/datamanagement/v1/projects/graphql",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+          Region: "EMEA"
+        },
+        body: JSON.stringify({
+          query,
+          variables: { fileUrn },
+          operationName: "GetFileDownloadUrl"
+        })
+      }
+    );
+
+    const data = await gqlResponse.json();
+
+    if (data.errors) {
+      console.error("GraphQL Error:", data.errors);
+      return res.status(400).json({ error: "Failed to get download URL", details: data.errors });
+    }
+
+    const downloadUrl = data.data?.file?.signedUrl;
+    const fileName = data.data?.file?.displayName;
+
+    if (!downloadUrl) {
+      return res.status(404).json({ error: "No download URL available" });
+    }
+
+    res.json({ fileName, downloadUrl, fileUrn });
+
+  } catch (err) {
+    console.error("Error fetching download URL:", err);
+    res.status(500).json({ error: "Failed to get download URL", details: err.message });
+  }
+});
+// #endregion
+
+// Download file from external URL (bypasses CORS)
+router.post('/api/download-file', async (req, res) => {
+  const { url } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: 'Missing URL' });
+  }
+
+  try {
+    console.log('Downloading file from:', url);
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to download file' });
+    }
+
+    const buffer = await response.arrayBuffer();
+
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Length', buffer.byteLength);
+    res.send(Buffer.from(buffer));
+
+  } catch (err) {
+    console.error('Error downloading file:', err);
+    res.status(500).json({ error: 'Failed to download file', details: err.message });
+  }
+});
+
 
 
 

@@ -221,9 +221,14 @@ export const geometryMapByProperty = {
 
 export const defaultGeometry = [
   //  DB8
-  "urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg", // archi
-  "urn:adsk.wipemea:dm.lineage:cuy9_KQiSyadqUu2aI_Bsg", // mep
-  "urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww", // site
+  // "urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg", // archi
+  // "urn:adsk.wipemea:dm.lineage:cuy9_KQiSyadqUu2aI_Bsg", // mep
+  // "urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww", // site
+
+
+    // SOL10 TEST 
+  "urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA", //archi
+  "urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A", //mep
 ];
 
 export const projectMap = {
