@@ -87,6 +87,7 @@ async function downloadAndDecompressZip(zipUrl) {
     try {
         console.log('Downloading ZIP from:', zipUrl);
 
+        // Route through backend to stream file and avoid memory issues
         const response = await fetch('/api/download-file', {
             method: 'POST',
             headers: {

@@ -979,7 +979,7 @@ router.get("/api/acc/file-download-url", async (req, res) => {
 });
 // #endregion
 
-// Download file from external URL (bypasses CORS)
+// Download file from external URL (stream to avoid memory issues)
 router.post('/api/download-file', async (req, res) => {
   const { url } = req.body;
 
@@ -990,20 +990,37 @@ router.post('/api/download-file', async (req, res) => {
   try {
     console.log('Downloading file from:', url);
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      timeout: 300000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0'
+      }
+    });
+
     if (!response.ok) {
+      console.error(`Fetch failed with status ${response.status}`);
       return res.status(response.status).json({ error: 'Failed to download file' });
     }
 
-    const buffer = await response.arrayBuffer();
-
+    // Stream the response instead of loading into memory
     res.setHeader('Content-Type', 'application/zip');
-    res.setHeader('Content-Length', buffer.byteLength);
-    res.send(Buffer.from(buffer));
+    res.setHeader('Content-Length', response.headers.get('content-length') || '0');
+
+    // Use Readable.fromWeb to convert Web API ReadableStream to Node.js stream
+    const { Readable } = require('stream');
+    if (response.body) {
+      Readable.fromWeb(response.body).pipe(res);
+    } else {
+      // Fallback: convert to buffer (last resort)
+      const buffer = await response.arrayBuffer();
+      res.send(Buffer.from(buffer));
+    }
 
   } catch (err) {
-    console.error('Error downloading file:', err);
-    res.status(500).json({ error: 'Failed to download file', details: err.message });
+    console.error('Error downloading file:', err.message);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to download file', details: err.message });
+    }
   }
 });
 
