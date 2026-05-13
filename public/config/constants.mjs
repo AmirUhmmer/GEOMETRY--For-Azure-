@@ -445,6 +445,6 @@ export const abbreviationToRecordId = {
   FV50: "b8c950e3-ca66-ef11-bfe2-000d3ab1d1c2",
   BS17: "fc7d5d21-3506-f011-bae3-000d3ab487b3",
   J2: "31203385-0ce3-ef11-8eea-000d3a674a78",
-  TI135: "cc023922-5405-f011-bae2-6045bde167c3",
+  T135: "cc023922-5405-f011-bae2-6045bde167c3",
   LGN: "b850e672-1c1d-f111-8342-000d3adbd313",
 };
