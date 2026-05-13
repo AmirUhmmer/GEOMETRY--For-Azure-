@@ -11,12 +11,12 @@ export class GaussianSplatAlignmentUI {
 
     this.alignment = {
       scale: 3.28084,
-      posX: 0,
-      posY: 0,
-      posZ: 0,
+      posX: 2.5,
+      posY: -40.5,
+      posZ: 3.5,
       rotX: 0,
       rotY: 0,
-      rotZ: 0
+      rotZ: -1.08
     };
 
     this.loadSettings();
@@ -428,12 +428,12 @@ export class GaussianSplatAlignmentUI {
   resetSettings() {
     this.alignment = {
       scale: 3.28084,
-      posX: 0,
-      posY: 0,
-      posZ: 0,
+      posX: 2.5,
+      posY: -40.5,
+      posZ: 3.5,
       rotX: 0,
       rotY: 0,
-      rotZ: 0
+      rotZ: -1.08
     };
     this.updateSplatMesh();
     this.updatePanelValues();
