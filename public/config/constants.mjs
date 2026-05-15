@@ -111,6 +111,15 @@ export const geometryMapById = {
   test: [
     "urn:adsk.wipemea:dm.lineage:4IgkioXcR0iOVcS9QPdQUw", //rcp files
   ],
+  
+  "b850e672-1c1d-f111-8342-000d3adbd313": [
+    "urn:adsk.wipemea:dm.lineage:CDk1qY7NTsalkX7EJSosSg", //MEP
+    "urn:adsk.wipemea:dm.lineage:g8t7QgyGQwuah1ZJNPgquw", 
+    "urn:adsk.wipemea:dm.lineage:jF-wcthIQoqnxsW8DvXePA",
+    "urn:adsk.wipemea:dm.lineage:TeeYJqseSFSQsIe5ByOSyw",
+    "urn:adsk.wipemea:dm.lineage:Fanz_oubSM2LWwfVac7H5Q",
+    "urn:adsk.wipemea:dm.lineage:e9AMFH3uTEOQt8dBTnFIXA"
+  ]
 };
 
 
@@ -213,7 +222,7 @@ export const geometryMapByProperty = {
     "urn:adsk.wipemea:dm.lineage:-cfC_3vMR82BW0bW10lGiw" //site
   ],
 
-  "historicaltest": [
+  "Digital Warehouse": [
     // "urn:adsk.wipemea:dm.lineage:fo0_lqzrSFCuN1COXk9WYg",
     // "urn:adsk.wipemea:dm.lineage:KFAzWYZMQKex5oNJ-cp3gQ"
     "urn:adsk.wipemea:dm.lineage:LMtVcFbLSjaudOHYXt8sHA"
@@ -426,10 +435,10 @@ export const propertyMap = {
     liveData: "Lillo Gård Næring AS",
     model: "Lillo Gård Næring AS",
   },
-  "historicaltest": {
+  "Digital Warehouse": {
     projectId: "b.e4cde0c5-7fd9-4974-9832-616f058478f9",
-    liveData: "historicaltest",
-    model: "historicaltest",
+    liveData: "Digital Warehouse",
+    model: "Digital Warehouse",
   },
 };
 
