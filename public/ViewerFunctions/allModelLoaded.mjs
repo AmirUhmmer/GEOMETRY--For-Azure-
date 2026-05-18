@@ -369,7 +369,9 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
 
 
   localStorage.setItem('is2D', 'false');
-  await prewarmFunctionalLocationCacheFromModel(models[1]);
+  if (models.length > 1) {
+    await prewarmFunctionalLocationCacheFromModel(models[1]);
+  }
 
   viewer.addEventListener(Autodesk.Viewing.GEOMETRY_LOADED_EVENT, () =>
     hideGenericModels(viewer, models),
@@ -380,7 +382,7 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
 
   // #region FUNCTIONS
   customFunctions.workset(viewer);
-
+  // console.log('Custom HA:', hardAsset);
   HardAssetSearch(viewer, hardAsset);
   ServiceZoneSearch(viewer, ServiceZone);
   FunctionalLocationSearch(viewer, FunctionalLocation);
