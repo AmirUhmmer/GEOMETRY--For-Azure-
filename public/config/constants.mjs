@@ -225,7 +225,8 @@ export const geometryMapByProperty = {
   "Digital Warehouse": [
     // "urn:adsk.wipemea:dm.lineage:fo0_lqzrSFCuN1COXk9WYg",
     // "urn:adsk.wipemea:dm.lineage:KFAzWYZMQKex5oNJ-cp3gQ"
-    "urn:adsk.wipemea:dm.lineage:LMtVcFbLSjaudOHYXt8sHA"
+    // "urn:adsk.wipemea:dm.lineage:LMtVcFbLSjaudOHYXt8sHA"
+    "urn:adsk.wipemea:dm.lineage:xdXReqV0T1azoWueEiSnzg"
   ],
 };
 

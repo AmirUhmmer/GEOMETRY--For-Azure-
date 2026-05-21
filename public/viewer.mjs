@@ -72,6 +72,7 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
     async function onDocumentLoadSuccess(doc) {
         let viewables = doc.getRoot().getDefaultGeometry();
+        const geometryItems = doc.getRoot().search({ type: "geometry" });
 
         let loadOptions;
         if (modelsLoaded === 0) {
@@ -91,7 +92,27 @@ export function loadModel(viewer, urns, hubId, projectId, folderId, ServiceZone,
 
         try {
             console.log("Loading model with options:", loadOptions);
-            const model = await viewer.loadDocumentNode(doc, viewables, loadOptions);
+            let viewableNode;
+            if (window.LiveData === "Digital Warehouse") {
+
+                console.log("Geometry items found in document:", geometryItems);
+
+                viewableNode = geometryItems.find(
+                    (node) => node.data.guid === "16465f3e-a1ec-7ea9-3bac-eb3f64cccdfc"
+                );
+
+                
+            } else {
+
+                viewableNode = doc.getRoot().getDefaultGeometry();
+            }
+
+            console.log("Found viewable node for Digital Warehouse:", viewableNode);
+            const model = await viewer.loadDocumentNode(
+                doc,
+                viewableNode,
+                loadOptions
+            );
 
             // save offset from the *first* model
             if (modelsLoaded === 0) {
