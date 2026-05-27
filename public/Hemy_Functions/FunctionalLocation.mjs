@@ -37,6 +37,9 @@ export function FunctionalLocationSearch(viewer, FunctionalLocation){
 
                 // Optionally highlight the objects
                 models[1].setThemingColor(dbIDs, color);  
+                for (const id of dbIDs) {
+                    viewer.impl.highlightObjectNode(models[1], id, true); // x-ray effect
+                } 
                 viewer.select(dbIDs, models[1]);  // Optionally highlight the objects
                 console.log(dbIDs);
 
