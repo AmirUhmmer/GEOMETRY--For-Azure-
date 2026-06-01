@@ -174,6 +174,9 @@ async function initApp() {
         hardAsset = "No Hard Asset";
         localStorage.setItem("LiveData", liveData);
         localStorage.removeItem("ASSET");
+
+        document.getElementById("title_secondary").textContent = " Project";
+        document.getElementById("title_secondary").style.fontSize = "x-large";
       }
 
       // Final localStorage updates

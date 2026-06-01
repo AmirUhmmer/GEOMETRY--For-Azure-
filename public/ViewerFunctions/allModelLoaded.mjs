@@ -355,6 +355,7 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
   setupFloorSelectorListener(viewer, liveDataModel);
   console.log('All models loaded. Viewer extensions initialized and UI set up.');
   console.log('LiveData Model:', liveDataModel);
+
   if (liveDataModel == "DB8 TEST") {
     console.log('Starting Gaussian Splat initialization...');
     const zipUrl = 'https://github.com/AmirUhmmer/GEOMETRY--For-Azure-/releases/download/test/SOL.10.Block.B.meeting.room.and.common.area.27-1-2026.JSR_render.zip';
@@ -365,6 +366,13 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
     } catch (err) {
       console.error('Gaussian Splat initialization failed:', err);
     }
+  } else if (liveDataModel == "PIM") {
+    setTimeout(() => {
+      document.getElementById("showWorksetButton").style.display = "none";
+        document.getElementById("toolbar-settingsTool").style.display = "none";
+        document.getElementById("toolbar-propertiesTool").style.display = "none";
+        document.getElementById("toolbar-modelStructureTool").style.display = "none";
+    }, 2500);
   }
 
 
