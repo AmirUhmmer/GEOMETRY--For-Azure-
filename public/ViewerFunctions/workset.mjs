@@ -128,9 +128,10 @@ export function showWorksetPanel(viewer) {
 
             // SHOW ALL (clear isolate)
             const viewer = window.viewerInstance;
-            viewer.impl.modelQueue().getModels().forEach(model => {
-              viewer.isolate([], model);
-            });
+            // viewer.impl.modelQueue().getModels().forEach(model => {
+            //   viewer.isolate([], model);
+            // });
+            viewer.showAll()
 
             return;
           }
