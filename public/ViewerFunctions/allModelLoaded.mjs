@@ -366,6 +366,10 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
     } catch (err) {
       console.error('Gaussian Splat initialization failed:', err);
     }
+
+    setTimeout(() => {
+      viewer.navigation.setIsLocked(true);
+    }, 1500);
   } else if (liveDataModel == "PIM") {
     setTimeout(() => {
       document.getElementById("showWorksetButton").style.display = "none";
