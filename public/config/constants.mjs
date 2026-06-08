@@ -204,22 +204,16 @@ export const geometryMapByProperty = {
     //LGN
   "Lillo Gård Næring AS": [
     // "urn:adsk.wipemea:dm.lineage:CDk1qY7NTsalkX7EJSosSg", //MEP
-    // "urn:adsk.wipemea:dm.lineage:g8t7QgyGQwuah1ZJNPgquw", 
-    // "urn:adsk.wipemea:dm.lineage:jF-wcthIQoqnxsW8DvXePA",
-    // "urn:adsk.wipemea:dm.lineage:TeeYJqseSFSQsIe5ByOSyw",
-    // "urn:adsk.wipemea:dm.lineage:Fanz_oubSM2LWwfVac7H5Q",
-    // "urn:adsk.wipemea:dm.lineage:e9AMFH3uTEOQt8dBTnFIXA",
-    // "urn:adsk.wipemea:dm.lineage:4RPwv7n3R-G1jCzlaIHvIA",
-    // "urn:adsk.wipemea:dm.lineage:wzryzX3lRSq64uKJePaubg",
-    // "urn:adsk.wipemea:dm.lineage:RdIjauOhQuqiQNM_C84QSA",
-    // "urn:adsk.wipemea:dm.lineage:4eiGsGmTRLK4pUxWwrAtNw"
 
 
-    "urn:adsk.wipemea:dm.lineage:tJcoST-5SN68J12N4WZh9g", //B2 garasje
-    "urn:adsk.wipemea:dm.lineage:TeeYJqseSFSQsIe5ByOSyw", //B2 Hus 2
-    "urn:adsk.wipemea:dm.lineage:e9AMFH3uTEOQt8dBTnFIXA", //B2 hus 3
-    "urn:adsk.wipemea:dm.lineage:wzryzX3lRSq64uKJePaubg", //B2 Hus 4
-    "urn:adsk.wipemea:dm.lineage:-cfC_3vMR82BW0bW10lGiw" //site
+    // "urn:adsk.wipemea:dm.lineage:tJcoST-5SN68J12N4WZh9g", //B2 garasje
+    // "urn:adsk.wipemea:dm.lineage:TeeYJqseSFSQsIe5ByOSyw", //B2 Hus 2
+    // "urn:adsk.wipemea:dm.lineage:e9AMFH3uTEOQt8dBTnFIXA", //B2 hus 3
+    // "urn:adsk.wipemea:dm.lineage:wzryzX3lRSq64uKJePaubg", //B2 Hus 4
+    // "urn:adsk.wipemea:dm.lineage:-cfC_3vMR82BW0bW10lGiw" //site
+
+    "urn:adsk.wipemea:dm.lineage:CDk1qY7NTsalkX7EJSosSg", //MEP
+    "urn:adsk.wipemea:dm.lineage:_cBQkQmbRVO8af6tuFZ5ag" //ARCHI
   ],
 
   "Digital Warehouse": [
