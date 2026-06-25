@@ -907,7 +907,10 @@ export function showTasks(viewer, RepeatingTask) {
           outputArray.push(id);
           alldbid.push(id);
 
+          // console.log(`2D Leaf node found: ${id} in model ${model.id}`);
+
           viewer.select(id, model); // ✅ only thing that works in 2D
+          viewer.fitToView(id, model);
         }
       };
       viewer.set2dSelectionColor(selectionColor);
@@ -972,6 +975,7 @@ export function showTasks(viewer, RepeatingTask) {
         console.log("2D selectable IDs:", selectableIds);
         
         viewer.select(selectableIds, model);
+        viewer.fitToView(selectableIds, model);
       });
       return; // stop here — no 3D logic
     }

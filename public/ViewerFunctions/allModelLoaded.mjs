@@ -359,13 +359,13 @@ export async function checkAllModelsLoaded(viewer, modelsLoaded, modelsToLoad, S
   if (liveDataModel == "DB8 TEST") {
     console.log('Starting Gaussian Splat initialization...');
     const zipUrl = 'https://github.com/AmirUhmmer/GEOMETRY--For-Azure-/releases/download/test/SOL.10.Block.B.meeting.room.and.common.area.27-1-2026.JSR_render.zip';
-    try {
-      initGaussianSplatRenderer(viewer, liveDataModel, zipUrl).catch(err => {
-        console.error('Gaussian Splat initialization error:', err);
-      });
-    } catch (err) {
-      console.error('Gaussian Splat initialization failed:', err);
-    }
+    // try {
+    //   initGaussianSplatRenderer(viewer, liveDataModel, zipUrl).catch(err => {
+    //     console.error('Gaussian Splat initialization error:', err);
+    //   });
+    // } catch (err) {
+    //   console.error('Gaussian Splat initialization failed:', err);
+    // }
 
     setTimeout(() => {
       viewer.navigation.setIsLocked(true);

@@ -162,7 +162,7 @@ export const geometryMapByProperty = {
   ],
 
   // JV3
-  "Nanna AS": [
+  "Jongsåsveien 3 (Nanna)": [
     "urn:adsk.wipemea:dm.lineage:U9tz-MHvQfS2Hg9gRITkdA", //MEP
     "urn:adsk.wipemea:dm.lineage:VLzD-rrOS9SQvV6rnJT7LA", //ARCHI
     "urn:adsk.wipemea:dm.lineage:Ty5wLZ92TqCHkIn80Mmipg", //COMMON AREAS
@@ -231,9 +231,13 @@ export const defaultGeometry = [
   // "urn:adsk.wipemea:dm.lineage:sRfOlKPITMG3zSgBoeF3Ww", // site
 
 
-    // SOL10 TEST 
+  //   // SOL10 TEST 
   "urn:adsk.wipemea:dm.lineage:gs0PRB3eRUS6ANLK09vDYA", //archi
   "urn:adsk.wipemea:dm.lineage:q8g1LE0vQ2WO5AHJ9Kd55A", //mep
+
+  // "urn:adsk.wipemea:dm.lineage:Dk2zgQjOSL2Nv9IwidfJJg" //USD GAUSSIAN SPLAT
+  // "urn:adsk.wipemea:dm.lineage:84S2qIBHSDaiLFZ8kYu2FQ" //USD TEST
+
 ];
 
 export const projectMap = {
@@ -395,7 +399,7 @@ export const propertyMap = {
     liveData: "SOL20",
     model: "SOL20",
   },
-  "Nanna AS": {
+  "Jongsåsveien 3 (Nanna)": {
     projectId: "b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d",
     liveData: "Nanna",
     model: "Nanna",
