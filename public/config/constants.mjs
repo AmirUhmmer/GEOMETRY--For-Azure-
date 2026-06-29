@@ -168,6 +168,12 @@ export const geometryMapByProperty = {
     "urn:adsk.wipemea:dm.lineage:Ty5wLZ92TqCHkIn80Mmipg", //COMMON AREAS
   ],
 
+  "Nanna AS": [
+    "urn:adsk.wipemea:dm.lineage:U9tz-MHvQfS2Hg9gRITkdA", //MEP
+    "urn:adsk.wipemea:dm.lineage:VLzD-rrOS9SQvV6rnJT7LA", //ARCHI
+    "urn:adsk.wipemea:dm.lineage:Ty5wLZ92TqCHkIn80Mmipg", //COMMON AREAS
+  ],
+
   // ODV18
   "Ole Deviks Vei 18 AS": [
     "urn:adsk.wipemea:dm.lineage:QlwJKiUVTzORuyDvPuGl1Q", //MEP
@@ -400,6 +406,11 @@ export const propertyMap = {
     model: "SOL20",
   },
   "Jongsåsveien 3 (Nanna)": {
+    projectId: "b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d",
+    liveData: "Nanna",
+    model: "Nanna",
+  },
+  "Nanna AS": {
     projectId: "b.bca6a4c5-fbd8-4dcb-a637-b3713a06cc8d",
     liveData: "Nanna",
     model: "Nanna",
