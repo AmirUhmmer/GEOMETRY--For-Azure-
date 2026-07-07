@@ -88,7 +88,10 @@ export const geometryMapById = {
   ],
   // BS17
   "fc7d5d21-3506-f011-bae3-000d3ab487b3": [
-    "urn:adsk.wipemea:dm.lineage:WNYKT1wuRgGtn_HVS_4HwQ", //IFC??? 240318 IFC
+    // "urn:adsk.wipemea:dm.lineage:WNYKT1wuRgGtn_HVS_4HwQ", //IFC??? 240318 IFC
+    "urn:adsk.wipemea:dm.lineage:_9hFQI0CRPezjaoJeZqQjA", //ARCHI
+    "urn:adsk.wipemea:dm.lineage:7yZAoCKURgeXSI7DUrfoKg", //MEP
+    "urn:adsk.wipemea:dm.lineage:ui9lT-vKR7eF53lRB-l3AA" //SITE
   ],
 
   //T135
@@ -196,7 +199,10 @@ export const geometryMapByProperty = {
 
   // BS17
   "Billingstadsletta 17 AS": [
-    "urn:adsk.wipemea:dm.lineage:WNYKT1wuRgGtn_HVS_4HwQ", //IFC??
+    // "urn:adsk.wipemea:dm.lineage:WNYKT1wuRgGtn_HVS_4HwQ", //IFC??\
+    "urn:adsk.wipemea:dm.lineage:7yZAoCKURgeXSI7DUrfoKg", //MEP
+    "urn:adsk.wipemea:dm.lineage:_9hFQI0CRPezjaoJeZqQjA", //ARCHI
+    "urn:adsk.wipemea:dm.lineage:ui9lT-vKR7eF53lRB-l3AA" //SITE
   ],
 
   // T135
